@@ -1,0 +1,3 @@
+#! /bin/sh
+INJ_PATH=/home/nick/workspaces/osd2/glxosd
+LD_LIBRARY_PATH=$INJ_PATH/bin:$LD_LIBRARY_PATH LD_PRELOAD=libelfhacks.so:libglinject.so:libglxosd.so:libftgl.so:$LD_PRELOAD $@
