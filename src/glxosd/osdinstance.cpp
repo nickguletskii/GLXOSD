@@ -15,10 +15,26 @@
 #include <sstream>
 #include <cstdarg>
 #include <iomanip>
-
+#include <fontconfig/fontconfig.h>
+const char* find_font(const char* name) {
+	char* font_file;
+	FcConfig* config = FcInitLoadConfigAndFonts();
+	FcPattern* pattern = FcNameParse((const FcChar8*) (name));
+	FcConfigSubstitute(config, pattern, FcMatchPattern);
+	FcDefaultSubstitute(pattern);
+	FcPattern* font = FcFontMatch(config, pattern, NULL);
+	if (font) {
+		FcChar8* file = NULL;
+		if (FcPatternGetString(font, FC_FILE, 0, &file) == FcResultMatch)
+			font_file = (char*) file;
+		FcPatternDestroy(font);
+	}
+	FcPatternDestroy(pattern);
+	return font_file;
+}
 osd_instance::osd_instance() {
 	//Font initialisation, obviously...
-	font = new FTGLExtrdFont("fonts/Square.ttf");
+	font = new FTGLExtrdFont(find_font("SquareFont"));
 	font->FaceSize(24);
 	//Trick from http://gamedev.stackexchange.com/a/46512
 	font->Depth(0);

@@ -1,0 +1,4 @@
+find_path(FONTCONFIG_INCLUDE_DIR fontconfig/fontconfig.h)
+find_library(FONTCONFIG_LIBRARY NAMES fontconfig)
+mark_as_advanced(FONTCONFIG_INCLUDE_DIR FONTCONFIG_LIBRARY)
+

@@ -13,10 +13,10 @@ Before compiling, you need to make sure that you have GCC and CMake installed. O
 sudo apt-get install build-essential cmake
 ```
 
-We also need to make sure that the required libraries are installed. This project requires OpenGL, GLU, GLX and Freetype. To install them on Ubuntu, execute this:
+We also need to make sure that the required libraries and their headers are installed. This project requires OpenGL, GLU, GLX, FontConfig and Freetype. To install them on Ubuntu, execute this:
 
 ```
-sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfreetype6-dev
+sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev
 ```
 
 Then, compile:

@@ -20,6 +20,12 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 if(NOT FREETYPE_FOUND)
     message(ERROR " Freetype not found!")
 endif(NOT FREETYPE_FOUND)
+#Find FontConfig
+find_package(FontConfig REQUIRED)
+include_directories(${FONTCONFIG_INCLUDE_DIRS})
+if(NOT FONTCONFIG_FOUND)
+    message(ERROR " FontConfig not found!")
+endif(NOT FONTCONFIG_FOUND)
 ##### Link to local libraries #####
 link_directories(${OUTPUT_DIR})
 ##### Add include paths #####
@@ -32,3 +38,5 @@ add_subdirectory(src)
 add_custom_command(OUTPUT glxosdlauncher COMMAND ./write_preload.sh DEPENDS glxosd COMMENT "Creating the startup script...")
 add_custom_target(preloader ALL DEPENDS glxosdlauncher)
 install(PROGRAMS glxosd DESTINATION bin)
+install(FILES fonts/Square.ttf DESTINATION /usr/share/fonts/truetype/)
+install(SCRIPT "${CMAKE_SOURCE_DIR}/PostInstall.cmake")
