@@ -22,6 +22,7 @@ sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfontcon
 Then, compile:
 
 ```
+cmake -G "Unix Makefiles"
 make all
 ```
 
