@@ -7,10 +7,16 @@ THIS PROJECT IS EXPERIMENTAL, USE IT AT YOUR OWN RISK!
 Compiling
 =============
 
-Before compiling, you need to make sure that you have GCC and CMake installed. On Ubuntu, all you need to do is
+Before compiling, you need to make sure that you have GCC and CMake installed. On Ubuntu, all you need to do is paste the following line into the terminal:
 
 ```
-sudo apt-get install g++ cmake
+sudo apt-get install build-essential cmake
+```
+
+We also need to make sure that the required libraries are installed. This project requires OpenGL, GLU, GLX and Freetype. To install them on Ubuntu, execute this:
+
+```
+sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfreetype6-dev
 ```
 
 Then, compile:

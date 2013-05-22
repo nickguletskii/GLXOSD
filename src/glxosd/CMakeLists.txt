@@ -1,5 +1,5 @@
 AUX_SOURCE_DIRECTORY(. SOURCE_FILES)
 add_library(glxosd SHARED ${SOURCE_FILES})
 add_dependencies(glxosd ftgl)
-target_link_libraries(glxosd dl rt ${FREETYPE_LIBRARIES} ${OPENGL_LIBRARIES} GLEW ${OUTPUT_DIR}/libftgl.so)
+target_link_libraries(glxosd dl rt ${FREETYPE_LIBRARIES} ${OPENGL_LIBRARIES} ${OUTPUT_DIR}/libftgl.so)
 set_target_properties(glxosd PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR} LIBRARY_OUTPUT_NAME glxosd)

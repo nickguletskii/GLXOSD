@@ -33,8 +33,12 @@ void osd_handle_buffer_swap(Display* display, GLXDrawable drawable) {
 							instance));
 		} else
 			instance = (*it).second;
-		glXQueryDrawable(display, drawable, GLX_HEIGHT, &height);
-		glXQueryDrawable(display, drawable, GLX_WIDTH, &width);
+		GLint viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
+		width = viewport[2];
+		height = viewport[3];
+		if (width < 1 || height < 1)
+			return;
 		instance->render(width, height);
 	}
 }
