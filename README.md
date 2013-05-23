@@ -33,6 +33,11 @@ Installing
 sudo make install
 ```
 
+Configuring
+=============
+
+You can change system-wide settings by editing "/etc/glxosd.conf". You can also create a folder called ".glxosd" in your home directory and a file called "glxosd.conf" in it to change user settings.
+
 Using
 =============
 

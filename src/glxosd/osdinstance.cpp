@@ -16,8 +16,74 @@
 #include <cstdarg>
 #include <iomanip>
 #include <fontconfig/fontconfig.h>
-const char* find_font(const char* name) {
-	char* font_file;
+
+int string_to_int(std::string str) {
+	std::stringstream ss(str);
+	int res;
+	ss >> res;
+	return res;
+}
+void read_config_into_struct(std::string path,
+		glxosd_config_type* configuration) {
+	std::ifstream config_file(path.c_str());
+	if (!config_file) {
+		std::cout << "[GLXOSD]: There is no file at \"" << path
+				<< "\". Skipping." << std::endl;
+		return;
+	}
+	while (!config_file.eof()) {
+		std::string line;
+		std::getline(config_file, line);
+		std::string::size_type key_begin = line.find_first_not_of(" \f\t\v");
+		if (key_begin == std::string::npos || line[key_begin] == '#') //Empty line or comment
+			continue;
+		std::string::size_type assign_op = line.find('=', key_begin);
+		std::string::size_type key_end = line.find_last_not_of(" \f\n\r\t\v",
+				assign_op - 1);
+		std::string key = line.substr(key_begin, key_end - key_begin + 1);
+		std::string::size_type value_begin = line.find_first_not_of(
+				" \f\n\r\t\v", assign_op + 1);
+		std::string::size_type value_end = line.find_last_not_of(" \f\n\r\t\v")
+				+ 1;
+		std::string value = line.substr(value_begin, value_end - value_begin);
+		std::cout << "[GLXOSD]: Found key-value pair: (key: \"" << key << "\""
+				<< ", value: \"" << value << "\")" << std::endl;
+		if (key == "font_name")
+			configuration->font_name = value;
+		else if (key == "font_size")
+			configuration->font_size = string_to_int(value);
+		else if (key == "font_colour_r")
+			configuration->font_colour_r = string_to_int(value);
+		else if (key == "font_colour_g")
+			configuration->font_colour_g = string_to_int(value);
+		else if (key == "font_colour_b")
+			configuration->font_colour_b = string_to_int(value);
+		else if (key == "text_format")
+			configuration->text_format = value;
+		else if (key == "show_text_outline")
+			configuration->show_text_outline = (value == "true");
+		else
+			std::cout << "[GLXOSD]: Unknown key: \"" << key << "\""
+					<< std::endl;
+	}
+	std::cout << "[GLXOSD]: The configuration was read successfully."
+			<< std::endl;
+}
+glxosd_config_type load_config() {
+	glxosd_config_type configuration = { "SquareFont", 16, 255, 0, 255, true,
+			"FPS: %.1f" };
+	std::string global_path = "/etc/glxosd.conf";
+	std::string user_path = std::string(getenv("HOME")) + "/.glxosd/glxosd.conf";
+	std::cout << "[GLXOSD]: Reading global configuration file at \""
+			<< global_path << "\"..." << std::endl;
+	read_config_into_struct(global_path, &configuration);
+	std::cout << "[GLXOSD]: Reading user's configuration file at \""
+			<< user_path << "\"..." << std::endl;
+	read_config_into_struct(user_path, &configuration);
+	return configuration;
+}
+const std::string find_font(const char* name) {
+	std::string font_file;
 	FcConfig* config = FcInitLoadConfigAndFonts();
 	FcPattern* pattern = FcNameParse((const FcChar8*) (name));
 	FcConfigSubstitute(config, pattern, FcMatchPattern);
@@ -26,16 +92,20 @@ const char* find_font(const char* name) {
 	if (font) {
 		FcChar8* file = NULL;
 		if (FcPatternGetString(font, FC_FILE, 0, &file) == FcResultMatch)
-			font_file = (char*) file;
+			font_file = std::string((char*) file);
 		FcPatternDestroy(font);
 	}
 	FcPatternDestroy(pattern);
 	return font_file;
 }
 osd_instance::osd_instance() {
+	configuration = load_config();
 	//Font initialisation, obviously...
-	font = new FTGLExtrdFont(find_font("SquareFont"));
-	font->FaceSize(24);
+	std::string font_path = find_font(configuration.font_name.c_str());
+	std::cout << "[GLXOSD]: Loading font \"" << font_path << "\" with size "
+			<< configuration.font_size << "..." << std::endl;
+	font = new FTGLExtrdFont(font_path.c_str());
+	font->FaceSize(configuration.font_size);
 	//Trick from http://gamedev.stackexchange.com/a/46512
 	font->Depth(0);
 	font->Outset(0, 1);
@@ -78,17 +148,19 @@ void osd_instance::render(unsigned int width, unsigned int height) {
 	glDisable(GL_LIGHTING);
 	glDisable(GL_CULL_FACE);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	std::stringstream string_builder;
-	string_builder << "FPS: " << std::fixed << std::setprecision(1)
-			<< frames_per_second;
-	std::string osd_text = string_builder.str();
+	char osd_text_c[256];
+	sprintf(osd_text_c, configuration.text_format.c_str(), frames_per_second);
+	std::string osd_text(osd_text_c);
 	//Trick from http://gamedev.stackexchange.com/a/46512
-	glColor3f(1.0, 0.0, 1.0);
+	glColor3ub(configuration.font_colour_r, configuration.font_colour_g,
+			configuration.font_colour_b);
 	font->Render(osd_text.c_str(), osd_text.size(), FTPoint(4, height - 20, 0),
 			FTPoint(), FTGL::RENDER_FRONT);
-	glColor3f(0.0, 0.0, 0.0);
-	font->Render(osd_text.c_str(), osd_text.size(), FTPoint(4, height - 20, 0),
-			FTPoint(), FTGL::RENDER_SIDE);
+	if (configuration.show_text_outline) {
+		glColor3ub(0, 0, 0);
+		font->Render(osd_text.c_str(), osd_text.size(),
+				FTPoint(4, height - 20, 0), FTPoint(), FTGL::RENDER_SIDE);
+	}
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);

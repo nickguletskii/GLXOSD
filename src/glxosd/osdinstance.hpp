@@ -12,8 +12,19 @@
 #include <GL/gl.h>
 #include <FTGL/ftgl.h>
 #include <string>
+
+struct glxosd_config_type {
+	std::string font_name;
+	int font_size;
+	int font_colour_r;
+	int font_colour_g;
+	int font_colour_b;
+	bool show_text_outline;
+	std::string text_format;
+};
 class osd_instance {
 private:
+	glxosd_config_type configuration;
 	int current_frame_count; // The number of frames from the last FPS calculation
 	long previous_time; //The time of the previous FPS calculation
 	double frames_per_second;
