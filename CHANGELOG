@@ -1,1 +1,3 @@
+2013/05/25: Added libsensor temperature information to the OSD. Added NVCTRL temperature information to the OSD.
+            Formatting is now done with Boost Format.
 2013/05/23: The OSD is now configurable.

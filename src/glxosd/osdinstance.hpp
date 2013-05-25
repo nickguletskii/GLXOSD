@@ -9,26 +9,48 @@
  */
 #ifndef OSDINSTANCE_HPP_
 #define OSDINSTANCE_HPP_
+#ifdef FOUND_SENSORS
+#include "standard_sensors.hpp"
+#endif
+#ifdef FOUND_NVCTRL
+#include "nvidia_sensors.hpp"
+#endif
 #include <GL/gl.h>
 #include <FTGL/ftgl.h>
+#include <boost/format.hpp>
 #include <string>
-
 struct glxosd_config_type {
 	std::string font_name;
 	int font_size;
 	int font_colour_r;
 	int font_colour_g;
 	int font_colour_b;
+	int text_pos_x;
+	int text_pos_y;
+	int text_spacing_x;
+	int text_spacing_y;
 	bool show_text_outline;
-	std::string text_format;
+	boost::format fps_format;
+	boost::format chip_format;
+	boost::format chip_feature_format;
+	boost::format nvidia_gpu_format;
+	boost::format temperature_format;
+	boost::regex chip_feature_filter;
 };
 class osd_instance {
 private:
 	glxosd_config_type configuration;
 	int current_frame_count; // The number of frames from the last FPS calculation
 	long previous_time; //The time of the previous FPS calculation
-	double frames_per_second;
-	FTGLExtrdFont* font;
+	double frames_per_second;FTGLExtrdFont* font;
+#ifdef FOUND_SENSORS
+	std::string standard_sensors_string;
+	standard_sensors* standard_sensors_access;
+#endif
+#ifdef FOUND_NVCTRL
+	std::string nvidia_sensors_string;
+	nvidia_sensors* nvidia_sensors_access;
+#endif
 public:
 	osd_instance();
 	void render(unsigned int width, unsigned int height);

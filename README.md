@@ -1,6 +1,6 @@
 GLXOSD
 =============
-GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired from RivaTuner OSD on Windows. For now the OSD only draws the FPS, but I have plans to add sensor information to the OSD as well.
+GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired from RivaTuner OSD on Windows.
 
 THIS PROJECT IS EXPERIMENTAL, USE IT AT YOUR OWN RISK!
 
@@ -13,10 +13,10 @@ Before compiling, you need to make sure that you have GCC and CMake installed. O
 sudo apt-get install build-essential cmake
 ```
 
-We also need to make sure that the required libraries and their headers are installed. This project requires OpenGL, GLU, GLX, FontConfig and Freetype. To install them on Ubuntu, execute this:
+We also need to make sure that the required libraries and their headers are installed. This project requires OpenGL, GLU, GLX, FontConfig, Freetype, Boost, Boost Regex and libsensors. To install them on Ubuntu, execute this:
 
 ```
-sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev
+sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev libsensors4-dev libboost-all-dev
 ```
 
 Then, compile:
@@ -50,7 +50,8 @@ glxosd glxgears
 Known limitations
 =============
 
-32 bit applications running under a 64 bit operating system can't be injected.
+*32 bit applications running under a 64 bit operating system can't be injected.
+*Doesn't read AMD graphics card temperatures.
 
 For developers
 =============
@@ -76,4 +77,4 @@ The LICENSE file contains the license which applies to everything except:
 	* src/elfhacks
 	* src/ftgl
 * Binary builds of the files listed above.
-* The file fonts/Square.ttf, which is available for "free" from http://www.dafont.com/squarefont.font
+* Files under the fonts/CPMono_v07 directory. Please read the Creative Commons license which can be found inside that directory.
