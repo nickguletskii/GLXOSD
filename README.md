@@ -2,6 +2,8 @@ GLXOSD
 =============
 GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired from RivaTuner OSD on Windows.
 
+![Screenshot of glxgears with GLXOSD](https://raw.github.com/nickguletskii/GLXOSD/master/screenshots/glxgears.png "Screenshot of glxgears with GLXOSD")
+
 THIS PROJECT IS EXPERIMENTAL, USE IT AT YOUR OWN RISK!
 
 Compiling
@@ -16,7 +18,7 @@ sudo apt-get install build-essential cmake
 We also need to make sure that the required libraries and their headers are installed. This project requires OpenGL, GLU, GLX, FontConfig, Freetype, Boost, Boost Regex and libsensors. To install them on Ubuntu, execute this:
 
 ```
-sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev libsensors4-dev libboost-all-dev
+sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev libsensors4-dev libboost-dev libboost-regex-dev
 ```
 
 Then, compile:
