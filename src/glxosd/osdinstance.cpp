@@ -140,7 +140,8 @@ const std::string find_font(const char* name) {
 	FcPattern* pattern = FcNameParse((const FcChar8*) (name));
 	FcConfigSubstitute(config, pattern, FcMatchPattern);
 	FcDefaultSubstitute(pattern);
-	FcPattern* font = FcFontMatch(config, pattern, NULL);
+	FcResult result;
+	FcPattern* font = FcFontMatch(config, pattern, &result);
 	if (font) {
 		FcChar8* file = NULL;
 		if (FcPatternGetString(font, FC_FILE, 0, &file) == FcResultMatch)
