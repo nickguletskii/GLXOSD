@@ -1,4 +1,3 @@
-#Compile the 32 bit version
 SET(FTGL_VERSION_SERIES 2)
 SET(FTGL_VERSION_MAJOR 1)
 SET(FTGL_VERSION_MINOR 3)
@@ -111,4 +110,7 @@ SET(ftlayout_sources
 )
 add_library(ftgl SHARED ${libftgl_la_SOURCES} ${ftgl_headers} ${ftglyph_sources} ${ftfont_sources} ${ftlayout_sources})
 target_link_libraries(ftgl ${FREETYPE_LIBRARIES} ${OPENGL_LIBRARY})
-set_target_properties(ftgl PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR} LIBRARY_OUTPUT_NAME ftgl)
+set_target_properties(ftgl PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR} LIBRARY_OUTPUT_NAME glxosd-ftgl)
+INSTALL(TARGETS ftgl
+  LIBRARY DESTINATION lib/glxosd
+)
