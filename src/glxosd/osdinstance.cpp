@@ -19,7 +19,6 @@
 #include <string>
 #include <fontconfig/fontconfig.h>
 #include <boost/lexical_cast.hpp>
-#include <boost/regex.hpp>
 std::string unescape(std::string s) {
 	std::string result;
 	for (std::string::const_iterator i = s.begin(); i != s.end(); i++) {
@@ -103,9 +102,9 @@ void read_config_into_struct(std::string path,
 		else if (key == "temperature_format")
 			configuration->temperature_format = boost::format(value);
 		else if (key == "chip_feature_filter") {
-			configuration->chip_feature_filter = boost::regex();
-			configuration->chip_feature_filter.assign(value,
-					boost::regex_constants::icase);
+			configuration->chip_feature_filter =
+					boost::xpressive::sregex::compile(value,
+							boost::xpressive::regex_constants::icase);
 		} else if (key == "show_text_outline")
 			configuration->show_text_outline = (value == "true");
 		else
@@ -120,9 +119,9 @@ glxosd_config_type load_config() {
 	glxosd_config_type configuration = { "SquareFont", 16, 255, 0, 255, 4, 4, 2,
 			2, true, boost::format("FPS: %1$.1f\n"), boost::format("%1%\n"),
 			boost::format(" %1%: %2%\n"), boost::format("%1% (%2%): %3%\n"),
-			boost::format("%1$i C"), boost::regex() };
-	configuration.chip_feature_filter.assign("Core.*",
-			boost::regex_constants::icase);
+			boost::format("%1$i C"), boost::xpressive::sregex() };
+	configuration.chip_feature_filter = boost::xpressive::sregex::compile(
+			"Core.*", boost::xpressive::regex_constants::icase);
 	std::string global_path = "/etc/glxosd.conf";
 	std::string user_path = std::string(getenv("HOME"))
 			+ "/.glxosd/glxosd.conf";

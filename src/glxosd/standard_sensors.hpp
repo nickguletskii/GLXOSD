@@ -11,13 +11,13 @@
 #define STANDARDSENSORS_HPP_
 #include <string>
 #include <boost/format.hpp>
-#include <boost/regex.hpp>
+#include <boost/xpressive/xpressive.hpp>
 class standard_sensors {
 public:
 	standard_sensors();
 	std::string get_sensors_info(boost::format chip_format,
 			boost::format chip_feature_format, boost::format temperature_format,
-			boost::regex feature_filter);
+			boost::xpressive::sregex feature_filter);
 	virtual ~standard_sensors();
 };
 

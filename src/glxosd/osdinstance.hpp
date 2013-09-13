@@ -18,6 +18,7 @@
 #include <GL/gl.h>
 #include <FTGL/ftgl.h>
 #include <boost/format.hpp>
+#include <boost/xpressive/xpressive.hpp>
 #include <string>
 struct glxosd_config_type {
 	std::string font_name;
@@ -35,7 +36,7 @@ struct glxosd_config_type {
 	boost::format chip_feature_format;
 	boost::format nvidia_gpu_format;
 	boost::format temperature_format;
-	boost::regex chip_feature_filter;
+	boost::xpressive::sregex chip_feature_filter;
 };
 class osd_instance {
 private:

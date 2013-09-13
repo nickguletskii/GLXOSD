@@ -16,7 +16,7 @@ standard_sensors::standard_sensors() {
 }
 std::string standard_sensors::get_sensors_info(boost::format chip_format,
 		boost::format chip_feature_format, boost::format temperature_format,
-		boost::regex feature_filter) {
+		boost::xpressive::sregex feature_filter) {
 	sensors_chip_name const * chip;
 	int chip_number = 0;
 	std::stringstream string_builder;
@@ -32,7 +32,7 @@ std::string standard_sensors::get_sensors_info(boost::format chip_format,
 			const sensors_subfeature *subfeature = sensors_get_subfeature(chip,
 					feature, SENSORS_SUBFEATURE_TEMP_INPUT);
 			std::string feature_name = sensors_get_label(chip, feature);
-			if (boost::regex_match(feature_name.begin(), feature_name.end(),
+			if (boost::xpressive::regex_match(feature_name.begin(), feature_name.end(),
 					feature_filter))
 				continue;
 			std::string temperature;
