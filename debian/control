@@ -1,0 +1,17 @@
+Source: glxosd
+Section: utils
+Priority: extra
+Maintainer: Nick Guletskii <nickguletskii200@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), cdbs, cmake, mesa-common-dev, libgl1-mesa-dev, libglu1-mesa-dev, libfontconfig1-dev, libfreetype6-dev, libsensors4-dev, libboost-dev, libboost-regex-dev
+Standards-Version: 3.9.3
+Homepage: https://github.com/nickguletskii/GLXOSD
+Vcs-Git: https://github.com/nickguletskii/GLXOSD
+Vcs-Browser: https://github.com/nickguletskii/GLXOSD.git
+
+Package: glxosd
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libfontconfig1, libfreetype6, libsensors4, libboost-regex1.46.1 | libboost-regex1.48.0
+Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
+ GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired
+ from RivaTuner OSD on Windows. It can display the number of frames per second,
+ the temperature of CPUs and the temperature of NVIDIA GPUs.
