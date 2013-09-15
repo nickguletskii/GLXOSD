@@ -8,5 +8,5 @@ set_target_properties(glinject PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR}
 set_target_properties(glinject PROPERTIES VERSION ${GLINJECT_VERSION_STRING}
                                           SOVERSION ${GLINJECT_VERSION_MAJOR})
 INSTALL(TARGETS glinject
-  LIBRARY DESTINATION lib/glxosd
+  LIBRARY DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE}/glxosd
 )

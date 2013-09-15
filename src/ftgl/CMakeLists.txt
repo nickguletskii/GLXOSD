@@ -112,5 +112,5 @@ add_library(ftgl SHARED ${libftgl_la_SOURCES} ${ftgl_headers} ${ftglyph_sources}
 target_link_libraries(ftgl ${FREETYPE_LIBRARIES} ${OPENGL_LIBRARY})
 set_target_properties(ftgl PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR} LIBRARY_OUTPUT_NAME glxosd-ftgl)
 INSTALL(TARGETS ftgl
-  LIBRARY DESTINATION lib/glxosd
+  LIBRARY DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE}/glxosd
 )

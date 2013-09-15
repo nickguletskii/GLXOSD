@@ -8,5 +8,5 @@ set_target_properties(elfhacks PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR}
 set_target_properties(elfhacks PROPERTIES VERSION ${ELFHACKS_VERSION_STRING}
                                           SOVERSION ${ELFHACKS_VERSION_MAJOR})
 INSTALL(TARGETS elfhacks
-  LIBRARY DESTINATION lib/glxosd
+  LIBRARY DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE}/glxosd
 )

@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 project (glxosd)
+SET(INJECTOR_SUFFIX "" CACHE STRING "The suffix for the injector script")
 get_filename_component(OUTPUT_DIR "bin/" ABSOLUTE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
 ##### Find the libraries #####
@@ -76,7 +77,8 @@ add_subdirectory(src)
 install(FILES "fonts/CPMono_v07/CPMono_v07_Bold.otf"  DESTINATION /usr/share/fonts/opentype/CPMono_v07)
 install(SCRIPT "${CMAKE_SOURCE_DIR}/PostInstall.cmake")
 install(FILES conf/glxosd.conf DESTINATION /etc)
-add_custom_command(OUTPUT glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh ${PROJECT_SOURCE_DIR} ${CMAKE_INSTALL_PREFIX} DEPENDS glxosd COMMENT "Creating the startup script...")
+add_custom_command(OUTPUT glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh ${PROJECT_SOURCE_DIR} ${CMAKE_INSTALL_PREFIX} ${CMAKE_LIBRARY_ARCHITECTURE} ${INJECTOR_SUFFIX} DEPENDS glxosd COMMENT "Creating the startup script...")
 add_custom_target(preloader ALL DEPENDS glxosdlauncher)
+install(PROGRAMS glxosd${INJECTOR_SUFFIX} DESTINATION bin)
 install(PROGRAMS glxosd DESTINATION bin)
 

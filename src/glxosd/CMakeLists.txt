@@ -16,5 +16,5 @@ set_target_properties(glxosd PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR} L
 set_target_properties(glxosd PROPERTIES VERSION ${GLXOSD_VERSION_STRING}
                                           SOVERSION ${GLXOSD_VERSION_MAJOR})
 INSTALL(TARGETS glxosd
-  LIBRARY DESTINATION lib/glxosd
+  LIBRARY DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE}/glxosd
 )
