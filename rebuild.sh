@@ -1,7 +1,8 @@
+#!/bin/bash
 set -e
 VERSION=1.0
 echo -e "[\e[32mrebuild.sh\e[00m] Installing required packages..."
-sudo apt-get install git debhelper pbuilder dh-make
+sudo apt-get install git debhelper pbuilder dh-make debootstrap devscripts
 if [ ! -d glxosd-$VERSION-orig ] 
 then
     echo -e "[\e[33mrebuild.sh\e[00m] glxosd-$VERSION-orig missing, cloning..."
@@ -30,8 +31,9 @@ echo -e "[\e[32mrebuild.sh\e[00m] Building amd64 version..."
 pdebuild --architecture amd64 --buildresult $RESULT --pbuilderroot "sudo DIST=precise ARCH=amd64"
 echo -e "[\e[32mrebuild.sh\e[00m] Building i386 version..."
 pdebuild --architecture i386 --buildresult $RESULT --pbuilderroot "sudo DIST=precise ARCH=i386"
-echo -e "[\e[32mrebuild.sh\e[00m] Checking amd64 version..."
-lintian $RESULT/glxosd_1.0-1_amd64.deb
-echo -e "[\e[32mrebuild.sh\e[00m] Checking i386 version..."
-lintian $RESULT/glxosd_1.0-1_i386.deb
+for f in $RESULT/*.deb
+do
+    echo -e "[\e[32mrebuild.sh\e[00m] Checking " $f "..."
+    lintian $f
+done
 echo -e "[\e[32mrebuild.sh\e[00m] \e[32mSuccess!\e[00m"

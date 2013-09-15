@@ -1,0 +1,3 @@
+glxosd-libs-amd64: embedded-library usr/lib/x86_64-linux-gnu/glxosd/libglxosd-ftgl.so: ftgl
+glxosd-libs-amd64: embedded-library usr/lib/i386-linux-gnu/glxosd/libglxosd-ftgl.so: ftgl
+glxosd-libs-amd64: improbable-bug-number-in-closes 2
