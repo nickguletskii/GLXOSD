@@ -161,14 +161,14 @@ void init_gl_frame_hooks() {
 	}
 }
 
-int add_gl_frame_handler(gl_frame_handler handler) {
+int glinject_add_gl_frame_handler(gl_frame_handler handler) {
 	if (handlers == NULL)
 		handlers = new std::map<int, gl_frame_handler>();
 	handlers->insert(std::pair<int, gl_frame_handler>(++last_id, handler));
 	return handlers->size() - 1;
 }
 
-bool remove_gl_frame_handler(int id) {
+bool glinject_remove_gl_frame_handler(int id) {
 	std::map<int, gl_frame_handler>::iterator it = handlers->find(id);
 	if (it == handlers->end())
 		return false;

@@ -1,17 +1,40 @@
-#! /bin/sh
-TARGET_DIR=$1
-PREFIX=$2
-ARCH_SUFFIX=$3
-PLATFORM_SUFFIX=$4
-OUT_FILE=$TARGET_DIR/glxosd$PLATFORM_SUFFIX
-echo "#! /bin/sh" > ${OUT_FILE}
-echo "LD_LIBRARY_PATH="$PREFIX"/lib/"$ARCH_SUFFIX"/glxosd:\$LD_LIBRARY_PATH LD_PRELOAD=libglxosd-elfhacks.so:libglxosd-glinject.so:libglxosd.so:libglxosd-ftgl.so:\$LD_PRELOAD \$@" >> ${OUT_FILE}
-chmod +x ${OUT_FILE}
-OUT_FILE=$TARGET_DIR/glxosd
-echo "#! /bin/sh" > ${OUT_FILE}
-if [ $PLATFORM_SUFFIX = "-amd64" ]; then
-    echo "LD_LIBRARY_PATH="$PREFIX"/lib/x86_64-linux-gnu/glxosd:"$PREFIX"/lib/i386-linux-gnu/glxosd:\$LD_LIBRARY_PATH LD_PRELOAD=libglxosd-elfhacks.so:libglxosd-glinject.so:libglxosd.so:libglxosd-ftgl.so:\$LD_PRELOAD \$@" >> ${OUT_FILE}
-elif [ $PLATFORM_SUFFIX = "-i386" ]; then
-    echo "LD_LIBRARY_PATH="$PREFIX"/lib/i386-linux-gnu/glxosd:\$LD_LIBRARY_PATH LD_PRELOAD=libglxosd-elfhacks.so:libglxosd-glinject.so:libglxosd.so:libglxosd-ftgl.so:\$LD_PRELOAD \$@" >> ${OUT_FILE}
+#! /bin/bash
+TEMPLATE=$(cat <<EOF
+#! /bin/bash
+GLXOSD_LIBRARY_PATH_I386=#{{GLXOSD_LIBRARY_PATH_I386}}
+GLXOSD_LIBRARY_PATH_AMD64=#{{GLXOSD_LIBRARY_PATH_AMD64}}
+if [ -d \$GLXOSD_LIBRARY_PATH_I386 ]; then
+	GLXOSD_I386_LIBRARY_LIST=\$(ls \$GLXOSD_LIBRARY_PATH_I386/*.so | xargs -n 1 basename)	
+	GLXOSD_I386_LIBRARY_LIST=\$(echo \$GLXOSD_I386_LIBRARY_LIST | sed 's/ /:/g')
 fi
-chmod +x ${OUT_FILE}
+if [ -d \$GLXOSD_LIBRARY_PATH_AMD64 ]; then
+	GLXOSD_AMD64_LIBRARY_LIST=\$(ls \$GLXOSD_LIBRARY_PATH_AMD64/*.so | xargs -n 1 basename)	
+	GLXOSD_AMD64_LIBRARY_LIST=\$(echo \$GLXOSD_AMD64_LIBRARY_LIST | sed 's/ /:/g')
+fi
+LD_LIBRARY_PATH=\$GLXOSD_LIBRARY_PATH_I386:\$GLXOSD_LIBRARY_PATH_AMD64:\$LD_LIBRARY_PATH LD_PRELOAD=\$GLXOSD_I386_LIBRARY_LIST:\$GLXOSD_AMD64_LIBRARY_LIST:\$LD_PRELOAD \$@
+EOF
+)
+TARGET_FILE="./glxosd"
+PREFIX="/usr"
+while : ; do
+	case "$1" in 
+		--target-file)
+		[ -n "${TARGET_FILE}" ]
+			TARGET_FILE="$2"
+			shift 2 ;;
+		--installation-prefix)
+		[ -n "${PREFIX}" ]
+			PREFIX="$2"
+			shift 2 ;;
+		*)
+			break ;;
+	esac
+done
+function escape {
+	echo $(echo $1 | sed -e 's/[\/&]/\\&/g')
+}
+OUTPUT=$TEMPLATE;
+OUTPUT=$(echo "$OUTPUT" | sed "s/#{{GLXOSD_LIBRARY_PATH_I386}}/"$(escape $PREFIX)"\/lib\/i386-linux-gnu\/glxosd/g");
+OUTPUT=$(echo "$OUTPUT" | sed "s/#{{GLXOSD_LIBRARY_PATH_AMD64}}/"$(escape $PREFIX)"\/lib\/x86_64-linux-gnu\/glxosd/g");
+echo "$OUTPUT" > $TARGET_FILE;
+chmod +x $TARGET_FILE

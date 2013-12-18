@@ -7,19 +7,14 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef GLINJECT_HPP_
-#define GLINJECT_HPP_
-#include <dlfcn.h>
-#include <cstdio>
+#ifndef OSD_HPP_
+#define OSD_HPP_
+
 #include <GL/gl.h>
 #include <GL/glx.h>
-#include <GL/glext.h>
-typedef void (*handle_buffer_swap_type)(Display*, GLXDrawable);
-typedef void (*handle_context_destruction_type)(Display*, GLXContext);
-extern "C" struct gl_frame_handler {
-	handle_buffer_swap_type handle_buffer_swap;
-	handle_context_destruction_type handle_context_destruction;
-};
-int glinject_add_gl_frame_handler(gl_frame_handler handler);
-bool glinject_remove_gl_frame_handler(int id);
-#endif /* GLINJECT_HPP_ */
+#include <glinject.hpp>
+
+static void startup() __attribute__((constructor));
+void osdHandleBufferSwap(Display* display, GLXDrawable drawable);
+void osdHandleContextDestruction(Display* display, GLXContext context);
+#endif

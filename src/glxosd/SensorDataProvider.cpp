@@ -7,20 +7,16 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef NVIDIA_SENSORS_HPP_
-#define NVIDIA_SENSORS_HPP_
-#include <boost/format.hpp>
-#include <X11/Xlib.h>
-class nvidia_sensors {
-public:
-	nvidia_sensors();
-	std::string get_sensors_info(boost::format format,
-			boost::format temperature_format);
-	virtual ~nvidia_sensors();
-private:
-	int number_of_gpus;
-	Display *display;
-	std::string error_result;
-};
+#include "SensorDataProvider.hpp"
+namespace glxosd {
+SensorDataProvider::SensorDataProvider() {
+}
 
-#endif /* NVIDIA_SENSORS_HPP_ */
+SensorDataProvider::~SensorDataProvider() {
+}
+}
+
+std::string glxosd::SensorDataProvider::getSensorsInfo(
+		OSDInstance* OSDInstance) {
+	return "Empty sensor data provider.";
+}

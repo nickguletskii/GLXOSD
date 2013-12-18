@@ -1,8 +1,16 @@
 cmake_minimum_required (VERSION 2.6)
 project (glxosd)
-SET(INJECTOR_SUFFIX "" CACHE STRING "The suffix for the injector script")
+
+##### Parameters #####
+SET(ATTEMPT_NVIDIA_LINK TRUE CACHE BOOL "If set to true, GLXOSD will link to the NVIDIA driver to display the GPU's temperature.")
+
 get_filename_component(OUTPUT_DIR "bin/" ABSOLUTE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
+##### Set version #####
+set(GLXOSD_VERSION_MAJOR 1)
+set(GLXOSD_VERSION_MINOR 1)
+set(GLXOSD_VERSION_PATCH 1)
+set(GLXOSD_VERSION_STRING ${GLXOSD_VERSION_MAJOR}.${GLXOSD_VERSION_MINOR}.${GLXOSD_VERSION_PATCH})
 ##### Find the libraries #####
 #Find OpenGL
 find_package(OpenGL REQUIRED)
@@ -43,16 +51,18 @@ else(NOT SENSORS_FOUND)
     message(INFO " libsensors found!")
 	add_definitions( -DFOUND_SENSORS )
 endif(NOT SENSORS_FOUND)
-#Find NVCTRL
-find_package(NVCTRL)
-include_directories(${NVCTRL_INCLUDE_DIRS})
-if(NOT NVCTRL_FOUND)
-    message(INFO " NVCTRL not found!")
-    SET(NVCTRL_LIBRARIES "")
-else(NOT NVCTRL_FOUND)
-    message(INFO " NVCTRL found!")
-	add_definitions( -DFOUND_NVCTRL )
-endif(NOT NVCTRL_FOUND)
+#Find NVCTRL if no additional flag is set
+if(ATTEMPT_NVIDIA_LINK)
+	find_package(NVCTRL)
+	include_directories(${NVCTRL_INCLUDE_DIRS})
+	if(NOT NVCTRL_FOUND)
+	message(INFO " NVCTRL not found!")
+	SET(NVCTRL_LIBRARIES "")
+	else(NOT NVCTRL_FOUND)
+	message(INFO " NVCTRL found!")
+		add_definitions( -DFOUND_NVCTRL )
+	endif(NOT NVCTRL_FOUND)
+endif(ATTEMPT_NVIDIA_LINK)
 #Find Boost
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON) 
@@ -64,21 +74,21 @@ if(NOT Boost_FOUND)
 endif(NOT Boost_FOUND)
 ##### Link to local libraries #####
 link_directories(${OUTPUT_DIR})
-##### Add include paths #####
-include_directories(${PROJECT_SOURCE_DIR}/src/elfhacks)
-include_directories(${PROJECT_SOURCE_DIR}/src/ftgl)
-include_directories(${PROJECT_SOURCE_DIR}/src/glinject)
-include_directories(${PROJECT_SOURCE_DIR}/src/glxosd)
 ##### Add subdirectories #####
 add_subdirectory(src)
-#add_custom_command(OUTPUT glxosdlauncher COMMAND ./write_preload.sh DEPENDS glxosd COMMENT "Creating the startup script...")
-#add_custom_target(preloader ALL DEPENDS glxosdlauncher)
-#install(PROGRAMS glxosd DESTINATION bin)
+
+##### Install fonts #####
 install(FILES "fonts/CPMono_v07/CPMono_v07_Bold.otf"  DESTINATION /usr/share/fonts/opentype/CPMono_v07)
-install(SCRIPT "${CMAKE_SOURCE_DIR}/PostInstall.cmake")
+install(SCRIPT "${CMAKE_SOURCE_DIR}/TriggerFontConfig.cmake")
+
+##### Instal config #####
 install(FILES conf/glxosd.conf DESTINATION /etc)
-add_custom_command(OUTPUT glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh ${PROJECT_SOURCE_DIR} ${CMAKE_INSTALL_PREFIX} ${CMAKE_LIBRARY_ARCHITECTURE} ${INJECTOR_SUFFIX} DEPENDS glxosd COMMENT "Creating the startup script...")
-add_custom_target(preloader ALL DEPENDS glxosdlauncher)
-install(PROGRAMS glxosd${INJECTOR_SUFFIX} DESTINATION bin)
+
+##### Create launcher #####
+message(INFO "BUILDING LAUNCHER!")
+add_custom_target(glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh
+--target-file ${PROJECT_SOURCE_DIR}/glxosd
+--installation-prefix ${CMAKE_INSTALL_PREFIX} COMMENT "Creating the startup script...")
+add_dependencies(glxosd glxosdlauncher)
 install(PROGRAMS glxosd DESTINATION bin)
 

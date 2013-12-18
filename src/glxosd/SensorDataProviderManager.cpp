@@ -7,15 +7,15 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef HUD_HPP_
-#define OSD_HPP_
+#include "SensorDataProviderManager.hpp"
 
-#include <GL/gl.h>
-#include <GL/glx.h>
-#include <glinject.hpp>
+namespace glxosd {
+std::vector<SensorDataProvider*> SensorDataProviders;
+std::vector<SensorDataProvider*> getSensorDataProviders(){
+	return SensorDataProviders;
+}
 
-static void startup() __attribute__((constructor));
-void osd_handle_buffer_swap(Display* display, GLXDrawable drawable);
-void osd_handle_context_destruction(Display* display, GLXContext context) ;
-void render_osd(int aspect, GLdouble width, GLdouble height);
-#endif /* HUD_HPP_ */
+void registerSensorProvider(SensorDataProvider *data_provider) {
+	glxosd::SensorDataProviders.push_back(data_provider);
+}
+}

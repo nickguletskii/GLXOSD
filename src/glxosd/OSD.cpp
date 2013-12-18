@@ -7,30 +7,30 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#include "osdinstance.hpp"
-#include "osd.hpp"
+#include "OSDInstance.hpp"
+#include "OSD.hpp"
 #include <fstream>
 #include <map>
-std::map<GLXContext, osd_instance*>* drawable_handlers; //Stores the instances of the OSD. Each GLX context has its own.
+std::map<GLXContext, glxosd::OSDInstance*>* drawableHandlers; //Stores the instances of the OSD. Each GLX context has its own.
 void startup() {
-	drawable_handlers = new std::map<GLXContext, osd_instance*>;
-	gl_frame_handler gl_handler = { &osd_handle_buffer_swap,
-			&osd_handle_context_destruction };
-	add_gl_frame_handler(gl_handler);
+	drawableHandlers = new std::map<GLXContext, glxosd::OSDInstance*>;
+	gl_frame_handler glHandler = { &osdHandleBufferSwap,
+			&osdHandleContextDestruction };
+	glinject_add_gl_frame_handler(glHandler);
 }
 
-void osd_handle_buffer_swap(Display* display, GLXDrawable drawable) {
+void osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 	unsigned int width = 1;
 	unsigned int height = 1;
 	if (display && drawable) {
-		std::map<GLXContext, osd_instance*>::iterator it =
-				drawable_handlers->find(glXGetCurrentContext());
-		osd_instance* instance;
-		if (it == drawable_handlers->end()) {
-			instance = new osd_instance();
-			drawable_handlers->insert(
-					std::pair<GLXContext, osd_instance*>(glXGetCurrentContext(),
-							instance));
+		std::map<GLXContext, glxosd::OSDInstance*>::iterator it =
+				drawableHandlers->find(glXGetCurrentContext());
+		glxosd::OSDInstance* instance;
+		if (it == drawableHandlers->end()) {
+			instance = new glxosd::OSDInstance();
+			drawableHandlers->insert(
+					std::pair<GLXContext, glxosd::OSDInstance*>(
+							glXGetCurrentContext(), instance));
 		} else
 			instance = (*it).second;
 		GLint viewport[4];
@@ -42,11 +42,12 @@ void osd_handle_buffer_swap(Display* display, GLXDrawable drawable) {
 		instance->render(width, height);
 	}
 }
-void osd_handle_context_destruction(Display* display, GLXContext context) {
-	std::map<GLXContext, osd_instance*>::iterator it = drawable_handlers->find(
-			context);
-	if (it != drawable_handlers->end()) {
+void osdHandleContextDestruction(Display* display, GLXContext context) {
+	std::map<GLXContext, glxosd::OSDInstance*>::iterator it =
+			drawableHandlers->find(context);
+	if (it != drawableHandlers->end()) {
 		delete (*it).second;
-		drawable_handlers->erase(it);
+		drawableHandlers->erase(it);
 	}
 }
+

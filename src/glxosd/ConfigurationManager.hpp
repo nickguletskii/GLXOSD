@@ -7,19 +7,19 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef GLINJECT_HPP_
-#define GLINJECT_HPP_
-#include <dlfcn.h>
-#include <cstdio>
-#include <GL/gl.h>
-#include <GL/glx.h>
-#include <GL/glext.h>
-typedef void (*handle_buffer_swap_type)(Display*, GLXDrawable);
-typedef void (*handle_context_destruction_type)(Display*, GLXContext);
-extern "C" struct gl_frame_handler {
-	handle_buffer_swap_type handle_buffer_swap;
-	handle_context_destruction_type handle_context_destruction;
-};
-int glinject_add_gl_frame_handler(gl_frame_handler handler);
-bool glinject_remove_gl_frame_handler(int id);
-#endif /* GLINJECT_HPP_ */
+#ifndef CONFIGLOADER_HPP_
+#define CONFIGLOADER_HPP_
+#include <map>
+#include <string>
+#include <boost/any.hpp>
+namespace glxosd {
+void addDefaultConfigurationValue(std::string key, boost::any value);
+static void initDefaultConfiguration() __attribute__((constructor));
+static std::string unescape(std::string s);
+static bool stringEndsWith(std::string const &fullString,
+		std::string const &ending);
+extern void readConfig(std::string path,
+		std::map<std::string, void*>* configuration);
+extern std::map<std::string, boost::any> readConfigChain();
+}
+#endif

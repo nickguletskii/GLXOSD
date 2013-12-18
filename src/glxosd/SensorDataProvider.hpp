@@ -7,18 +7,15 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef STANDARDSENSORS_HPP_
-#define STANDARDSENSORS_HPP_
-#include <string>
-#include <boost/format.hpp>
-#include <boost/xpressive/xpressive.hpp>
-class standard_sensors {
+#ifndef SensorDataProvider_HPP_
+#define SensorDataProvider_HPP_
+#include "OSDInstance.hpp"
+namespace glxosd {
+class SensorDataProvider {
 public:
-	standard_sensors();
-	std::string get_sensors_info(boost::format chip_format,
-			boost::format chip_feature_format, boost::format temperature_format,
-			boost::xpressive::sregex feature_filter);
-	virtual ~standard_sensors();
+	SensorDataProvider();
+	virtual std::string getSensorsInfo(OSDInstance*);
+	virtual ~SensorDataProvider();
 };
-
-#endif /* STANDARDSENSORS_HPP_ */
+}
+#endif
