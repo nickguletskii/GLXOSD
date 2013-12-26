@@ -1,0 +1,2 @@
+glxosd-libs-libsensors-support-amd64: postinst-has-useless-call-to-ldconfig
+glxosd-libs-libsensors-support-amd64: postrm-has-useless-call-to-ldconfig

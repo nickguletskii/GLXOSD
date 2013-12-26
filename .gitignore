@@ -54,4 +54,5 @@ local.properties
 !.gitignore
 *~
 
-/glxosd
+/glxosd*
+/result

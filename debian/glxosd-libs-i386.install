@@ -1,2 +1,10 @@
-/usr/lib/*
-/usr/bin/glxosd-*
+/usr/lib/i386-linux-gnu/glxosd/libglxosd-elfhacks.so
+/usr/lib/i386-linux-gnu/glxosd/libglxosd-elfhacks.so.1
+/usr/lib/i386-linux-gnu/glxosd/libglxosd-elfhacks.so.1.0.1
+/usr/lib/i386-linux-gnu/glxosd/libglxosd-ftgl.so
+/usr/lib/i386-linux-gnu/glxosd/libglxosd-glinject.so
+/usr/lib/i386-linux-gnu/glxosd/libglxosd-glinject.so.1
+/usr/lib/i386-linux-gnu/glxosd/libglxosd-glinject.so.1.1.1
+/usr/lib/i386-linux-gnu/glxosd/libglxosd.so
+/usr/lib/i386-linux-gnu/glxosd/libglxosd.so.1
+/usr/lib/i386-linux-gnu/glxosd/libglxosd.so.1.2.1

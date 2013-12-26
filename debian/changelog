@@ -1,3 +1,19 @@
+glxosd (1.2-1) unstable; urgency=low
+
+  * Changed the plugin loading mechanics to stop libraries from being inserted
+  into memory more than once. Fixes crashes when the configuration files are
+  missing.
+
+ -- Nick Guletskii <nickguletskii200@gmail.com>  Thu, 26 Dec 2013 11:09:32 +0300
+
+glxosd (1.1-1) unstable; urgency=low
+
+  * Made the launcher more dynamic by making it scan for libraries to inject.
+  * Add NVIDIA sensor support for installations done through dpkg.
+  * Split libsensors and NVIDIA sensor support into a different shared library.
+
+ -- Nick Guletskii <nickguletskii200@gmail.com>  Tue, 17 Dec 2013 23:26:07 +0300
+
 glxosd (1.0-1) unstable; urgency=low
 
   * Initial release (Closes: #2)

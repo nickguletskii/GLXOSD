@@ -1,0 +1,2 @@
+glxosd-libs-nvidia-support-amd64: postinst-has-useless-call-to-ldconfig
+glxosd-libs-nvidia-support-amd64: postrm-has-useless-call-to-ldconfig
