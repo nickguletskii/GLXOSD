@@ -7,15 +7,21 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#include "SensorDataProviderManager.hpp"
 
-namespace glxosd {
-std::vector<SensorDataProvider*> SensorDataProviders;
-std::vector<SensorDataProvider*> getSensorDataProviders(){
-	return SensorDataProviders;
-}
+#include "glinject.hpp"
+#include "GLXOSD.hpp"
+#include "GLXOSDLoader.hpp"
 
-void registerSensorProvider(SensorDataProvider *data_provider) {
-	glxosd::SensorDataProviders.push_back(data_provider);
+int id = -1;
+extern "C" void constructGLXOSD() {
+	gl_frame_handler glHandler = { &glxosd::osdHandleBufferSwap,
+			&glxosd::osdHandleContextDestruction };
+	id = glinject_add_gl_frame_handler(glHandler);
 }
+extern "C" void destructGLXOSD() {
+	glxosd::GLXOSD::cleanup();
+	if (id != -1) {
+		glinject_remove_gl_frame_handler(id);
+	}
+	std::cout << "[GLXOSD] Successfully cleaned up" << std::endl;
 }

@@ -12,14 +12,12 @@
 #include <GL/gl.h>
 #include <FTGL/ftgl.h>
 #include <boost/format.hpp>
-#include <boost/xpressive/xpressive.hpp>
 #include <boost/any.hpp>
 #include <string>
 #include <map>
 namespace glxosd {
 class OSDInstance {
 private:
-	std::map<std::string, boost::any> configuration;
 	int currentFrameCount; // The number of frames from the last FPS calculation
 	long previousTime; //The time of the previous FPS calculation
 	double framesPerSecond; //Current FPS
@@ -29,21 +27,6 @@ private:
 public:
 	OSDInstance();
 	void render(unsigned int width, unsigned int height);
-	template<typename T>
-	T getProperty(std::string key) {
-		if (configuration.find(key) == configuration.end()) {
-			throw std::runtime_error("Missing GLXOSD property " + key);
-		}
-		boost::any obj = configuration[key];
-		if (obj.type() != typeid(T)) {
-			throw std::runtime_error(
-					"GLXOSD property " + key
-							+ " has an incorrect type! Expected "
-							+ typeid(T).name() + ", got " + obj.type().name());
-		}
-		T val = boost::any_cast<T>(obj);
-		return val;
-	}
 	virtual ~OSDInstance();
 };
 }

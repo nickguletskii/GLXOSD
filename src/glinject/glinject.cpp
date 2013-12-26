@@ -7,16 +7,21 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+#include "glinject.hpp"
+#include <dlfcn.h>
 #include <elfhacks.hpp>
-#include <gnu/libc-version.h>
-#include <cstdio>
+#include <GL/gl.h>
+#include <stddef.h>
 #include <cstdlib>
 #include <cstring>
-#include <ctime>
+#include <sstream>
 #include <iostream>
-#include <fstream>
 #include <map>
-#include "glinject.hpp"
+#include <string>
+#include <utility>
+#include <vector>
+
 typedef std::pair<std::string, void*> function_overload_type;
 //Just some typedefs to make further code easier to read.
 typedef void* (*dlopen_type)(const char *, int);
@@ -24,6 +29,7 @@ typedef void* (*dlsym_type)(const void *, const char *);
 typedef void* (*dlvsym_type)(const void *, const char *, const char *);
 typedef void (*glXDestroyContext_type)(Display *, GLXContext);
 typedef void (*glXSwapBuffers_type)(Display*, GLXDrawable);
+typedef void (*glxinjectConstructor_type)();
 typedef __GLXextFuncPtr (*glXGetProcAddressARB_type)(const GLubyte*);
 //Private functions an variables...
 void init_gl_frame_hooks();
@@ -36,7 +42,48 @@ dlsym_type real_dlsym = NULL;
 dlvsym_type real_dlvsym = NULL;
 std::map<int, gl_frame_handler>* handlers = NULL;
 int last_id = 0;
+bool initialised = false;
 
+/*
+ * Tools to aid initialisation of libraries utilising glinject
+ */
+template<typename ... Args>
+static void executeAll(std::vector<std::string> functionNames, Args ... args) {
+	for (size_t i = 0; i < functionNames.size(); i++) {
+		void (*constructor)(Args...) =
+		(void(*)(Args...)) dlsym(RTLD_NEXT,
+				functionNames[i].c_str());
+		if (constructor == NULL) {
+			std::cerr << "Couldn't find function " << functionNames[i]
+					<< "! dlsym returned a null pointer." << std::endl;
+			std::cerr << dlerror() << std::endl;
+			exit(-1);
+		}
+		constructor(args...);
+	}
+}
+
+static std::vector<std::string> split(std::string str, char separator) {
+	std::istringstream ss(str);
+	std::string token;
+	std::vector<std::string> result;
+	while (std::getline(ss, token, separator)) {
+		if (token.empty()) {
+			continue;
+		}
+		result.push_back(token);
+	}
+	return result;
+}
+
+static std::string getEnvironment(const std::string & var) {
+	const char * val = getenv(var.c_str());
+	return (val == NULL) ? "" : val;
+}
+
+/*
+ * Hooking
+ */
 void* get_function_override(const char* name) {
 	if (function_overrides == NULL) { //Initialise the overridden functions map
 		function_overrides = new std::map<std::string, void*>();
@@ -103,11 +150,11 @@ extern "C" void * dlsvym(void *handle, const char *name, const char *ver) {
 		return overload;
 	return real_dlvsym(handle, name, ver);
 }
+
 void init_gl_frame_hooks() {
-	if (real_dlsym != NULL && real_dlvsym != NULL && real_dlopen != NULL
-			&& real_glXDestroyContext != NULL
-			&& real_glXGetProcAddressARB != NULL && real_glXSwapBuffers != NULL)
+	if (initialised)
 		return;
+	initialised = true;
 	eh_obj_t libdl;
 	if (eh_find_obj(&libdl, "*/libdl.so*")) {
 		std::cerr << "Couldn't find libdl!" << std::endl;
@@ -142,7 +189,7 @@ void init_gl_frame_hooks() {
 		exit(-1);
 	}
 	real_glXGetProcAddressARB = (glXGetProcAddressARB_type) real_dlsym(
-			RTLD_NEXT, "glXGetProcAddressARB");
+	RTLD_NEXT, "glXGetProcAddressARB");
 	if (real_glXGetProcAddressARB == NULL) {
 		std::cerr
 				<< "Couldn't find glXGetProcAddressARB! dlsym returned a null pointer."
@@ -174,4 +221,14 @@ bool glinject_remove_gl_frame_handler(int id) {
 		return false;
 	handlers->erase(it);
 	return true;
+}
+
+/*
+ * Library initialisation/construction hooks
+ */
+void glinject_construct() {
+	executeAll(split(getEnvironment("GLINJECT_CONSTRUCTORS"), ':'));
+}
+void glinject_destruct() {
+	executeAll(split(getEnvironment("GLINJECT_DESTRUCTORS"), ':'));
 }

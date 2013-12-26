@@ -7,21 +7,19 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef STANDARDSENSORS_HPP_
-#define STANDARDSENSORS_HPP_
-#include "SensorDataProviderManager.hpp"
+#ifndef LIBSENSORS_SENSOR_DATA_PROVIDER_HPP_
+#define LIBSENSORS_SENSOR_DATA_PROVIDER_HPP_
+
 #include <string>
-#include <boost/format.hpp>
-#include <boost/xpressive/xpressive.hpp>
+
 namespace glxosd {
-namespace libsensors_support {
-static void startup() __attribute__ ( ( constructor ) );
-class LibsensorsSensorDataProvider: public SensorDataProvider {
-public:
-	LibsensorsSensorDataProvider();
-	std::string getSensorsInfo(glxosd::OSDInstance* osdInstance);
-	virtual ~LibsensorsSensorDataProvider();
-};
-}
-}
+class GLXOSD;
+} /* namespace glxosd */
+
+class GLXOSD;
+
+extern "C" void glxosdPluginConstructor(glxosd::GLXOSD *glxosd);
+extern "C" std::string* glxosdPluginDataProvider(
+		glxosd::GLXOSD *glxosdInstance);
+extern "C" void glxosdPluginDestructor(glxosd::GLXOSD *glxosd);
 #endif

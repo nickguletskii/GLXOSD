@@ -6,9 +6,11 @@ SET(ATTEMPT_NVIDIA_LINK TRUE CACHE BOOL "If set to true, GLXOSD will link to the
 
 get_filename_component(OUTPUT_DIR "bin/" ABSOLUTE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
+##### Compiler #####
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
 ##### Set version #####
 set(GLXOSD_VERSION_MAJOR 1)
-set(GLXOSD_VERSION_MINOR 1)
+set(GLXOSD_VERSION_MINOR 2)
 set(GLXOSD_VERSION_PATCH 1)
 set(GLXOSD_VERSION_STRING ${GLXOSD_VERSION_MAJOR}.${GLXOSD_VERSION_MINOR}.${GLXOSD_VERSION_PATCH})
 ##### Find the libraries #####

@@ -8,18 +8,19 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "NvidiaSensorDataProvider.hpp"
+#include "ConfigurationManager.hpp"
+#include "GLXOSD.hpp"
+#include "OSDInstance.hpp"
 #include <sstream>
 #include <NVCtrl/NVCtrl.h>
 #include <NVCtrl/NVCtrlLib.h>
-namespace glxosd {
-namespace nvidia_support {
-void startup() {
-	glxosd::addDefaultConfigurationValue("nvidia_gpu_format",
-			boost::format("%1% (%2%): %3%\n"));
-	glxosd::registerSensorProvider(new NvidiaSensorDataProvider());
-}
 
-NvidiaSensorDataProvider::NvidiaSensorDataProvider() {
+int numberOfGpus;
+Display *display;
+std::string errorResult;
+void glxosdPluginConstructor(glxosd::GLXOSD *glxosd) {
+	glxosd->getConfigurationManager()->addDefaultConfigurationValue(
+			"nvidia_gpu_format", boost::format("%1% (%2%): %3%\n"));
 	int event, error;
 
 	display = XOpenDisplay(NULL);
@@ -31,11 +32,12 @@ NvidiaSensorDataProvider::NvidiaSensorDataProvider() {
 	}
 }
 
-std::string NvidiaSensorDataProvider::getSensorsInfo(OSDInstance *OsdInstance) {
+std::string* glxosdPluginDataProvider(glxosd::GLXOSD *glxosdInstance) {
 	if (!errorResult.empty()) {
-		return errorResult;
+		return new std::string(errorResult);
 	}
-
+	glxosd::ConfigurationManager* configurationManager =
+			glxosdInstance->getConfigurationManager();
 	std::stringstream stringBuilder;
 
 	for (int i = 0; i < numberOfGpus; i++) {
@@ -50,29 +52,29 @@ std::string NvidiaSensorDataProvider::getSensorsInfo(OSDInstance *OsdInstance) {
 				NV_CTRL_STRING_PRODUCT_NAME, &name) != True)) {
 			stringBuilder
 					<< (boost::format(
-							OsdInstance->getProperty<boost::format>(
-									"nvidia_gpu_format"))) % "unknown" % i
+							configurationManager->getProperty < boost::format
+									> ("nvidia_gpu_format"))) % "unknown" % i
 							% "failed to get the temperature!";
 		} else {
 			stringBuilder
 					<< boost::format(
-							OsdInstance->getProperty<boost::format>(
-									"nvidia_gpu_format")) % name % i
+
+							configurationManager->getProperty < boost::format
+									> ("nvidia_gpu_format")) % name % i
 							% (boost::format(
-									OsdInstance->getProperty<boost::format>(
+									glxosdInstance->getConfigurationManager()->getProperty<
+											boost::format>(
 											"temperature_format")) % temperature);
 		}
 	}
 
-	return stringBuilder.str();
+	return new std::string(stringBuilder.str());
 }
 
-NvidiaSensorDataProvider::~NvidiaSensorDataProvider() {
+void glxosdPluginDestructor(glxosd::GLXOSD *glxosd) {
 	if (display) {
 		XCloseDisplay(display);
-		display = NULL;
+		display = nullptr;
 	}
-}
-}
 }
 

@@ -7,12 +7,10 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef SensorDataProvider_MANAGER_HPP_
-#define SensorDataProvider_MANAGER_HPP_
-#include "SensorDataProvider.hpp"
-#include <vector>
+#ifndef UTILS_HPP_
+#define UTILS_HPP_
+#include<string>
 namespace glxosd {
-std::vector<SensorDataProvider*> getSensorDataProviders();
-void registerSensorProvider(SensorDataProvider *data_provider);
+std::string getEnvironment(const std::string & var);
 }
 #endif

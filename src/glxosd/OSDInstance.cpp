@@ -9,7 +9,7 @@
  */
 #include "OSDInstance.hpp"
 #include "ConfigurationManager.hpp"
-#include "SensorDataProviderManager.hpp"
+#include "GLXOSD.hpp"
 #include <sys/time.h>
 #include <cstdio>
 #include <fstream>
@@ -33,7 +33,7 @@ const std::string findFont(const char* name) {
 	FcResult result;
 	FcPattern* font = FcFontMatch(config, pattern, &result);
 	if (font) {
-		FcChar8* file = NULL;
+		FcChar8* file = nullptr;
 		if (FcPatternGetString(font, FC_FILE, 0, &file) == FcResultMatch)
 			fontFile = std::string((char*) file);
 		FcPatternDestroy(font);
@@ -41,15 +41,21 @@ const std::string findFont(const char* name) {
 	FcPatternDestroy(pattern);
 	return fontFile;
 }
-OSDInstance::OSDInstance() {
-	configuration = glxosd::readConfigChain();
+OSDInstance::OSDInstance() :
+		osdText("Gathering data...") {
+	ConfigurationManager* configurationManager =
+			GLXOSD::instance()->getConfigurationManager();
 //Font initialisation, obviously...
-	std::string font_path = findFont(
-			getProperty<std::string>("font_name").c_str());
-	std::cout << "[GLXOSD]: Loading font \"" << font_path << "\" with size "
-			<< getProperty<int>("font_size_int") << "..." << std::endl;
-	font = new FTGLExtrdFont(font_path.c_str());
-	font->FaceSize(getProperty<int>("font_size_int"));
+	std::string fontName = configurationManager->getProperty<std::string>(
+			"font_name");
+	int fontSize = configurationManager->getProperty<int>("font_size_int");
+
+	std::string fontPath = findFont(fontName.c_str());
+	std::cout << "[GLXOSD] Loading font \"" << fontPath << "\" with size "
+			<< fontSize << "..." << std::endl;
+
+	font = new FTGLExtrdFont(fontPath.c_str());
+	font->FaceSize(fontSize);
 //Trick from http://gamedev.stackexchange.com/a/46512
 	font->Depth(0);
 	font->Outset(0, 1);
@@ -65,18 +71,30 @@ OSDInstance::~OSDInstance() {
 	delete font;
 }
 void OSDInstance::update(long currentMilliseconds) {
+	ConfigurationManager* configurationManager =
+			GLXOSD::instance()->getConfigurationManager();
+
 	framesPerSecond = 1000.0 * currentFrameCount
 			/ (currentMilliseconds - previousTime);
 	previousTime = currentMilliseconds;
 	currentFrameCount = 0;
+
+	auto fpsFormat = configurationManager->getProperty<boost::format>(
+			"fps_format");
 	std::stringstream osdTextBuilder;
-	osdTextBuilder
-			<< boost::format(getProperty<boost::format>("fps_format"))
-					% framesPerSecond;
-	for (size_t i = 0; i < glxosd::getSensorDataProviders().size(); i++) {
-		osdTextBuilder
-				<< glxosd::getSensorDataProviders()[i]->getSensorsInfo(this);
-	}
+	osdTextBuilder << boost::format(fpsFormat) % framesPerSecond;
+
+	std::vector<PluginDataProvider>* dataProviders =
+			GLXOSD::instance()->getPluginDataProviders();
+
+	std::for_each(dataProviders->begin(), dataProviders->end(),
+			[&osdTextBuilder](PluginDataProvider &sensorDataProvider) {
+				std::string* strPtr = sensorDataProvider(GLXOSD::instance());
+				osdTextBuilder << *strPtr;
+				delete strPtr; // Prevent memory leak. Goddamn C ABI forcing me to use pointers!!
+				// The weird thing is: it gets deleted even without the delete. How and why?
+			});
+
 	osdText = osdTextBuilder.str();
 }
 void OSDInstance::render(unsigned int width, unsigned int height) {
@@ -89,6 +107,7 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	if (currentTimeMilliseconds - previousTime >= 500) {
 		update(currentTimeMilliseconds);
 	}
+
 	glPushMatrix();
 	glPushAttrib(GL_ALL_ATTRIB_BITS); //Make sure that we revert the state after we do everything.
 	glMatrixMode(GL_PROJECTION);
@@ -103,32 +122,56 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	glDisable(GL_LIGHTING);
 	glDisable(GL_CULL_FACE);
 	glClear(GL_DEPTH_BUFFER_BIT);
+
 	int lineNumber = 0;
 	std::stringstream osd_text_reader;
 	osd_text_reader << osdText;
+
+	ConfigurationManager* configurationManager =
+			GLXOSD::instance()->getConfigurationManager();
+	int fontColourR = configurationManager->getProperty<int>(
+			"font_colour_r_int");
+	int fontColourG = configurationManager->getProperty<int>(
+			"font_colour_g_int");
+	int fontColourB = configurationManager->getProperty<int>(
+			"font_colour_b_int");
+	int textPositionX = configurationManager->getProperty<int>(
+			"text_pos_x_int");
+	int textPositionY = configurationManager->getProperty<int>(
+			"text_pos_y_int");
+	int fontSize = configurationManager->getProperty<int>("font_size_int");
+	int textSpacingY = configurationManager->getProperty<int>(
+			"text_spacing_y_int");
+	int textSpacingX = configurationManager->getProperty<int>(
+			"text_spacing_x_int");
+	bool showTextOutline = configurationManager->getProperty<bool>(
+			"show_text_outline_bool");
+
 	while (!osd_text_reader.eof()) {
 		lineNumber++;
 		std::string line;
 		std::getline(osd_text_reader, line);
+
 		std::transform(line.begin(), line.end(), line.begin(), ::toupper);
+
 //Trick from http://gamedev.stackexchange.com/a/46512
-		glColor3ub(getProperty<int>("font_colour_r_int"),
-				getProperty<int>("font_colour_g_int"),
-				getProperty<int>("font_colour_b_int"));
-		int xpos = getProperty<int>("text_pos_x_int");
-		int ypos = height - getProperty<int>("text_pos_y_int")
-				- (getProperty<int>("font_size_int")
-						+ getProperty<int>("text_spacing_y_int")) * lineNumber;
+		glColor3ub(fontColourR, fontColourG, fontColourB);
+
+		int xpos = textPositionX;
+		int ypos = height - textPositionY
+				- (fontSize + textSpacingY) * lineNumber;
+
 		font->Render(line.c_str(), line.size(), FTPoint(xpos, ypos),
-				FTPoint(getProperty<int>("text_spacing_x_int"), 0),
-				FTGL::RENDER_FRONT);
-		if (getProperty<bool>("show_text_outline_bool")) {
+				FTPoint(textSpacingX, 0), FTGL::RENDER_FRONT);
+
+		if (showTextOutline) {
 			glColor3ub(0, 0, 0);
+
 			font->Render(line.c_str(), line.size(), FTPoint(xpos, ypos),
-					FTPoint(getProperty<int>("text_spacing_x_int"), 0),
-					FTGL::RENDER_SIDE);
+					FTPoint(textSpacingX, 0), FTGL::RENDER_SIDE);
 		}
 	}
+
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);

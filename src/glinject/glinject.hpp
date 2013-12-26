@@ -9,17 +9,26 @@
  */
 #ifndef GLINJECT_HPP_
 #define GLINJECT_HPP_
-#include <dlfcn.h>
-#include <cstdio>
-#include <GL/gl.h>
+
 #include <GL/glx.h>
-#include <GL/glext.h>
+#include <X11/Xlib.h>
+
+/*
+ * glinject external API
+ */
 typedef void (*handle_buffer_swap_type)(Display*, GLXDrawable);
 typedef void (*handle_context_destruction_type)(Display*, GLXContext);
 extern "C" struct gl_frame_handler {
 	handle_buffer_swap_type handle_buffer_swap;
 	handle_context_destruction_type handle_context_destruction;
 };
-int glinject_add_gl_frame_handler(gl_frame_handler handler);
-bool glinject_remove_gl_frame_handler(int id);
+extern "C" int glinject_add_gl_frame_handler(gl_frame_handler handler);
+extern "C" bool glinject_remove_gl_frame_handler(int id);
+
+/*
+ * Library initialisation/construction hooks
+ */
+__attribute__((constructor)) void glinject_construct();
+__attribute__((destructor)) void glinject_destruct();
+
 #endif /* GLINJECT_HPP_ */

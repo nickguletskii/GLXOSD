@@ -7,15 +7,46 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef SensorDataProvider_HPP_
-#define SensorDataProvider_HPP_
-#include "OSDInstance.hpp"
+#ifndef WRAPPER_HPP_
+#define WRAPPER_HPP_
+#include <dlfcn.h>
+#include <string>
+#include <stdexcept>
+#include <iostream>
+#include <functional>
 namespace glxosd {
-class SensorDataProvider {
+
+template<typename Ret, typename ... Args>
+class Wrapper {
 public:
-	SensorDataProvider();
-	virtual std::string getSensorsInfo(OSDInstance*);
-	virtual ~SensorDataProvider();
+	Wrapper(void* sharedObjectHandle, std::string name) :
+			name(name) {
+		dlerror();
+		*reinterpret_cast<void**>(&fptr) = dlsym(sharedObjectHandle,
+				name.c_str());
+		if (fptr == nullptr) {
+			std::string error = std::string(dlerror());
+			// Can't use std::cerr and std::runtime_exception here because stderr hangs for some reason :(
+			std::cout
+					<< "[GLXOSD] Critical failure: Could not load plugin's function "
+					<< name << ": " << error << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		fct = std::function<Ret(Args...)>(fptr);
+	}
+
+	~Wrapper() {
+	}
+	Ret operator()(Args ... args) {
+		return fct(std::forward<Args...>(args...));
+	}
+private:
+	Ret (*fptr)(Args...);
+	std::function<Ret(Args...)> fct;
+	std::string name;
+
 };
+
 }
+
 #endif

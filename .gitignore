@@ -41,7 +41,8 @@ local.properties
 .externalToolBuilders/
 
 # Locally stored "Eclipse launch configurations"
-*.launch
+# Disable this one because it might be useful to some people
+# *.launch
 
 # CDT-specific
 .cproject
