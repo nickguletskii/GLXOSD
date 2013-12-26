@@ -12,8 +12,10 @@ if [ -d \$GLXOSD_LIBRARY_PATH_AMD64 ]; then
 	GLXOSD_AMD64_PLUGIN_LIST=\$(echo \$GLXOSD_AMD64_PLUGIN_LIST | sed 's/ /:/g')
 fi
 export LD_LIBRARY_PATH=\$GLXOSD_LIBRARY_PATH_I386:\$GLXOSD_LIBRARY_PATH_AMD64:\$LD_LIBRARY_PATH
-export LD_PRELOAD="libglxosd-elfhacks.so:libglxosd-glinject.so:libglxosd-ftgl.so:libglxosd.so"
-export GLXOSD_PLUGINS="\$GLXOSD_I386_PLUGIN_LIST:\$GLXOSD_AMD64_PLUGIN_LIST"
+export LD_PRELOAD="libglxosd-elfhacks.so:libglxosd-glinject.so:libglxosd-ftgl.so:libglxosd.so:"\$LD_PRELOAD
+GLXOSD_PLUGINS="$GLXOSD_I386_PLUGIN_LIST:$GLXOSD_AMD64_PLUGIN_LIST"
+GLXOSD_PLUGINS=$(echo "$GLXOSD_PLUGINS" | awk -v RS=':' -v ORS=":" '!a[$1]++')
+export GLXOSD_PLUGINS
 export GLINJECT_CONSTRUCTORS="constructGLXOSD"
 export GLINJECT_DESTRUCTORS="destructGLXOSD"
 \$@
