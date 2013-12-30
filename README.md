@@ -1,5 +1,9 @@
 GLXOSD
 =============
+
+[You should probably have a look at GLXOSD's Github pages first!](http://nickguletskii.github.io/GLXOSD/)
+-------------
+
 GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired from RivaTuner OSD on Windows.
 
 ![Screenshot of glxgears with GLXOSD](https://raw.github.com/nickguletskii/GLXOSD/master/screenshots/glxgears.png "Screenshot of glxgears with GLXOSD")
@@ -8,6 +12,8 @@ THIS PROJECT IS EXPERIMENTAL, USE IT AT YOUR OWN RISK!
 
 Compiling
 =============
+
+[You should probably have a look at the installation page on GLXOSD's Github pages first!](http://nickguletskii.github.io/GLXOSD/install.html)
 
 Before compiling, you need to make sure that you have GCC and CMake installed. On Ubuntu, all you need to do is paste the following line into the terminal:
 
@@ -30,6 +36,10 @@ make all
 
 Installing
 =============
+
+[You should probably have a look at the installation page on GLXOSD's Github pages first!](http://nickguletskii.github.io/GLXOSD/install.html)
+
+To install GLXOSD, just execute
 
 ```
 sudo make install
