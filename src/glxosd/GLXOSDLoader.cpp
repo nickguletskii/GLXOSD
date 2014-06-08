@@ -23,5 +23,4 @@ extern "C" void destructGLXOSD() {
 	if (id != -1) {
 		glinject_remove_gl_frame_handler(id);
 	}
-	std::cout << "[GLXOSD] Successfully cleaned up" << std::endl;
 }
