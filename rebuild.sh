@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-VERSION=1.2
+VERSION=1.3
 echo -e "[\e[32mrebuild.sh\e[00m] Installing required packages..."
 sudo apt-get install git debhelper pbuilder dh-make debootstrap devscripts
 if [ ! -d glxosd-$VERSION-orig ] 
@@ -28,9 +28,12 @@ rsync -abrv --progress --delete ../debian .
 mkdir ../result
 RESULT=../result
 echo -e "[\e[32mrebuild.sh\e[00m] Building amd64 version..."
-pdebuild --architecture amd64 --buildresult $RESULT --pbuilderroot "sudo DIST=precise ARCH=amd64"
+DIST=trusty
+ARCH=amd64
+pdebuild --architecture amd64 --buildresult $RESULT --pbuilderroot "sudo DIST=trusty ARCH=amd64"
 echo -e "[\e[32mrebuild.sh\e[00m] Building i386 version..."
-pdebuild --architecture i386 --buildresult $RESULT --pbuilderroot "sudo DIST=precise ARCH=i386"
+ARCH=i386
+pdebuild --architecture i386 --buildresult $RESULT --pbuilderroot "sudo DIST=trusty ARCH=i386"
 for f in $RESULT/*.deb
 do
     echo -e "[\e[32mrebuild.sh\e[00m] Checking " $f "..."

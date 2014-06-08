@@ -1,3 +1,16 @@
+glxosd (1.3-1ubuntu1) trusty; urgency=medium
+
+  * Fixed Debian installation files.
+
+ -- Nick Guletskii <nickguletskii200@gmail.com>  Sun, 08 Jun 2014 01:16:08 +0300
+
+glxosd (1.3-1) trusty; urgency=low
+
+  * Removed FTGL from the sourcecode tree.
+  * Move to TTF from OTF because OTFs cause segfaults for some reason.
+
+ -- Nick Guletskii <nickguletskii200@gmail.com>  Sat, 07 Jun 2014 18:36:21 +0300
+
 glxosd (1.2-1) precise; urgency=low
 
   * Changed the plugin loading mechanics to stop libraries from being inserted

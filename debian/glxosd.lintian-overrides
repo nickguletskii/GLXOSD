@@ -1,2 +1,2 @@
-glxosd: embedded-library usr/lib/glxosd/libglxosd-ftgl.so: ftgl
 glxosd: improbable-bug-number-in-closes 2
+glxosd: binary-without-manpage usr/bin/glxosd
