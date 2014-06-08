@@ -21,10 +21,10 @@ Before compiling, you need to make sure that you have GCC and CMake installed. O
 sudo apt-get install build-essential cmake
 ```
 
-We also need to make sure that the required libraries and their headers are installed. This project requires OpenGL, GLU, GLX, FontConfig, Freetype, Boost and libsensors. To install them on Ubuntu, execute this:
+We also need to make sure that the required libraries and their headers are installed. This project requires OpenGL, GLU, GLX, FontConfig, Freetype, Boost, FTGL and libsensors. To install them on Ubuntu, execute this:
 
 ```
-sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev libsensors4-dev libboost-dev
+sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev libsensors4-dev libboost-dev libftgl2 libftgl-dev
 ```
 
 Then, compile:
@@ -76,7 +76,6 @@ Project structure
 The src directory has a subdirectory for each module:
 
 * elfhacks - a library of various ELF run-time hacks, cloned from https://github.com/nullkey/elfhacks
-* ftgl - a text rendering library. http://sourceforge.net/apps/mediawiki/ftgl/index.php?title=Main_Page
 * glinject - the module that "injects" the OSD into each frame.
 * glxosd - the OSD itself.
 
@@ -87,6 +86,5 @@ The LICENSE file contains the license which applies to everything except:
 
 * Files located in the following directories:
 	* src/elfhacks
-	* src/ftgl
 * Binary builds of the files listed above.
 * Files under the fonts/CPMono_v07 directory. Please read the Creative Commons license which can be found inside that directory.
