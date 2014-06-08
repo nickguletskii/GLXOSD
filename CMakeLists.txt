@@ -10,7 +10,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
 ##### Set version #####
 set(GLXOSD_VERSION_MAJOR 1)
-set(GLXOSD_VERSION_MINOR 2)
+set(GLXOSD_VERSION_MINOR 3)
 set(GLXOSD_VERSION_PATCH 1)
 set(GLXOSD_VERSION_STRING ${GLXOSD_VERSION_MAJOR}.${GLXOSD_VERSION_MINOR}.${GLXOSD_VERSION_PATCH})
 ##### Find the libraries #####
@@ -37,6 +37,12 @@ include_directories(${FONTCONFIG_INCLUDE_DIRS})
 if(NOT FONTCONFIG_FOUND)
     message(ERROR " FontConfig not found!")
 endif(NOT FONTCONFIG_FOUND)
+#Find FontConfig
+find_package(FTGL REQUIRED)
+include_directories(${FTGL_INCLUDE_DIRS})
+if(NOT FTGL_FOUND)
+    message(ERROR " FTGL not found!")
+endif(NOT FTGL_FOUND)
 #Find X11
 find_package(X11 REQUIRED)
 include_directories(${X11_INCLUDE_DIRS})
@@ -80,7 +86,7 @@ link_directories(${OUTPUT_DIR})
 add_subdirectory(src)
 
 ##### Install fonts #####
-install(FILES "fonts/CPMono_v07/CPMono_v07_Bold.otf"  DESTINATION /usr/share/fonts/opentype/CPMono_v07)
+install(FILES "fonts/CPMono_v07/CPMono_v07_Bold.ttf"  DESTINATION /usr/share/fonts/truetype/CPMono_v07)
 install(SCRIPT "${CMAKE_SOURCE_DIR}/TriggerFontConfig.cmake")
 
 ##### Instal config #####
