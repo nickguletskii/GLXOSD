@@ -1,5 +1,6 @@
 #! /bin/bash
-TEMPLATE=$(cat launcher_template.sh)
+GLXOSD_SRC_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+TEMPLATE=$(cat ${GLXOSD_SRC_ROOT}/launcher_template.sh)
 TARGET_FILE="./glxosd"
 PREFIX="/usr"
 while : ; do
