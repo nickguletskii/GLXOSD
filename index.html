@@ -1,94 +1,120 @@
 <!--
 Copyright (C) 2013 Nick Guletskii
-
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 <!doctype html>
 <html class="no-js" lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GLXOSD</title>
-<link rel="stylesheet" href="css/foundation.css" />
-<link rel="stylesheet" href="css/glxosd.css" />
-<script src="js/modernizr.js"></script>
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-46764899-1', 'nickguletskii.github.io');
-  ga('send', 'pageview');
-
-</script>
-</head>
-<body>
-<nav class="top-bar" data-topbar>
-	<ul class="title-area">
-		<li class="name">
-			<h1><a href="index.html">GLXOSD</a></h1>
-		</li>
-		<li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
-	</ul>
-
-	<section class="top-bar-section">
-	<ul class="right">
-		<li class="active"><a href="index.html">Home</a></li>
-		<li><a href="install.html">Install</a></li>
-		<li><a href="faq.html">FAQ</a></li>
-		<li><a href="https://github.com/nickguletskii/GLXOSD">Source code</a></li>
-		<li><a href="https://github.com/nickguletskii/GLXOSD/issues?state=open">Issue tracker</a></li>
-	</ul>
-	</section>
-</nav>
-<div class="row">
-	<div class="large-9 columns large-centered">
-		<h3>GLXOSD,<small> a simple on-screen display/overlay for OpenGL applications running on Linux with X11</small></h3>
-		<h4>What does GLXOSD do?</h4>
-		<p>
-			GLXOSD displays information in the top left corner of the application. It can show FPS, the temperature of your CPU, and if you have an NVIDIA graphics card (with proprietary drivers), it will also show the temperature of the GPU. This project aims to provide some of the functionality that RivaTuner OSD (which is used by MSI Afterburner) provides under Windows.
-		</p>
-		<p>
-		<img src="img/glxgears.png">GLXOSD displaying info in glxgears</img>
-		</p>
-		<p>
-			<a href="install.html" class="button">Install</a>
-		</p>
-		<h4>How do I use it?</h4>
-		<p>
-			To use GLXOSD, you first have to <a href="install.html">install it</a>.</br>
-			Once you have installed it, to use it you'll need to launch the application you want it to display in using the <code>glxosd</code> command. All you have to do is prefix the command you use to launch the application with <code>glxosd </code>. For example, if you want to launch glxgears, you will have to run <code>glxosd glxgears</code>, and if you want to run Minecraft, you'll have to run <code>glxosd java -jar Minecraft.jar</code>.
-		</p>
-		<h4>How does it work?</h4>
-		<p>
-			GLXOSD works by intercepting glXSwapBuffers and glXDestroyContext calls. It uses the dynamic linker to override the GLX implementation of these methods and call them after it has finished rendering the overlay.
-		</p>
-	</div>
-</div>
-<footer class="row">
-<div class="large-12 columns">
-	<hr />
-	<div class="row">
-		<div class="large-6 columns">
-			<p>
-				© 2013 Nick Guletskii.
-			</p>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>GLXOSD</title>
+		<link rel="stylesheet" href="css/foundation.css" />
+		<link rel="stylesheet" href="css/glxosd.css" />
+		<script src="js/modernizr.js"></script>
+		<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+		ga('create', 'UA-46764899-1', 'nickguletskii.github.io');
+		ga('send', 'pageview');
+		</script>
+	</head>
+	<body>
+		<nav class="top-bar" data-topbar>
+			<ul class="title-area">
+				<li class="name">
+					<h1><a href="index.html">GLXOSD</a></h1>
+				</li>
+				<li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+			</ul>
+			<section class="top-bar-section">
+				<ul class="right">
+					<li class="active"><a href="index.html">Home</a></li>
+					<li><a href="install.html">Install</a></li>
+					<li><a href="faq.html">FAQ</a></li>
+					<li><a href="https://github.com/nickguletskii/GLXOSD">Source code</a></li>
+					<li><a href="https://github.com/nickguletskii/GLXOSD/issues?state=open">Issue tracker</a></li>
+				</ul>
+			</section>
+		</nav>
+		<div class="row">
+			<div class="large-9 columns large-centered">
+				<section>
+					<h3><dfn style="font-style: normal;">GLXOSD</dfn>,<small> a simple on-screen display/overlay for OpenGL applications running on Linux with X11</small></h3>
+				</section>
+				<section>
+					<h4>What does GLXOSD do?</h4>
+					<main>
+						<p>
+							GLXOSD displays information in the top left corner of the application. It can show FPS, the temperature of your CPU, and if you have an NVIDIA graphics card (with proprietary drivers), it will also show the temperature of the GPU. This project aims to provide some of the functionality that RivaTuner OSD (which is used by MSI Afterburner) provides under Windows.
+						</p>
+					</main>
+					<p>
+						<div style="background-color: #000000">
+							<ul class="example-orbit" data-orbit data-options="timer_speed: 5000">
+								<li>
+										<p align="center"><img src="img/glxgears.png" alt="Screenshot of GLXOSD running inside glxgears" class="text-center" ></img></p>
+										<div class="orbit-caption">GLXOSD displaying info in glxgears.</div>
+								</li>
+								<li>
+										<p align="center"><img src="img/hl2.png" alt="Screenshot of GLXOSD running inside glxgears"></img></p>
+										<div class="orbit-caption">GLXOSD displaying info in Half-Life 2.</br><small style="color: #888888">This is a screenshot of a copyrighted video game. It is believed that screenshots may be exhibited under fair use. Half-Life 2 is a trademark of Valve Corporation.</small></div>
+								</li>
+							</ul>
+						</div>
+					</p>
+					<p>
+						<a href="install.html" class="button">Install</a>
+					</p>
+				</section>
+				<section>
+					<h4>How do I use it?</h4>
+					<p>
+						First of all, you have to <a href="install.html">install it</a>.
+					</p>
+					<p>
+						Then, to use GLXOSD you'll need to launch the application you want it to display in using the <code>glxosd</code> command. All you have to do is prefix the command you use to launch the application with <code>glxosd </code>. For example, if you want to launch glxgears, you will have to run <code>glxosd glxgears</code>, and if you want to run Minecraft, you'll have to run <code>glxosd java -jar Minecraft.jar</code>. You can easily edit the launcher for that application, meaning that you don't have to launch the game from the terminal every time.
+					</p>
+					<p>
+						To run GLXOSD in Steam games, right click on the game in Steam, click on "Properties", then on "SET LAUNCH OPTIONS..." and paste <code>glxosd --steam %command%</code> into the text box. Press "OK" and then "CLOSE" to save the settings. You can now start the game and GLXOSD should work properly inside it.
+					</p>
+				</section>
+				<section>
+					<h4>How does it work?</h4>
+					<p>
+						GLXOSD works by intercepting glXSwapBuffers and glXDestroyContext calls. It uses the dynamic linker to override the GLX implementation of these methods and call them after it has finished rendering the overlay.
+					</p>
+				</section>
+				<section>
+					<h4>Supported distros</h4>
+					<p>
+						GLXOSD has been tested on Ubuntu (12.04, 12.10 and 14.04) and Debian (Wheezy), but it should work an most distros. Multiarch is only supported when GLXOSD is installed through the Launchpad PPA. The Launchpad PPA currently contains packages for the latest GLXOSD version for Ubuntu 14.04 Trusty Tahr and packages for legacy GLXOSD versions for Ubuntu 12.04, 12.10, 13.04 and 13.10.
+					</p>
+				</section>
+			</div>
 		</div>
-		<div class="large-6 columns text-right">
-			<a href="mailto:nickguletskii200@gmail.com">nickguletskii200@gmail.com</a>
-		</div>
-	</div>
-</div>
-</footer>
-<script src="js/jquery.js"></script>
-<script src="js/foundation.min.js"></script>
-<script>
-      $(document).foundation();
-</script>
-</body>
+		<footer class="row">
+			<div class="large-12 columns">
+				<hr />
+				<div class="row">
+					<div class="large-6 columns">
+						<p>
+							© 2013-2014 Nick Guletskii. All trademarks are property of their respective owners.
+						</p>
+					</div>
+					<div class="large-6 columns text-right">
+						<a href="mailto:nickguletskii200@gmail.com">nickguletskii200@gmail.com</a>
+					</div>
+				</div>
+			</div>
+		</footer>
+		<script src="js/jquery.js"></script>
+		<script src="js/foundation.min.js"></script>
+		<script>
+		$(document).foundation();
+		</script>
+	</body>
 </html>
