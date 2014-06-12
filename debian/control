@@ -64,7 +64,7 @@ Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applica
 Package: glxosd-libs-nvidia-support-amd64
 Architecture: amd64
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, glxosd-libs-amd64, libc6 (>= 2.14), libgcc1 (>= 1:4.1.1), libstdc++6 (>= 4.4.0), libx11-6 (>= 2:1.4.99.1)
+Depends: ${misc:Depends}, glxosd-libs-amd64, libc6 (>= 2.14), libgcc1 (>= 1:4.1.1), libstdc++6 (>= 4.4.0), libx11-6 (>= 2:1.4.99.1), libxext6
 Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
  GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired
  from RivaTuner OSD on Windows. It can display the number of frames per second,
@@ -75,7 +75,7 @@ Package: glxosd-libs-nvidia-support-i386
 Multi-arch: foreign
 Architecture: i386
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, glxosd-libs-i386, libc6 (>= 2.14), libgcc1 (>= 1:4.1.1), libstdc++6 (>= 4.4.0), libx11-6 (>= 2:1.4.99.1)
+Depends: ${misc:Depends}, glxosd-libs-i386, libc6 (>= 2.14), libgcc1 (>= 1:4.1.1), libstdc++6 (>= 4.4.0), libx11-6 (>= 2:1.4.99.1), libxext6
 Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
  GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired
  from RivaTuner OSD on Windows. It can display the number of frames per second,
