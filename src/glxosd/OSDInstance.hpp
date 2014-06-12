@@ -24,6 +24,8 @@ private:
 	FTGLExtrdFont* font;
 	std::string osdText;
 	void update(long currentMilliseconds);
+	typedef void* (*glUseProgram_type)(GLuint);
+	glUseProgram_type glxosd_glUseProgram ;
 public:
 	OSDInstance();
 	void render(unsigned int width, unsigned int height);

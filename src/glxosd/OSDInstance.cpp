@@ -65,6 +65,9 @@ OSDInstance::OSDInstance() :
 	struct timespec current;
 	clock_gettime(CLOCK_MONOTONIC, &current);
 	previousTime = ((current.tv_sec * 1000UL) + (current.tv_nsec / 1000000UL));
+
+	glxosd_glUseProgram = (glUseProgram_type) glXGetProcAddress(
+			(const GLubyte*) "glUseProgram");
 }
 
 OSDInstance::~OSDInstance() {
@@ -103,81 +106,126 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	clock_gettime(CLOCK_MONOTONIC, &current);
 	long currentTimeMilliseconds = ((current.tv_sec * 1000UL)
 			+ (current.tv_nsec / 1000000UL));
-	//Refresh the info every 500 milliseconds
+//Refresh the info every 500 milliseconds
 	if (currentTimeMilliseconds - previousTime >= 500) {
 		update(currentTimeMilliseconds);
 	}
 
+	if (glxosd_glUseProgram != nullptr)
+		glxosd_glUseProgram(0);				//Reset shader if supported
+
 	glPushMatrix();
-	glPushAttrib(GL_ALL_ATTRIB_BITS); //Make sure that we revert the state after we do everything.
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, width, 0, height, -1, 100);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
-	glDisable(GL_CULL_FACE);
-	glClear(GL_DEPTH_BUFFER_BIT);
+	{
+		glPushAttrib(GL_ALL_ATTRIB_BITS); //Make sure that we revert the state after we do everything.
+		{
+			glMatrixMode(GL_PROJECTION);
+			glPushMatrix();
+			{
+				glLoadIdentity();
+				glOrtho(0, width, 0, height, -1, 1);
+				glMatrixMode(GL_MODELVIEW);
+				glPushMatrix();
+				{
+					glLoadIdentity();
 
-	int lineNumber = 0;
-	std::stringstream osd_text_reader;
-	osd_text_reader << osdText;
+					glDisable(GL_ALPHA_TEST);
+					glDisable(GL_AUTO_NORMAL);
+					glDisable(GL_COLOR_LOGIC_OP);
+					glDisable(GL_COLOR_TABLE);
+					glDisable(GL_CONVOLUTION_1D);
+					glDisable(GL_CONVOLUTION_2D);
+					glDisable(GL_LINE_SMOOTH);
+					glDisable(GL_MULTISAMPLE);
+					glDisable(GL_CULL_FACE);
+					glDisable(GL_DEPTH_TEST);
+					glDisable(GL_DITHER);
+					glDisable(GL_FOG);
+					glDisable(GL_HISTOGRAM);
+					glDisable(GL_INDEX_LOGIC_OP);
+					glDisable(GL_LIGHTING);
+					glDisable(GL_MINMAX);
+					glDisable(GL_NORMALIZE);
+					glDisable(GL_SCISSOR_TEST);
+					glDisable(GL_SEPARABLE_2D);
+					glDisable(GL_STENCIL_TEST);
 
-	ConfigurationManager* configurationManager =
-			GLXOSD::instance()->getConfigurationManager();
-	int fontColourR = configurationManager->getProperty<int>(
-			"font_colour_r_int");
-	int fontColourG = configurationManager->getProperty<int>(
-			"font_colour_g_int");
-	int fontColourB = configurationManager->getProperty<int>(
-			"font_colour_b_int");
-	int textPositionX = configurationManager->getProperty<int>(
-			"text_pos_x_int");
-	int textPositionY = configurationManager->getProperty<int>(
-			"text_pos_y_int");
-	int fontSize = configurationManager->getProperty<int>("font_size_int");
-	int textSpacingY = configurationManager->getProperty<int>(
-			"text_spacing_y_int");
-	int textSpacingX = configurationManager->getProperty<int>(
-			"text_spacing_x_int");
-	bool showTextOutline = configurationManager->getProperty<bool>(
-			"show_text_outline_bool");
+					glDisableClientState(GL_COLOR_ARRAY);
+					glDisableClientState(GL_EDGE_FLAG_ARRAY);
+					glDisableClientState(GL_INDEX_ARRAY);
+					glDisableClientState(GL_NORMAL_ARRAY);
+					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+					glDisableClientState(GL_VERTEX_ARRAY);
 
-	while (!osd_text_reader.eof()) {
-		lineNumber++;
-		std::string line;
-		std::getline(osd_text_reader, line);
+					glEnable(GL_BLEND);
+					glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-		std::transform(line.begin(), line.end(), line.begin(), ::toupper);
+					glRenderMode(GL_RENDER);
+
+					glClear(GL_ALL_ATTRIB_BITS);
+
+					int lineNumber = 0;
+					std::stringstream osd_text_reader;
+					osd_text_reader << osdText;
+
+					ConfigurationManager* configurationManager =
+							GLXOSD::instance()->getConfigurationManager();
+					int fontColourR = configurationManager->getProperty<int>(
+							"font_colour_r_int");
+					int fontColourG = configurationManager->getProperty<int>(
+							"font_colour_g_int");
+					int fontColourB = configurationManager->getProperty<int>(
+							"font_colour_b_int");
+					int textPositionX = configurationManager->getProperty<int>(
+							"text_pos_x_int");
+					int textPositionY = configurationManager->getProperty<int>(
+							"text_pos_y_int");
+					int fontSize = configurationManager->getProperty<int>(
+							"font_size_int");
+					int textSpacingY = configurationManager->getProperty<int>(
+							"text_spacing_y_int");
+					int textSpacingX = configurationManager->getProperty<int>(
+							"text_spacing_x_int");
+					bool showTextOutline = configurationManager->getProperty<
+							bool>("show_text_outline_bool");
+
+					while (!osd_text_reader.eof()) {
+						lineNumber++;
+						std::string line;
+						std::getline(osd_text_reader, line);
+
+						std::transform(line.begin(), line.end(), line.begin(),
+								::toupper);
 
 //Trick from http://gamedev.stackexchange.com/a/46512
-		glColor3ub(fontColourR, fontColourG, fontColourB);
+						glColor3ub(fontColourR, fontColourG, fontColourB);
 
-		int xpos = textPositionX;
-		int ypos = height - textPositionY
-				- (fontSize + textSpacingY) * lineNumber;
+						int xpos = textPositionX;
+						int ypos = height - textPositionY
+								- (fontSize + textSpacingY) * lineNumber;
 
-		font->Render(line.c_str(), line.size(), FTPoint(xpos, ypos),
-				FTPoint(textSpacingX, 0), FTGL::RENDER_FRONT);
+						font->Render(line.c_str(), line.size(),
+								FTPoint(xpos, ypos), FTPoint(textSpacingX, 0),
+								FTGL::RENDER_FRONT);
 
-		if (showTextOutline) {
-			glColor3ub(0, 0, 0);
+						if (showTextOutline) {
+							glColor3ub(0, 0, 0);
 
-			font->Render(line.c_str(), line.size(), FTPoint(xpos, ypos),
-					FTPoint(textSpacingX, 0), FTGL::RENDER_SIDE);
+							font->Render(line.c_str(), line.size(),
+									FTPoint(xpos, ypos),
+									FTPoint(textSpacingX, 0),
+									FTGL::RENDER_SIDE);
+						}
+					}
+					glMatrixMode(GL_PROJECTION);
+				}
+				glPopMatrix();
+				glMatrixMode(GL_MODELVIEW);
+			}
+			glPopMatrix();
+			glClear(GL_DEPTH_BUFFER_BIT);
 		}
+		glPopAttrib();
 	}
-
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glPopAttrib();
 	glPopMatrix();
 }
 
