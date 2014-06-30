@@ -8,39 +8,39 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef CONFIGURATIONMANAGER_HPP_
-#define CONFIGURATIONMANAGER_HPP_
-
-#include <boost/any.hpp>
-#include <map>
-#include <stdexcept>
-#include <string>
-#include <typeinfo>
-
+#ifndef VERTEXBUFFER_HPP_
+#define VERTEXBUFFER_HPP_
+#include "ShaderProgram.hpp"
+#include "Colour.hpp"
+#include<GL/gl.h>
 namespace glxosd {
-class ConfigurationManager {
+
+class VertexBuffer {
 private:
-	std::map<std::string, boost::any> defaultConfiguration;
-	std::map<std::string, boost::any> configuration;
-	const std::map<std::string, boost::any> readConfigChain();
-	void readConfig(std::string path,
-			std::map<std::string, boost::any>& configuration);
-	boost::any __getProperty(std::string key) const;
+	GLuint vao;
+	GLuint vbo;
+	GLuint ibo;
+	GLuint texture;
+	ShaderProgram *shaderProgram;
+	GLint texture_location;
+	std::vector<GLuint> indices;
+	GLint posXLocation;
+	GLint posYLocation;
+	GLint widthLocation;
+	GLint heightLocation;
+	int imageWidth;
+	int imageHeight;
+	GLint imageWidthLocation;
+	GLint imageHeightLocation;
+
 public:
-	ConfigurationManager();
-	void addDefaultConfigurationValue(std::string key, boost::any value);
-	template<typename T>
-	T getProperty(std::string key) const {
-		boost::any obj = __getProperty(key);
-		if (obj.type() != typeid(T)) {
-			throw std::runtime_error(
-					"GLXOSD property " + key
-							+ " has an incorrect type! Expected "
-							+ typeid(T).name() + ", got " + obj.type().name());
-		}
-		T val = boost::any_cast<T>(obj);
-		return val;
-	}
+	VertexBuffer(std::vector<GLfloat> vertices, std::vector<GLuint> indices,
+			int imageWidth, int imageHeight, std::vector<ColourRGBA> image,
+			GLenum type);
+	void render(int x, int y, int width, int height);
+	virtual ~VertexBuffer();
 };
-}
-#endif
+
+} /* namespace glxosd */
+
+#endif /* VERTEXBUFFER_HPP_ */

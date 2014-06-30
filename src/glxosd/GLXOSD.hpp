@@ -9,16 +9,15 @@
  */
 #ifndef GLXOSD_HPP_
 #define GLXOSD_HPP_
-
 #include "OSDInstance.hpp"
 #include "Wrapper.hpp"
-#include <glinject.hpp>
 #include <GL/gl.h>
 #include <GL/glx.h>
+#include <X11/Xlib.h>
 #include <map>
 #include <string>
-#include <boost/any.hpp>
-#include <stdexcept>
+#include <vector>
+
 #define GLXOSD_PROPERTY GLXOSD::instance()->getConfigurationManager()->getProperty
 namespace glxosd {
 void osdHandleBufferSwap(Display* display, GLXDrawable drawable);
@@ -33,7 +32,7 @@ typedef Wrapper<void, glxosd::GLXOSD*> PluginDestructor;
 
 class GLXOSD {
 private:
-	ConfigurationManager* configurationManager;
+	ConfigurationManager *configurationManager;
 	std::map<GLXContext, glxosd::OSDInstance*>* drawableHandlers;
 	std::vector<PluginConstructor>* pluginConstructors;
 	std::vector<PluginDataProvider>* pluginDataProviders;
@@ -46,7 +45,7 @@ public:
 	static GLXOSD* instance();
 	static void cleanup();
 	GLXOSD();
-	ConfigurationManager* getConfigurationManager();
+	ConfigurationManager &getConfigurationManager();
 	void osdHandleBufferSwap(Display* display, GLXDrawable drawable);
 	void osdHandleContextDestruction(Display* display, GLXContext context);
 	std::vector<PluginDataProvider>* getPluginDataProviders();

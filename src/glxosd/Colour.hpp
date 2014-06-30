@@ -8,39 +8,28 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef CONFIGURATIONMANAGER_HPP_
-#define CONFIGURATIONMANAGER_HPP_
+#ifndef COLOUR_HPP_
+#define COLOUR_HPP_
+#include <GL/gl.h>
+struct ColourRGBA {
+	GLubyte r;
+	GLubyte g;
+	GLubyte b;
+	GLubyte a;
 
-#include <boost/any.hpp>
-#include <map>
-#include <stdexcept>
-#include <string>
-#include <typeinfo>
+	ColourRGBA() :
+			r(0), g(0), b(0), a(0) {
 
-namespace glxosd {
-class ConfigurationManager {
-private:
-	std::map<std::string, boost::any> defaultConfiguration;
-	std::map<std::string, boost::any> configuration;
-	const std::map<std::string, boost::any> readConfigChain();
-	void readConfig(std::string path,
-			std::map<std::string, boost::any>& configuration);
-	boost::any __getProperty(std::string key) const;
-public:
-	ConfigurationManager();
-	void addDefaultConfigurationValue(std::string key, boost::any value);
-	template<typename T>
-	T getProperty(std::string key) const {
-		boost::any obj = __getProperty(key);
-		if (obj.type() != typeid(T)) {
-			throw std::runtime_error(
-					"GLXOSD property " + key
-							+ " has an incorrect type! Expected "
-							+ typeid(T).name() + ", got " + obj.type().name());
-		}
-		T val = boost::any_cast<T>(obj);
-		return val;
+	}
+
+	ColourRGBA(GLubyte r, GLubyte g, GLubyte b, GLubyte a) :
+			r(r), g(g), b(b), a(a) {
+	}
+
+	ColourRGBA(GLubyte r, GLubyte g, GLubyte b) :
+			r(r), g(g), b(b), a(255) {
 	}
 };
-}
+ColourRGBA operator+(ColourRGBA left, ColourRGBA right);
+ColourRGBA operator*(ColourRGBA left, ColourRGBA right);
 #endif

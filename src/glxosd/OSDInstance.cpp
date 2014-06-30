@@ -8,82 +8,97 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "OSDInstance.hpp"
+#include "Colour.hpp"
 #include "ConfigurationManager.hpp"
+#include "FontRenderer.hpp"
+#include "GLAttribState.hpp"
+#include "GLLoader.hpp"
 #include "GLXOSD.hpp"
-#include <sys/time.h>
-#include <cstdio>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <cstdarg>
-#include <iomanip>
 #include <algorithm>
+#include <map>
+#include <sstream>
 #include <string>
-#include <fontconfig/fontconfig.h>
-#include <boost/lexical_cast.hpp>
+#include <vector>
+#include <GL/gl.h>
 #include <boost/any.hpp>
+#include <boost/lexical_cast.hpp>
 namespace glxosd {
 
-const std::string findFont(const char* name) {
-	std::string fontFile;
-	FcConfig* config = FcInitLoadConfigAndFonts();
-	FcPattern* pattern = FcNameParse((const FcChar8*) (name));
-	FcConfigSubstitute(config, pattern, FcMatchPattern);
-	FcDefaultSubstitute(pattern);
-	FcResult result;
-	FcPattern* font = FcFontMatch(config, pattern, &result);
-	if (font) {
-		FcChar8* file = nullptr;
-		if (FcPatternGetString(font, FC_FILE, 0, &file) == FcResultMatch)
-			fontFile = std::string((char*) file);
-		FcPatternDestroy(font);
-	}
-	FcPatternDestroy(pattern);
-	return fontFile;
-}
 OSDInstance::OSDInstance() :
 		osdText("Gathering data...") {
-	ConfigurationManager* configurationManager =
+	const ConfigurationManager &configurationManager =
 			GLXOSD::instance()->getConfigurationManager();
-//Font initialisation, obviously...
-	std::string fontName = configurationManager->getProperty<std::string>(
+
+	std::string fontName = configurationManager.getProperty<std::string>(
 			"font_name");
-	int fontSize = configurationManager->getProperty<int>("font_size_int");
+	int fontSize = configurationManager.getProperty<int>("font_size_int");
+	int fontColourR = configurationManager.getProperty<int>(
+			"font_colour_r_int");
+	int fontColourG = configurationManager.getProperty<int>(
+			"font_colour_g_int");
+	int fontColourB = configurationManager.getProperty<int>(
+			"font_colour_b_int");
+	int fontColourA = configurationManager.getProperty<int>(
+			"font_colour_a_int");
+	int fontOutlineColourR = configurationManager.getProperty<int>(
+			"font_outline_colour_r_int");
+	int fontOutlineColourG = configurationManager.getProperty<int>(
+			"font_outline_colour_g_int");
+	int fontOutlineColourB = configurationManager.getProperty<int>(
+			"font_outline_colour_b_int");
+	int fontOutlineColourA = configurationManager.getProperty<int>(
+			"font_outline_colour_a_int");
 
-	std::string fontPath = findFont(fontName.c_str());
-	std::cout << "[GLXOSD] Loading font \"" << fontPath << "\" with size "
-			<< fontSize << "..." << std::endl;
+	float outlineWidth =
+			configurationManager.getProperty<bool>("show_text_outline_bool") ?
+					configurationManager.getProperty<float>(
+							"font_outline_width_float") :
+					0;
 
-	font = new FTGLExtrdFont(fontPath.c_str());
-	font->FaceSize(fontSize);
-//Trick from http://gamedev.stackexchange.com/a/46512
-	font->Depth(0);
-	font->Outset(0, 1);
+	int horizontalDPI = configurationManager.getProperty<int>(
+			"font_dpi_horizontal_int");
+	int verticalDPI = configurationManager.getProperty<int>(
+			"font_dpi_vertical_int");
+
+	int textPositionX = configurationManager.getProperty<int>("text_pos_x_int");
+	int textPositionY = configurationManager.getProperty<int>("text_pos_y_int");
+	float textSpacingY = configurationManager.getProperty<float>(
+			"text_spacing_y_float");
+	float textSpacingX = configurationManager.getProperty<float>(
+			"text_spacing_x_float");
+
+	fpsFormat = configurationManager.getProperty<boost::format>(
+				"fps_format");
+
+	renderer = new FontRenderer(fontName, fontSize, horizontalDPI, verticalDPI,
+			outlineWidth);
+	renderer->setFontColour(
+			ColourRGBA(fontColourR, fontColourG, fontColourB, fontColourA));
+	renderer->setFontOutlineColour(
+			ColourRGBA(fontOutlineColourR, fontOutlineColourG,
+					fontOutlineColourB, fontOutlineColourA));
+
+	renderer->setTextPositionX(textPositionX);
+	renderer->setTextPositionY(textPositionY);
+	renderer->setTextSpacingX(textSpacingX);
+	renderer->setTextSpacingY(textSpacingY);
+
 	currentFrameCount = 0;
 	framesPerSecond = 0;
 //Set the time for the first time.
-	struct timespec current;
-	clock_gettime(CLOCK_MONOTONIC, &current);
-	previousTime = ((current.tv_sec * 1000UL) + (current.tv_nsec / 1000000UL));
-
-	glxosd_glUseProgram = (glUseProgram_type) glXGetProcAddress(
-			(const GLubyte*) "glUseProgram");
+	previousTime = std::chrono::steady_clock::now();
 }
 
-OSDInstance::~OSDInstance() {
-	delete font;
-}
-void OSDInstance::update(long currentMilliseconds) {
-	ConfigurationManager* configurationManager =
-			GLXOSD::instance()->getConfigurationManager();
+void OSDInstance::update() {
+	std::chrono::steady_clock::time_point currentTime =
+			std::chrono::steady_clock::now();
 
 	framesPerSecond = 1000.0 * currentFrameCount
-			/ (currentMilliseconds - previousTime);
-	previousTime = currentMilliseconds;
+			/ std::chrono::duration_cast<std::chrono::milliseconds>(
+					currentTime - previousTime).count();
+	previousTime = currentTime;
 	currentFrameCount = 0;
 
-	auto fpsFormat = configurationManager->getProperty<boost::format>(
-			"fps_format");
 	std::stringstream osdTextBuilder;
 	osdTextBuilder << boost::format(fpsFormat) % framesPerSecond;
 
@@ -100,134 +115,151 @@ void OSDInstance::update(long currentMilliseconds) {
 
 	osdText = osdTextBuilder.str();
 }
+
+void OSDInstance::renderText(unsigned int width, unsigned int height) {
+	std::stringstream osd_text_reader;
+	osd_text_reader << osdText;
+
+	std::string str = osd_text_reader.str();
+	std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+
+	renderer->render(width, height, str);
+}
+
 void OSDInstance::render(unsigned int width, unsigned int height) {
 	currentFrameCount++;
 	struct timespec current;
 	clock_gettime(CLOCK_MONOTONIC, &current);
-	long currentTimeMilliseconds = ((current.tv_sec * 1000UL)
-			+ (current.tv_nsec / 1000000UL));
+	std::chrono::steady_clock::time_point currentTime =
+			std::chrono::steady_clock::now();
 //Refresh the info every 500 milliseconds
-	if (currentTimeMilliseconds - previousTime >= 500) {
-		update(currentTimeMilliseconds);
+	if (currentTime - previousTime >= std::chrono::milliseconds(500)) {
+		update();
 	}
 
-	if (glxosd_glUseProgram != nullptr)
-		glxosd_glUseProgram(0);				//Reset shader if supported
-
-	glPushMatrix();
+	// Memorise misc. settings
+	GLint program;
 	{
-		glPushAttrib(GL_ALL_ATTRIB_BITS); //Make sure that we revert the state after we do everything.
-		{
-			glMatrixMode(GL_PROJECTION);
-			glPushMatrix();
-			{
-				glLoadIdentity();
-				glOrtho(0, width, 0, height, -1, 1);
-				glMatrixMode(GL_MODELVIEW);
-				glPushMatrix();
-				{
-					glLoadIdentity();
-
-					glDisable(GL_ALPHA_TEST);
-					glDisable(GL_AUTO_NORMAL);
-					glDisable(GL_COLOR_LOGIC_OP);
-					glDisable(GL_COLOR_TABLE);
-					glDisable(GL_CONVOLUTION_1D);
-					glDisable(GL_CONVOLUTION_2D);
-					glDisable(GL_LINE_SMOOTH);
-					glDisable(GL_MULTISAMPLE);
-					glDisable(GL_CULL_FACE);
-					glDisable(GL_DEPTH_TEST);
-					glDisable(GL_DITHER);
-					glDisable(GL_FOG);
-					glDisable(GL_HISTOGRAM);
-					glDisable(GL_INDEX_LOGIC_OP);
-					glDisable(GL_LIGHTING);
-					glDisable(GL_MINMAX);
-					glDisable(GL_NORMALIZE);
-					glDisable(GL_SCISSOR_TEST);
-					glDisable(GL_SEPARABLE_2D);
-					glDisable(GL_STENCIL_TEST);
-
-					glDisableClientState(GL_COLOR_ARRAY);
-					glDisableClientState(GL_EDGE_FLAG_ARRAY);
-					glDisableClientState(GL_INDEX_ARRAY);
-					glDisableClientState(GL_NORMAL_ARRAY);
-					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-					glDisableClientState(GL_VERTEX_ARRAY);
-
-					glEnable(GL_BLEND);
-					glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
-					glRenderMode(GL_RENDER);
-
-					glClear(GL_ALL_ATTRIB_BITS);
-
-					int lineNumber = 0;
-					std::stringstream osd_text_reader;
-					osd_text_reader << osdText;
-
-					ConfigurationManager* configurationManager =
-							GLXOSD::instance()->getConfigurationManager();
-					int fontColourR = configurationManager->getProperty<int>(
-							"font_colour_r_int");
-					int fontColourG = configurationManager->getProperty<int>(
-							"font_colour_g_int");
-					int fontColourB = configurationManager->getProperty<int>(
-							"font_colour_b_int");
-					int textPositionX = configurationManager->getProperty<int>(
-							"text_pos_x_int");
-					int textPositionY = configurationManager->getProperty<int>(
-							"text_pos_y_int");
-					int fontSize = configurationManager->getProperty<int>(
-							"font_size_int");
-					int textSpacingY = configurationManager->getProperty<int>(
-							"text_spacing_y_int");
-					int textSpacingX = configurationManager->getProperty<int>(
-							"text_spacing_x_int");
-					bool showTextOutline = configurationManager->getProperty<
-							bool>("show_text_outline_bool");
-
-					while (!osd_text_reader.eof()) {
-						lineNumber++;
-						std::string line;
-						std::getline(osd_text_reader, line);
-
-						std::transform(line.begin(), line.end(), line.begin(),
-								::toupper);
-
-//Trick from http://gamedev.stackexchange.com/a/46512
-						glColor3ub(fontColourR, fontColourG, fontColourB);
-
-						int xpos = textPositionX;
-						int ypos = height - textPositionY
-								- (fontSize + textSpacingY) * lineNumber;
-
-						font->Render(line.c_str(), line.size(),
-								FTPoint(xpos, ypos), FTPoint(textSpacingX, 0),
-								FTGL::RENDER_FRONT);
-
-						if (showTextOutline) {
-							glColor3ub(0, 0, 0);
-
-							font->Render(line.c_str(), line.size(),
-									FTPoint(xpos, ypos),
-									FTPoint(textSpacingX, 0),
-									FTGL::RENDER_SIDE);
-						}
-					}
-					glMatrixMode(GL_PROJECTION);
-				}
-				glPopMatrix();
-				glMatrixMode(GL_MODELVIEW);
-			}
-			glPopMatrix();
-			glClear(GL_DEPTH_BUFFER_BIT);
-		}
-		glPopAttrib();
+		glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+		glUseProgram(0);
 	}
-	glPopMatrix();
-}
 
+	glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	GLint frontFace;
+	{
+		glGetIntegerv(GL_FRONT_FACE, &frontFace);
+		glFrontFace(GL_CCW);
+	}
+
+	GLfloat blendColour[4];
+	{
+		glGetFloatv(GL_BLEND_COLOR, blendColour);
+		glBlendColor(0, 0, 0, 0);
+	}
+
+	GLboolean colourMask[4];
+	{
+		glGetBooleanv(GL_COLOR_WRITEMASK, colourMask);
+		glColorMask(1, 1, 1, 1);
+	}
+
+	GLint blendSrc;
+	GLint blendDst;
+	{
+		glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrc);
+		glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDst);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	GLint depthFunc;
+	{
+		glGetIntegerv(GL_DEPTH_FUNC, &depthFunc);
+		glDepthFunc(GL_LESS);
+	}
+
+	//Equivalent to glPushAttrib -> glEnable/Disable -> glPopAttrib
+	GLAttribState attribState(glEnable, glDisable, glIsEnabled);
+	GLAttribState clientAttribState(glEnableClientState, glDisableClientState,
+			glIsEnabled);
+	{
+		attribState.set(GL_ALPHA_TEST, GL_FALSE);
+		attribState.set(GL_AUTO_NORMAL, GL_FALSE);
+		attribState.set(GL_CULL_FACE, GL_FALSE);
+		attribState.set(GL_COLOR_LOGIC_OP, GL_FALSE);
+		attribState.set(GL_COLOR_TABLE, GL_FALSE);
+		attribState.set(GL_CONVOLUTION_1D, GL_FALSE);
+		attribState.set(GL_CONVOLUTION_2D, GL_FALSE);
+		attribState.set(GL_CULL_FACE, GL_FALSE);
+		attribState.set(GL_DEPTH_TEST, GL_FALSE);
+		attribState.set(GL_DITHER, GL_FALSE);
+		attribState.set(GL_FOG, GL_FALSE);
+		attribState.set(GL_HISTOGRAM, GL_FALSE);
+		attribState.set(GL_INDEX_LOGIC_OP, GL_FALSE);
+		attribState.set(GL_LIGHTING, GL_FALSE);
+		attribState.set(GL_NORMALIZE, GL_FALSE);
+		attribState.set(GL_MINMAX, GL_FALSE);
+		attribState.set(GL_SEPARABLE_2D, GL_FALSE);
+		attribState.set(GL_SCISSOR_TEST, GL_FALSE);
+		attribState.set(GL_STENCIL_TEST, GL_FALSE);
+		attribState.set(GL_SAMPLE_ALPHA_TO_COVERAGE, GL_FALSE);
+		attribState.set(GL_COLOR_LOGIC_OP, GL_FALSE);
+		attribState.set(GL_CULL_FACE, GL_FALSE);
+		attribState.set(GL_DEPTH_TEST, GL_FALSE);
+		attribState.set(GL_MULTISAMPLE, GL_FALSE);
+		attribState.set(GL_POLYGON_OFFSET_POINT, GL_FALSE);
+		attribState.set(GL_POLYGON_OFFSET_LINE, GL_FALSE);
+		attribState.set(GL_POLYGON_OFFSET_FILL, GL_FALSE);
+		attribState.set(GL_SAMPLE_COVERAGE, GL_FALSE);
+		attribState.set(GL_SCISSOR_TEST, GL_FALSE);
+		attribState.set(GL_STENCIL_TEST, GL_FALSE);
+		attribState.set(GL_TEXTURE_GEN_Q, GL_FALSE);
+		attribState.set(GL_TEXTURE_GEN_R, GL_FALSE);
+		attribState.set(GL_TEXTURE_GEN_S, GL_FALSE);
+		attribState.set(GL_TEXTURE_GEN_T, GL_FALSE);
+		clientAttribState.set(GL_COLOR_ARRAY, GL_FALSE);
+		clientAttribState.set(GL_EDGE_FLAG_ARRAY, GL_FALSE);
+		clientAttribState.set(GL_INDEX_ARRAY, GL_FALSE);
+		clientAttribState.set(GL_NORMAL_ARRAY, GL_FALSE);
+		clientAttribState.set(GL_TEXTURE_COORD_ARRAY, GL_TRUE);
+		clientAttribState.set(GL_VERTEX_ARRAY, GL_TRUE);
+	}
+	{
+		attribState.set(GL_TEXTURE_CUBE_MAP, GL_FALSE);
+		attribState.set(GL_VERTEX_PROGRAM_ARB, GL_FALSE);
+		attribState.set(GL_FRAGMENT_PROGRAM_ARB, GL_FALSE);
+		attribState.set(GL_BLEND, GL_TRUE);
+		attribState.set(GL_TEXTURE_2D, GL_TRUE);
+	}
+
+	//Memorise buffer states
+	GLint pixelUnpackBufferBinding = 0, arrayBufferBinding = 0, activeTexture =
+			0, textureBinding2D = 0, vertexArrayBinding = 0;
+	glGetIntegerv(GL_PIXEL_UNPACK_BUFFER_BINDING, &pixelUnpackBufferBinding);
+	glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &arrayBufferBinding);
+	glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTexture);
+	glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding2D);
+	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vertexArrayBinding);
+
+	renderText(width, height);
+
+	//Revert buffer states
+	glActiveTexture(activeTexture);
+	glBindTexture(GL_TEXTURE_2D, textureBinding2D);
+	glBindVertexArray(vertexArrayBinding);
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pixelUnpackBufferBinding);
+	glBindBuffer(GL_ARRAY_BUFFER, arrayBufferBinding);
+
+	//Revert misc settings
+	glDepthFunc(depthFunc);
+	glBlendColor(blendColour[0], blendColour[1], blendColour[2],
+			blendColour[3]);
+	glColorMask(colourMask[0], colourMask[1], colourMask[2], colourMask[3]);
+	glFrontFace(frontFace);
+	glBlendFunc(blendSrc, blendDst);
+	glUseProgram(program);
+}
+OSDInstance::~OSDInstance() {
+}
 }
 

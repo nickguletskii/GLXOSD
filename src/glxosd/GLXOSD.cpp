@@ -7,22 +7,18 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#include "GLXOSD.hpp"
 #include "Utils.hpp"
-#include <ConfigurationManager.hpp>
+#include "OSDInstance.hpp"
+#include "ConfigurationManager.hpp"
 #include <dlfcn.h>
-#include <GLXOSD.hpp>
-#include <OSDInstance.hpp>
-#include <X11/Xlib.h>
-#include <cstdlib>
-#include <functional>
 #include <iostream>
-#include <utility>
-#include <vector>
 #include <sstream>
+
 namespace glxosd {
-GLXOSD* GLXOSD::glxosdInstance = 0;
+GLXOSD* GLXOSD::glxosdInstance = nullptr;
 GLXOSD* GLXOSD::instance() {
-	if (glxosdInstance == 0) {
+	if (glxosdInstance == nullptr) {
 		glxosdInstance = new GLXOSD();
 	}
 	return glxosdInstance;
@@ -78,8 +74,8 @@ void GLXOSD::osdHandleContextDestruction(Display* display, GLXContext context) {
 		drawableHandlers->erase(it);
 	}
 }
-ConfigurationManager* GLXOSD::getConfigurationManager() {
-	return configurationManager;
+ConfigurationManager & GLXOSD::getConfigurationManager() {
+	return *configurationManager;
 }
 
 void GLXOSD::cleanup() {
@@ -109,7 +105,7 @@ GLXOSD::~GLXOSD() {
  * Plugin function getters
  */
 
-std::vector<PluginDataProvider>* GLXOSD::getPluginDataProviders() {
+std::vector<PluginDataProvider> *GLXOSD::getPluginDataProviders() {
 	return pluginDataProviders;
 }
 

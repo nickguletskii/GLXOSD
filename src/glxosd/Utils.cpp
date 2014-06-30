@@ -9,9 +9,20 @@
  */
 #include "Utils.hpp"
 #include <cstdlib>
+#include <X11/Xlib.h>
 namespace glxosd {
 std::string getEnvironment(const std::string & var) {
 	const char * val = getenv(var.c_str());
 	return (val == nullptr) ? "" : val;
 }
+}
+
+std::pair<int, int> glxosd::getDPI() {
+	Display * dpy = XOpenDisplay(nullptr);
+	int screen = 0; //TODO: find a way to get the current screen
+	int horizontalDPI = ((((double) XDisplayWidth(dpy, screen)) * 25.4)
+			/ ((double) XDisplayWidthMM(dpy, screen)));
+	int verticalDPI = ((((double) XDisplayHeight(dpy, screen)) * 25.4)
+			/ ((double) XDisplayHeightMM(dpy, screen)));
+	return std::pair<int, int>(horizontalDPI, verticalDPI);
 }

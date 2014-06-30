@@ -19,7 +19,7 @@
 <mapEntry key="GLINJECT_DESTRUCTORS" value="destructGLXOSD"/>
 <mapEntry key="GLXOSD_PLUGINS" value="libglxosd-plugins-libsensors-support.so:libglxosd-plugins-nvidia-support.so"/>
 <mapEntry key="LD_LIBRARY_PATH" value="${project_loc}/bin/"/>
-<mapEntry key="LD_PRELOAD" value="libglxosd-elfhacks.so:libglxosd-glinject.so:libglxosd-ftgl.so:libglxosd.so"/>
+<mapEntry key="LD_PRELOAD" value="libglxosd-elfhacks.so:libglxosd-glinject.so:libglxosd.so"/>
 </mapAttribute>
 <stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;memoryBlockExpressionList context=&quot;reserved-for-future-use&quot;/&gt;&#10;"/>
 <booleanAttribute key="org.eclipse.linuxtools.internal.perf.attr.DefaultEvent" value="true"/>

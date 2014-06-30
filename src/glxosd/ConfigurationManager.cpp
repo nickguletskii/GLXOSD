@@ -7,61 +7,56 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#include "Utils.hpp"
+
 #include "ConfigurationManager.hpp"
-#include <boost/lexical_cast.hpp>
+#include "Utils.hpp"
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/xpressive/xpressive.hpp>
 #include <fstream>
+#include <iostream>
+#include <iterator>
+#include <utility>
+#include <cmath>
 namespace glxosd {
-
-std::map<std::string, boost::any>* ConfigurationManager::getDefaultConfiguration() {
-	if (defaultConfigurationCache == nullptr) {
-		defaultConfigurationCache = new std::map<std::string, boost::any>(
-				defaultConfiguration.begin(), defaultConfiguration.end());
-	}
-	return defaultConfigurationCache;
-}
 
 void ConfigurationManager::addDefaultConfigurationValue(std::string key,
 		boost::any value) {
-	defaultConfiguration.push_back(
-			std::pair<std::string, boost::any>(key, value));
-	if (defaultConfigurationCache != nullptr) {
-		delete defaultConfigurationCache;
-		defaultConfigurationCache = nullptr;
-	}
+	defaultConfiguration.insert(std::pair<std::string, boost::any>(key, value));
 }
 
-ConfigurationManager::ConfigurationManager() :
-		configurationCache(nullptr), defaultConfigurationCache(nullptr) {
+ConfigurationManager::ConfigurationManager() {
+	std::pair<int, int> dpi = getDPI();
+
 	addDefaultConfigurationValue("font_name", std::string("CPMono_v07 Bold"));
 	addDefaultConfigurationValue("font_size_int", 16);
 	addDefaultConfigurationValue("font_colour_r_int", 255);
 	addDefaultConfigurationValue("font_colour_g_int", 0);
 	addDefaultConfigurationValue("font_colour_b_int", 255);
+	addDefaultConfigurationValue("font_colour_a_int", 255);
+	addDefaultConfigurationValue("font_outline_colour_r_int", 0);
+	addDefaultConfigurationValue("font_outline_colour_g_int", 0);
+	addDefaultConfigurationValue("font_outline_colour_b_int", 0);
+	addDefaultConfigurationValue("font_outline_colour_a_int", 255);
+	addDefaultConfigurationValue("font_outline_width_float", 1.0f);
+	addDefaultConfigurationValue("font_dpi_horizontal_int", dpi.first);
+	addDefaultConfigurationValue("font_dpi_vertical_int", dpi.second);
 	addDefaultConfigurationValue("text_pos_x_int", 4);
 	addDefaultConfigurationValue("text_pos_y_int", 2);
-	addDefaultConfigurationValue("text_spacing_x_int", 2);
-	addDefaultConfigurationValue("text_spacing_y_int", 2);
-	addDefaultConfigurationValue("show_text_outline_bool", true);
+	addDefaultConfigurationValue("text_spacing_x_float", 0.0f);
+	addDefaultConfigurationValue("text_spacing_y_float", 0.0f);
 	addDefaultConfigurationValue("fps_format", boost::format("FPS: %1$.1f\n"));
 	addDefaultConfigurationValue("temperature_format", boost::format("%1$i C"));
+	addDefaultConfigurationValue("show_text_outline_bool", true); // Deprecated
+	configuration = readConfigChain();
 }
 
-std::map<std::string, boost::any>* ConfigurationManager::getConfiguration() {
-	if (configurationCache == nullptr) {
-		configurationCache = new std::map<std::string, boost::any>(
-				readConfigChain());
-	}
-	return configurationCache;
-}
-
-std::map<std::string, boost::any> ConfigurationManager::readConfigChain() {
+const std::map<std::string, boost::any> ConfigurationManager::readConfigChain() {
 	std::map<std::string, boost::any> configuration;
 
 	std::string globalPath = "/etc/glxosd.conf";
 	std::string userPath = getEnvironment("HOME") + "/.glxosd/glxosd.conf";
+	std::string customPath = getEnvironment("GLXOSD_CONFIG_PATH");
 
 	// Read the global config first...
 	std::cout << "[GLXOSD] Reading global configuration file at \""
@@ -72,6 +67,13 @@ std::map<std::string, boost::any> ConfigurationManager::readConfigChain() {
 	std::cout << "[GLXOSD] Reading user's configuration file at \"" << userPath
 			<< "\"..." << std::endl;
 	readConfig(userPath, configuration);
+
+	if (!customPath.empty()) {
+		// And finally, the config that is specified in the GLXOSD_CONFIG_PATH environment variable
+		std::cout << "[GLXOSD] Reading user's configuration file at \""
+				<< userPath << "\"..." << std::endl;
+		readConfig(customPath, configuration);
+	}
 
 	return configuration;
 }
@@ -161,6 +163,8 @@ void ConfigurationManager::readConfig(std::string path,
 			configuration[key] = boost::lexical_cast<int>(value);
 		} else if (stringEndsWith(key, "_double")) {
 			configuration[key] = boost::lexical_cast<double>(value);
+		} else if (stringEndsWith(key, "_float")) {
+			configuration[key] = boost::lexical_cast<float>(value);
 		} else {
 			configuration[key] = value;
 		}
@@ -169,14 +173,15 @@ void ConfigurationManager::readConfig(std::string path,
 			<< std::endl;
 }
 
-boost::any ConfigurationManager::__getProperty(std::string key) {
-	if (getConfiguration()->find(key) == getConfiguration()->end()) {
-		if (getDefaultConfiguration()->find(key)
-				!= getDefaultConfiguration()->end())
-			return getDefaultConfiguration()->at(key);
+boost::any ConfigurationManager::__getProperty(const std::string key) const {
+	if (configuration.find(key) == configuration.end()) {
+		if (defaultConfiguration.find(key) != defaultConfiguration.end()) {
+			return defaultConfiguration.at(key);
+		}
 		throw std::runtime_error("Missing GLXOSD property " + key);
 	}
-	return getConfiguration()->at(key);
+
+	return configuration.at(key);
 }
 
 }

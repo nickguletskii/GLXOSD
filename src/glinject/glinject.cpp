@@ -9,8 +9,8 @@
  */
 
 #include "glinject.hpp"
+#include "elfhacks.hpp"
 #include <dlfcn.h>
-#include <elfhacks.hpp>
 #include <GL/gl.h>
 #include <stddef.h>
 #include <cstdlib>

@@ -21,10 +21,10 @@ Before compiling, you need to make sure that you have GCC and CMake installed. O
 sudo apt-get install build-essential cmake
 ```
 
-We also need to make sure that the required libraries and their headers are installed. This project requires OpenGL, GLU, GLX, FontConfig, Freetype, Boost, FTGL and libsensors. To install them on Ubuntu, execute this:
+We also need to make sure that the required libraries and their headers are installed. This project requires OpenGL, GLU, GLX, FontConfig, Freetype, Boost, and libsensors. To install them on Ubuntu, execute this:
 
 ```
-sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev libsensors4-dev libboost-dev libftgl2 libftgl-dev
+sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev libsensors4-dev libboost-dev
 ```
 
 Then, compile:

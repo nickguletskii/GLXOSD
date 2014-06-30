@@ -8,39 +8,35 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef CONFIGURATIONMANAGER_HPP_
-#define CONFIGURATIONMANAGER_HPP_
-
-#include <boost/any.hpp>
-#include <map>
-#include <stdexcept>
-#include <string>
-#include <typeinfo>
+#include "GLAttribState.hpp"
+#include <GL/gl.h>
 
 namespace glxosd {
-class ConfigurationManager {
-private:
-	std::map<std::string, boost::any> defaultConfiguration;
-	std::map<std::string, boost::any> configuration;
-	const std::map<std::string, boost::any> readConfigChain();
-	void readConfig(std::string path,
-			std::map<std::string, boost::any>& configuration);
-	boost::any __getProperty(std::string key) const;
-public:
-	ConfigurationManager();
-	void addDefaultConfigurationValue(std::string key, boost::any value);
-	template<typename T>
-	T getProperty(std::string key) const {
-		boost::any obj = __getProperty(key);
-		if (obj.type() != typeid(T)) {
-			throw std::runtime_error(
-					"GLXOSD property " + key
-							+ " has an incorrect type! Expected "
-							+ typeid(T).name() + ", got " + obj.type().name());
-		}
-		T val = boost::any_cast<T>(obj);
-		return val;
-	}
-};
+void GLAttribState::glSetEnabled(GLenum setting, GLboolean value) {
+	if (value)
+		enableFunction(setting);
+	else
+		disableFunction(setting);
 }
-#endif
+
+GLAttribState::GLAttribState(std::function<void(GLenum)> enableFunction,
+		std::function<void(GLenum)> disableFunction,
+		std::function<GLboolean(GLenum)> getFunction) :
+		enableFunction(enableFunction), disableFunction(disableFunction), getFunction(
+				getFunction) {
+
+}
+
+void GLAttribState::set(GLenum setting, GLboolean value) {
+	if (wasEnabled.find(setting) == wasEnabled.end())
+		wasEnabled[setting] = getFunction(setting);
+	glSetEnabled(setting, value);
+}
+
+GLAttribState::~GLAttribState() {
+	for (auto p : wasEnabled) {
+		glSetEnabled(p.first, p.second);
+	}
+}
+
+} /* namespace glxosd */

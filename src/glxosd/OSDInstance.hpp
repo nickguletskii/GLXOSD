@@ -9,27 +9,35 @@
  */
 #ifndef OSDINSTANCE_HPP_
 #define OSDINSTANCE_HPP_
+
 #include <GL/gl.h>
-#include <FTGL/ftgl.h>
-#include <boost/format.hpp>
-#include <boost/any.hpp>
+#include <chrono>
 #include <string>
-#include <map>
+#include <ft2build.h>
+#include <boost/format.hpp>
+#include FT_FREETYPE_H
+
 namespace glxosd {
+class ConfigurationManager;
+class FontRenderer;
 class OSDInstance {
 private:
 	int currentFrameCount; // The number of frames from the last FPS calculation
-	long previousTime; //The time of the previous FPS calculation
+	std::chrono::steady_clock::time_point previousTime; //The time of the previous FPS calculation
 	double framesPerSecond; //Current FPS
-	FTGLExtrdFont* font;
+	FontRenderer *renderer = nullptr;
+
 	std::string osdText;
-	void update(long currentMilliseconds);
-	typedef void* (*glUseProgram_type)(GLuint);
-	glUseProgram_type glxosd_glUseProgram ;
+	boost::format fpsFormat;
+
+	void update();
+	void renderText(unsigned int width, unsigned int height);
+	void createFontRenderer(ConfigurationManager &configurationManager);
+
 public:
 	OSDInstance();
 	void render(unsigned int width, unsigned int height);
 	virtual ~OSDInstance();
 };
-}
+} /* namespace glxosd */
 #endif

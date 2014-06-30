@@ -8,43 +8,45 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "GLXOSD.hpp"
+#include "LibsensorsSensorDataProvider.hpp"
+#include "ConfigurationManager.hpp"
 #include <boost/format.hpp>
 #include <boost/xpressive/xpressive.hpp>
-#include <ConfigurationManager.hpp>
-#include <GLXOSD.hpp>
 #include <sensors/sensors.h>
-#include "LibsensorsSensorDataProvider.hpp"
 #include <sstream>
 #include <string>
 
+boost::format chipFormat;
+boost::format libsensorsChipFeatureFormat;
+boost::xpressive::sregex libsensorsChipFeatureFilter;
+boost::format temperatureFormat;
 void glxosdPluginConstructor(glxosd::GLXOSD *glxosd) {
-	glxosd->getConfigurationManager()->addDefaultConfigurationValue(
-			"libsensors_chip_format", boost::format("%1%:\n"));
-	glxosd->getConfigurationManager()->addDefaultConfigurationValue(
+	glxosd::ConfigurationManager &configurationManager =
+			glxosd->getConfigurationManager();
+	configurationManager.addDefaultConfigurationValue("libsensors_chip_format",
+			boost::format("%1%:\n"));
+	configurationManager.addDefaultConfigurationValue(
 			"libsensors_chip_feature_format", boost::format(" %1%: %2%\n"));
-	glxosd->getConfigurationManager()->addDefaultConfigurationValue(
+	configurationManager.addDefaultConfigurationValue(
 			"libsensors_chip_feature_filter",
 			boost::xpressive::sregex::compile("Core.*",
 					boost::xpressive::regex_constants::icase));
+
+	chipFormat = configurationManager.getProperty<boost::format>(
+			"libsensors_chip_format");
+	libsensorsChipFeatureFormat =
+			configurationManager.getProperty<boost::format>(
+					"libsensors_chip_feature_format");
+	libsensorsChipFeatureFilter = configurationManager.getProperty<
+			boost::xpressive::sregex>("libsensors_chip_feature_filter");
+	temperatureFormat = configurationManager.getProperty<boost::format>(
+			"temperature_format");
+
 	sensors_init(NULL);
 }
 
 std::string* glxosdPluginDataProvider(glxosd::GLXOSD *glxosdInstance) {
-
-	glxosd::ConfigurationManager* configurationManager =
-			glxosdInstance->getConfigurationManager();
-
-	auto chipFormat = configurationManager->getProperty<boost::format>(
-			"libsensors_chip_format");
-
-	auto libsensorsChipFeatureFormat = configurationManager->getProperty<
-			boost::format>("libsensors_chip_feature_format");
-
-	auto libsensorsChipFeatureFilter = configurationManager->getProperty<
-			boost::xpressive::sregex>("libsensors_chip_feature_filter");
-
-	auto temperatureFormat = configurationManager->getProperty<boost::format>(
-			"temperature_format");
 
 	sensors_chip_name const * chip;
 	int chipNumber = 0;

@@ -8,39 +8,38 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef CONFIGURATIONMANAGER_HPP_
-#define CONFIGURATIONMANAGER_HPP_
-
-#include <boost/any.hpp>
-#include <map>
-#include <stdexcept>
-#include <string>
-#include <typeinfo>
-
+#ifndef SHADER_HPP_
+#define SHADER_HPP_
+#include<map>
+#include<functional>
+#include<vector>
+#include<GL/gl.h>
 namespace glxosd {
-class ConfigurationManager {
-private:
-	std::map<std::string, boost::any> defaultConfiguration;
-	std::map<std::string, boost::any> configuration;
-	const std::map<std::string, boost::any> readConfigChain();
-	void readConfig(std::string path,
-			std::map<std::string, boost::any>& configuration);
-	boost::any __getProperty(std::string key) const;
+
+class ShaderProgram {
 public:
-	ConfigurationManager();
-	void addDefaultConfigurationValue(std::string key, boost::any value);
-	template<typename T>
-	T getProperty(std::string key) const {
-		boost::any obj = __getProperty(key);
-		if (obj.type() != typeid(T)) {
-			throw std::runtime_error(
-					"GLXOSD property " + key
-							+ " has an incorrect type! Expected "
-							+ typeid(T).name() + ", got " + obj.type().name());
-		}
-		T val = boost::any_cast<T>(obj);
-		return val;
-	}
+	ShaderProgram();
+
+	ShaderProgram* addShader(GLenum type, std::string shaderSource);
+	ShaderProgram* build();
+
+	GLint getUniformLocation(std::string name);
+	void setUniform1i(int loc, GLint v);
+	void setUniform1f(int loc, GLfloat v);
+
+	void start();
+	void stop();
+
+	virtual ~ShaderProgram();
+
+	static ShaderProgram* getOrBuild(std::string name,
+			std::function<void(ShaderProgram *shaderProgram)> builder);
+private:
+	GLuint shaderProgram;
+	std::vector<GLuint> shaders;
 };
+
 }
-#endif
+/* namespace glxosd */
+
+#endif /* SHADER_HPP_ */

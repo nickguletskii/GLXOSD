@@ -9,8 +9,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
 ##### Compiler #####
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
 ##### Set version #####
-set(GLXOSD_VERSION_MAJOR 1)
-set(GLXOSD_VERSION_MINOR 4)
+set(GLXOSD_VERSION_MAJOR 2)
+set(GLXOSD_VERSION_MINOR 1)
 set(GLXOSD_VERSION_PATCH 1)
 set(GLXOSD_VERSION_STRING ${GLXOSD_VERSION_MAJOR}.${GLXOSD_VERSION_MINOR}.${GLXOSD_VERSION_PATCH})
 ##### Find the libraries #####
@@ -37,12 +37,6 @@ include_directories(${FONTCONFIG_INCLUDE_DIRS})
 if(NOT FONTCONFIG_FOUND)
     message(ERROR " FontConfig not found!")
 endif(NOT FONTCONFIG_FOUND)
-#Find FontConfig
-find_package(FTGL REQUIRED)
-include_directories(${FTGL_INCLUDE_DIRS})
-if(NOT FTGL_FOUND)
-    message(ERROR " FTGL not found!")
-endif(NOT FTGL_FOUND)
 #Find X11
 find_package(X11 REQUIRED)
 include_directories(${X11_INCLUDE_DIRS})
