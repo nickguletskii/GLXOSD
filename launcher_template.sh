@@ -3,9 +3,9 @@
 function showHelp() {
 	echo "Usage: glxosd [options] command"
 	echo "	-h or --help : show this help message"
-	echo "	-c or --config : specify the path to the config"
+	echo "	-c <path> or --config <path> : specify the path to the config"
 	echo "	-s or --steam : inject Steam overlay"
-	echo "	--steam-path [path] : set path to Steam"
+	echo "	--steam-path <path> : set path to Steam"
 	echo "Also, you can set GLXOSD_PRELOAD in the same way as LD_PRELOAD, except that GLXOSD_PRELOAD will be in LD_PRELOAD before GLXOSD libraries."
 }
 
