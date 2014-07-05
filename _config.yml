@@ -1,0 +1,24 @@
+# Site settings
+title: "GLXOSD, an OSD for OpenGL applications running under Linux"
+email: nickguletskii200@gmail.com
+description: "GLXOSD is an on-screen display (OSD)/overlay for OpenGL applications running on Linux with X11. It can show FPS, the temperature of your CPU, and if you have an NVIDIA graphics card (with proprietary drivers), it will also show the temperature of the GPU."
+baseurl: ""
+url: "http://nickguletskii.github.io/GLXOSD"
+
+# Build settings
+markdown: kramdown
+permalink: "/posts/:year/:month/:day/:title"
+
+defaults:
+  -
+    scope:
+      path: "" # empty string for all files
+    values:
+      layout: "default"
+  -
+    scope:
+      path: "posts"
+      type: "post"
+    values:
+      layout: "post"
+      author: "Nick Guletskii"

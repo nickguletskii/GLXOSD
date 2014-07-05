@@ -1,3 +1,6 @@
 #Thanks to https://github.com/github/gitignore/
+_site
 *~
+
+# KDE directory preferences
 .directory

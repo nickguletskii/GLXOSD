@@ -1,0 +1,272 @@
+/*
+	Style for importance boxes
+*/
+ .important.warning {
+    background-color: #f08a24;
+    border-color: #de770f;
+    color: #fff;
+}
+.important.info {
+    background-color: #a0d3e8;
+    border-color: #74bfdd;
+    color: #4f4f4f;
+}
+.important.good {
+    background-color: #43AC6A;
+    border-color: #3a945b;
+    color: #fff;
+}
+.important {
+    border-style: solid;
+    border-width: 1px;
+    display: block;
+    font-weight: normal;
+    margin-bottom: 1.11111rem;
+    position: relative;
+    padding: 0.77778rem 1.33333rem 0.77778rem 0.77778rem;
+    font-size: 0.72222rem;
+    background-color: #008CBA;
+    border-color: #007ba0;
+    color: #fff;
+}
+/*
+	Some fixes for Foundation
+*/
+.orbit-caption {
+	color: white;
+}
+/*
+	Code tag style
+*/
+code {
+    font-family: monospace;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: normal;
+    color: rgb(34, 34, 34);
+	margin: 0;
+	border: 1px solid #ddd;
+	background-color: #f8f8f8;
+	border-radius: 3px;
+	padding: 0;
+}
+
+.highlight {
+    margin-bottom: 1.25rem;
+}
+.highlight > pre {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #ddd;
+    padding-top: 6px;
+    padding-right: 10px;
+    padding-bottom: 6px;
+    padding-left: 10px;
+    word-wrap: normal;
+    overflow: auto;
+    border-radius: 3px;
+    background-color: #f8f8f8;
+}
+.highlight > pre > code {
+    color: rgb(34, 34, 34);
+    font-family: monospace;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: normal;
+    border: none;
+}
+.highlight > pre > code > .c {
+    color: #3F7F5F;
+    font-style: italic
+}
+.highlight > pre > code > .err {
+    color: #a61717;
+    background-color: #e3d2d2
+}
+.highlight > pre > code > .k {
+    color: #7F0055;
+    font-weight: bold
+}
+.highlight > pre > code > .o {
+}
+.highlight > pre > code > .cm {
+    color: #3F7F5F
+}
+.highlight > pre > code > .cp {
+    color: #999999
+}
+.highlight > pre > code > .c1 {
+    color: #3F7F5F
+}
+.highlight > pre > code > .cs {
+    color: #3F5FBF
+}
+.highlight > pre > code > .gd {
+    color: #000000;
+    background-color: #ffdddd
+}
+.highlight > pre > code > .gd .x {
+    color: #000000;
+    background-color: #ffaaaa
+}
+.highlight > pre > code > .ge {
+    font-style: italic
+}
+.highlight > pre > code > .gr {
+    color: #aa0000
+}
+.highlight > pre > code > .gh {
+    color: #999999
+}
+.highlight > pre > code > .gi {
+    color: #000000;
+    background-color: #ddffdd
+}
+.highlight > pre > code > .gi .x {
+    color: #000000;
+    background-color: #aaffaa
+}
+.highlight > pre > code > .go {
+    color: #888888
+}
+.highlight > pre > code > .gp {
+    color: #555555
+}
+.highlight > pre > code > .gs {
+    font-weight: bold
+}
+.highlight > pre > code > .gu {
+    color: #aaaaaa
+}
+.highlight > pre > code > .gt {
+    color: #aa0000
+}
+.highlight > pre > code > .kc {
+    color: #7F0055;
+    font-weight: bold
+}
+.highlight > pre > code > .kd {
+    color: #7F0055;
+    font-weight: bold
+}
+.highlight > pre > code > .kp {
+    color: #7F0055;
+    font-weight: bold
+}
+.highlight > pre > code > .kr {
+    color: #7F0055;
+    font-weight: bold
+}
+.highlight > pre > code > .kt {
+    color: #7F0055;
+    font-weight: bold
+}
+.highlight > pre > code > .kn {
+    color: #7F0055;
+    font-weight: bold
+}
+.highlight > pre > code > .m {
+    color: #000000
+}
+.highlight > pre > code > .s {
+    color: #2A00FF
+}
+.highlight > pre > code > .na {
+    color: #000000
+}
+.highlight > pre > code > .nb {
+    color: #000000
+}
+.highlight > pre > code > .nd {
+    color: #646464
+}
+.highlight > pre > code > .nc {
+    color: #000000
+}
+.highlight > pre > code > .no {
+    color: #000000
+}
+.highlight > pre > code > .ni {
+    color: #000000
+}
+.highlight > pre > code > .ne {
+    color: #000000
+}
+.highlight > pre > code > .nf {
+    color: #000000
+}
+.highlight > pre > code > .nn {
+    color: #000000
+}
+.highlight > pre > code > .nt {
+    color: #000000
+}
+.highlight > pre > code > .nv {
+    color: #000000
+}
+.highlight > pre > code > .ow {
+    font-weight: bold
+}
+.highlight > pre > code > .w {
+    color: #bbbbbb
+}
+.highlight > pre > code > .mf {
+    color: #000000
+}
+.highlight > pre > code > .mh {
+    color: #000000
+}
+.highlight > pre > code > .mi {
+    color: #000000
+}
+.highlight > pre > code > .mo {
+    color: #000000
+}
+.highlight > pre > code > .sb {
+    color: #000000
+}
+.highlight > pre > code > .sc {
+    color: #000000
+}
+.highlight > pre > code > .sd {
+    color: #000000
+}
+.highlight > pre > code > .s2 {
+    color: #000000
+}
+.highlight > pre > code > .se {
+    color: #000000
+}
+.highlight > pre > code > .sh {
+    color: #000000
+}
+.highlight > pre > code > .si {
+    color: #000000
+}
+.highlight > pre > code > .sx {
+    color: #000000
+}
+.highlight > pre > code > .sr {
+    color: #000000
+}
+.highlight > pre > code > .s1 {
+    color: #000000
+}
+.highlight > pre > code > .ss {
+    color: #000000
+}
+.highlight > pre > code > .bp {
+    color: #000000
+}
+.highlight > pre > code > .vc {
+    color: #000000
+}
+.highlight > pre > code > .vg {
+    color: #000000
+}
+.highlight > pre > code > .vi {
+    color: #000000
+}
+.highlight > pre > code > .il {
+    color: #000000
+}

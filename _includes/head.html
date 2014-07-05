@@ -1,0 +1,13 @@
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	{% if page.description %}
+	<meta name="Description" CONTENT="{{ page.description }}">
+	{% else %}
+	<meta name="Description" CONTENT="{{ page.title }}">
+	{% endif %}
+	<title>{{ page.title }} - {{ site.title }}</title>
+	<link rel="stylesheet" href="/css/foundation.css" />
+	<link rel="stylesheet" href="/css/app.css" />
+	<script src="/js/modernizr.js"></script>
+</head>
