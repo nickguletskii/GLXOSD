@@ -11,7 +11,6 @@
 #define OSDINSTANCE_HPP_
 
 #include <GL/gl.h>
-#include <chrono>
 #include <string>
 #include <ft2build.h>
 #include <boost/format.hpp>
@@ -23,14 +22,14 @@ class FontRenderer;
 class OSDInstance {
 private:
 	int currentFrameCount; // The number of frames from the last FPS calculation
-	std::chrono::steady_clock::time_point previousTime; //The time of the previous FPS calculation
+	long previousTime; //The time of the previous FPS calculation
 	double framesPerSecond; //Current FPS
 	FontRenderer *renderer = nullptr;
 
 	std::string osdText;
 	boost::format fpsFormat;
 
-	void update();
+	void update(long currentMilliseconds);
 	void renderText(unsigned int width, unsigned int height);
 	void createFontRenderer(ConfigurationManager &configurationManager);
 

@@ -22,6 +22,7 @@
 #include <GL/gl.h>
 #include <boost/any.hpp>
 #include <boost/lexical_cast.hpp>
+#include <sys/time.h>
 namespace glxosd {
 
 OSDInstance::OSDInstance() :
@@ -67,8 +68,7 @@ OSDInstance::OSDInstance() :
 	float textSpacingX = configurationManager.getProperty<float>(
 			"text_spacing_x_float");
 
-	fpsFormat = configurationManager.getProperty<boost::format>(
-				"fps_format");
+	fpsFormat = configurationManager.getProperty<boost::format>("fps_format");
 
 	renderer = new FontRenderer(fontName, fontSize, horizontalDPI, verticalDPI,
 			outlineWidth);
@@ -86,17 +86,17 @@ OSDInstance::OSDInstance() :
 	currentFrameCount = 0;
 	framesPerSecond = 0;
 //Set the time for the first time.
-	previousTime = std::chrono::steady_clock::now();
+	struct timespec current;
+	clock_gettime(CLOCK_MONOTONIC, &current);
+	previousTime = ((current.tv_sec * 1000UL) + (current.tv_nsec / 1000000UL));
 }
 
-void OSDInstance::update() {
-	std::chrono::steady_clock::time_point currentTime =
-			std::chrono::steady_clock::now();
+void OSDInstance::update(long currentMilliseconds) {
 
 	framesPerSecond = 1000.0 * currentFrameCount
-			/ std::chrono::duration_cast<std::chrono::milliseconds>(
-					currentTime - previousTime).count();
-	previousTime = currentTime;
+			/ (currentMilliseconds - previousTime);
+	previousTime = currentMilliseconds;
+	previousTime = currentMilliseconds;
 	currentFrameCount = 0;
 
 	std::stringstream osdTextBuilder;
@@ -130,11 +130,11 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	currentFrameCount++;
 	struct timespec current;
 	clock_gettime(CLOCK_MONOTONIC, &current);
-	std::chrono::steady_clock::time_point currentTime =
-			std::chrono::steady_clock::now();
+	long currentTimeMilliseconds = ((current.tv_sec * 1000UL)
+			+ (current.tv_nsec / 1000000UL));
 //Refresh the info every 500 milliseconds
-	if (currentTime - previousTime >= std::chrono::milliseconds(500)) {
-		update();
+	if (currentTimeMilliseconds - previousTime >= 500) {
+		update(currentTimeMilliseconds);
 	}
 
 	// Memorise misc. settings
