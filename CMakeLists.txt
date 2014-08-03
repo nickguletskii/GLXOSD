@@ -3,6 +3,8 @@ project (glxosd)
 
 ##### Parameters #####
 SET(ATTEMPT_NVIDIA_LINK TRUE CACHE BOOL "If set to true, GLXOSD will link to the NVIDIA driver to display the GPU's temperature.")
+SET(INSTALLATION_SUFFIX_32 "/lib/i386-linux-gnu/" CACHE STRING "The part of the path to the installation directory for 32 bit libraries that comes after the prefix.")
+SET(INSTALLATION_SUFFIX_64 "/lib/x86_64-linux-gnu/" CACHE STRING "The part of the path to the installation directory for 64 bit libraries that comes after the prefix.")
 
 get_filename_component(OUTPUT_DIR "bin/" ABSOLUTE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
@@ -90,7 +92,10 @@ install(FILES conf/glxosd.conf DESTINATION /etc)
 message(INFO "BUILDING LAUNCHER!")
 add_custom_target(glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh
 --target-file ${PROJECT_SOURCE_DIR}/glxosd
---installation-prefix ${CMAKE_INSTALL_PREFIX} COMMENT "Creating the startup script...")
+--installation-prefix ${CMAKE_INSTALL_PREFIX}
+--installation-suffix-32 ${INSTALLATION_SUFFIX_32}
+--installation-suffix-64 ${INSTALLATION_SUFFIX_64}
+COMMENT "Creating the startup script...")
 add_dependencies(glxosd glxosdlauncher)
 install(PROGRAMS glxosd DESTINATION bin)
 
