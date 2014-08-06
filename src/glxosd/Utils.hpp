@@ -12,11 +12,22 @@
 #define UTILS_HPP_
 #include<string>
 #include<utility>
+#include<X11/Xlib.h>
 namespace glxosd {
+
+struct KeyCombo {
+	KeySym keySym;
+	unsigned long int mask;
+};
+
 std::string getEnvironment(const std::string & var);
 
 std::pair<int, int> getDPI();
 
 uint64_t getMonotonicTimeNanoseconds();
+
+KeyCombo stringToKeyCombo(std::string);
+
+bool keyComboMatches(KeyCombo combo, XKeyEvent* event);
 }
 #endif

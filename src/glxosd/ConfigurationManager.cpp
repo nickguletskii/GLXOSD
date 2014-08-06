@@ -49,9 +49,12 @@ ConfigurationManager::ConfigurationManager() {
 	addDefaultConfigurationValue("text_spacing_y_float", 0.0f);
 	addDefaultConfigurationValue("fps_format", boost::format("FPS: %1$.1f\n"));
 	addDefaultConfigurationValue("temperature_format", boost::format("%1$i C"));
-	addDefaultConfigurationValue("frame_logging_toggle_key", std::string("F9"));
-	addDefaultConfigurationValue("frame_logging_message_string", std::string("Logging frame timings..."));
-	addDefaultConfigurationValue("osd_toggle_key", std::string("F10"));
+	addDefaultConfigurationValue("frame_logging_toggle_keycombo",
+			std::string("Shift+F9"));
+	addDefaultConfigurationValue("frame_logging_message_string",
+			std::string("Logging frame timings..."));
+	addDefaultConfigurationValue("osd_toggle_keycombo",
+			std::string("Shift+F10"));
 	addDefaultConfigurationValue("frame_log_directory_string",
 			std::string("/tmp/"));
 	addDefaultConfigurationValue("show_text_outline_bool", true); // Deprecated

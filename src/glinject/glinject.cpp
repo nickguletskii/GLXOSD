@@ -23,32 +23,62 @@
 #include <vector>
 
 #define DEFINE_REAL_SYMBOL(name, ret, param)\
-	typedef ret (*name##_type) param;\
-	name##_type real_##name = nullptr;
+		typedef ret (*name##_type) param;\
+		name##_type real_##name = nullptr;
+
+#define DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(name, ret, param, param2)\
+		DEFINE_REAL_SYMBOL(name, ret, param);\
+		extern "C" ret name param {\
+			init_gl_frame_hooks();\
+			ret returnVal = real_##name param2;\
+			if (event->type == KeyPress) {\
+				handle_key_event(event);\
+			}\
+			return returnVal;\
+		}
 
 #define LOAD_SYMBOL_USING_DLSYM(x)\
 	real_##x = (x##_type) \
 	real_dlsym(RTLD_NEXT, #x);\
 	assertSymbolLoaded(real_##x, #x);
 
+void init_gl_frame_hooks();
+void handle_key_event(XEvent* event);
 typedef std::pair<std::string, void*> function_overload_type;
 
 //Real symbol definitions
 DEFINE_REAL_SYMBOL(dlopen, void*, (const char *, int));
-DEFINE_REAL_SYMBOL(dlsym, void*, (const void *, const char *));
-DEFINE_REAL_SYMBOL(dlvsym, void*, (const void *, const char *, const char *));
-DEFINE_REAL_SYMBOL(glXDestroyContext, void, (Display *, GLXContext));
-DEFINE_REAL_SYMBOL(glXSwapBuffers, void, (Display*, GLXDrawable));
-DEFINE_REAL_SYMBOL(glxinjectConstructor, void, ());
-DEFINE_REAL_SYMBOL(glXGetProcAddressARB, __GLXextFuncPtr, (const GLubyte*));
-DEFINE_REAL_SYMBOL(XIfEvent, int,
-		(Display* display, XEvent* event, Bool (*predicate)(Display* display, XEvent* event, XPointer pointer), XPointer pointer));
-DEFINE_REAL_SYMBOL(XMaskEvent, int, (Display*, long, XEvent*));
-DEFINE_REAL_SYMBOL(XNextEvent, int, (Display*, XEvent*));
-DEFINE_REAL_SYMBOL(XWindowEvent, int, (Display*, Window, long, XEvent*));
 
-//Private functions an variables...
-void init_gl_frame_hooks();
+DEFINE_REAL_SYMBOL(dlsym, void*, (const void *, const char *));
+
+DEFINE_REAL_SYMBOL(dlvsym, void*, (const void *, const char *, const char *));
+
+DEFINE_REAL_SYMBOL(glXDestroyContext, void, (Display *, GLXContext));
+
+DEFINE_REAL_SYMBOL(glXSwapBuffers, void, (Display*, GLXDrawable));
+
+DEFINE_REAL_SYMBOL(glxinjectConstructor, void, ());
+
+DEFINE_REAL_SYMBOL(glXGetProcAddressARB, __GLXextFuncPtr, (const GLubyte*));
+
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XIfEvent, int,
+		(Display* display, XEvent* event, XIfEvent_predicate_type predicate, XPointer pointer),
+		(display, event, predicate, pointer));
+
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XCheckIfEvent, Bool,
+		(Display* display, XEvent* event, XIfEvent_predicate_type predicate, XPointer pointer),
+		(display, event, predicate, pointer));
+
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XMaskEvent, int,
+		(Display* display, long mask, XEvent* event), (display, mask, event));
+
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XNextEvent, int,
+		(Display* display, XEvent* event), (display, event));
+
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XWindowEvent, int,
+		(Display* display, Window window, long mask, XEvent* event),
+		(display, window, mask, event));
+
 std::map<std::string, void*>* function_overrides = nullptr;
 std::map<int, gl_frame_handler>* handlers = nullptr;
 int last_id = 0;
@@ -117,8 +147,11 @@ void handle_buffer_swap(Display* dpy, GLXDrawable ctx) {
 	if (handlers == nullptr)
 		handlers = new std::map<int, gl_frame_handler>();
 	for (std::map<int, gl_frame_handler>::iterator i = handlers->begin();
-			i != handlers->end(); i++)
+			i != handlers->end(); i++) {
+		XEvent event;
+		XCheckIfEvent(dpy, &event, (*i).second.event_filter, nullptr);
 		(*i).second.handle_buffer_swap(dpy, ctx);
+	}
 }
 void handle_context_destruction(Display* dpy, GLXContext ctx) {
 	if (handlers == nullptr)
@@ -162,47 +195,13 @@ extern "C" void * dlsym(void *handle, const char *name) {
 		return overload;
 	return real_dlsym(handle, name);
 }
+
 extern "C" void * dlsvym(void *handle, const char *name, const char *ver) {
 	init_gl_frame_hooks();
 	void* overload = get_function_override(name);
 	if (overload != nullptr)
 		return overload;
 	return real_dlvsym(handle, name, ver);
-}
-extern "C" int XIfEvent(Display* display, XEvent* event,
-Bool (*predicate)(Display* display, XEvent* event, XPointer pointer),
-		XPointer pointer) {
-	init_gl_frame_hooks();
-	int ret = real_XIfEvent(display, event, predicate, pointer);
-	if (event->type == KeyPress) {
-		handle_key_event(event);
-	}
-	return ret;
-}
-extern "C" int XMaskEvent(Display* display, long eventMask, XEvent* event) {
-	init_gl_frame_hooks();
-	int ret = real_XMaskEvent(display, eventMask, event);
-	if (event->type == KeyPress) {
-		handle_key_event(event);
-	}
-	return ret;
-}
-extern "C" int XNextEvent(Display* display, XEvent* event) {
-	init_gl_frame_hooks();
-	int ret = real_XNextEvent(display, event);
-	if (event->type == KeyPress) {
-		handle_key_event(event);
-	}
-	return ret;
-}
-extern "C" int XWindowEvent(Display* display, Window window, long eventMask,
-		XEvent* event) {
-	init_gl_frame_hooks();
-	int ret = real_XWindowEvent(display, window, eventMask, event);
-	if (event->type == KeyPress) {
-		handle_key_event(event);
-	}
-	return ret;
 }
 
 template<typename T>
@@ -247,6 +246,7 @@ void init_gl_frame_hooks() {
 	LOAD_SYMBOL_USING_DLSYM(glXGetProcAddressARB);
 	LOAD_SYMBOL_USING_DLSYM(glXSwapBuffers);
 	LOAD_SYMBOL_USING_DLSYM(XIfEvent);
+	LOAD_SYMBOL_USING_DLSYM(XCheckIfEvent);
 	LOAD_SYMBOL_USING_DLSYM(XMaskEvent);
 	LOAD_SYMBOL_USING_DLSYM(XNextEvent);
 	LOAD_SYMBOL_USING_DLSYM(XWindowEvent);

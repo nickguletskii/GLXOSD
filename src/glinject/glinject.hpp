@@ -16,13 +16,15 @@
 /*
  * glinject external API
  */
+typedef Bool (*XIfEvent_predicate_type)(Display* display, XEvent* event, XPointer pointer);
 typedef void (*handle_buffer_swap_type)(Display*, GLXDrawable);
 typedef void (*handle_context_destruction_type)(Display*, GLXContext);
-typedef void (*handle_keyboard_event)(XKeyEvent*);
+typedef void (*handle_keyboard_event_type)(XKeyEvent*);
 extern "C" struct gl_frame_handler {
 	handle_buffer_swap_type handle_buffer_swap;
 	handle_context_destruction_type handle_context_destruction;
-	handle_keyboard_event handle_keyboard_event;
+	handle_keyboard_event_type handle_keyboard_event;
+	XIfEvent_predicate_type event_filter;
 };
 extern "C" int glinject_add_gl_frame_handler(gl_frame_handler handler);
 extern "C" bool glinject_remove_gl_frame_handler(int id);

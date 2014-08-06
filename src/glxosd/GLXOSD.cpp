@@ -21,17 +21,22 @@
 #include <sys/unistd.h>
 
 namespace glxosd {
+
 GLXOSD* GLXOSD::glxosdInstance = nullptr;
 bool frameLoggingEnabled = false;
 bool osdVisible = true;
-KeySym frameLoggingToggleKey;
-KeySym osdToggleKey;
+KeyCombo frameLoggingToggleKey;
+KeyCombo osdToggleKey;
+
 int frameLogId = 0;
 
 uint64_t frameLogMonotonicTimeOffset = std::numeric_limits<uint64_t>::max();
 std::string frameLogFilename = "";
 std::string frameLogDirectory = "";
 std::ofstream frameLogStream;
+
+bool frameLogToggledThisFrame = false;
+bool osdToggledThisFrame = false;
 
 GLXOSD* GLXOSD::instance() {
 	if (glxosdInstance == nullptr) {
@@ -43,13 +48,12 @@ GLXOSD* GLXOSD::instance() {
 GLXOSD::GLXOSD() {
 	configurationManager = new ConfigurationManager();
 
-	frameLoggingToggleKey = XStringToKeysym(
+	frameLoggingToggleKey = stringToKeyCombo(
 			getConfigurationManager().getProperty<std::string>(
-					"frame_logging_toggle_key").c_str());
-	osdToggleKey =
-			XStringToKeysym(
-					getConfigurationManager().getProperty<std::string>(
-							"osd_toggle_key").c_str());
+					"frame_logging_toggle_keycombo"));
+	osdToggleKey = stringToKeyCombo(
+			getConfigurationManager().getProperty<std::string>(
+					"osd_toggle_keycombo"));
 	frameLogDirectory = getConfigurationManager().getProperty<std::string>(
 			"frame_log_directory_string");
 
@@ -64,6 +68,9 @@ GLXOSD::GLXOSD() {
 }
 
 void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
+	osdToggledThisFrame = false;
+	frameLogToggledThisFrame = false;
+
 	unsigned int width = 1;
 	unsigned int height = 1;
 
@@ -167,18 +174,29 @@ void GLXOSD::stopFrameLogging() {
 	frameLogStream.clear();
 }
 void GLXOSD::osdHandleKeyPress(XKeyEvent* event) {
-	KeySym key = XLookupKeysym(event, 0);
-	if (key == frameLoggingToggleKey) {
+	if (!frameLogToggledThisFrame
+			&& keyComboMatches(frameLoggingToggleKey, event)) {
+		frameLogToggledThisFrame = true;
 		frameLoggingEnabled = !frameLoggingEnabled;
 		if (frameLoggingEnabled)
 			startFrameLogging();
 		else
 			stopFrameLogging();
 	}
-	if (key == osdToggleKey)
+	if (!osdToggledThisFrame && keyComboMatches(osdToggleKey, event)) {
+		osdToggledThisFrame = true;
 		osdVisible = !osdVisible;
-
+	}
 }
+
+Bool GLXOSD::osdEventFilter(Display* display, XEvent* event, XPointer pointer) {
+	if (event->type != KeyPress)
+		return false;
+	XKeyEvent * keyEvent = &event->xkey;
+	return keyComboMatches(osdToggleKey, keyEvent)
+			|| keyComboMatches(frameLoggingToggleKey, keyEvent);
+}
+
 bool GLXOSD::isFrameLoggingEnabled() {
 	return frameLoggingEnabled;
 }
@@ -265,5 +283,9 @@ void osdHandleContextDestruction(Display* display, GLXContext context) {
 void osdHandleKeyPress(XKeyEvent* event) {
 	GLXOSD::instance()->osdHandleKeyPress(event);
 }
+Bool osdEventFilter(Display* display, XEvent* event, XPointer pointer) {
+	return GLXOSD::instance()->osdEventFilter(display, event, pointer);
+}
 
 }
+

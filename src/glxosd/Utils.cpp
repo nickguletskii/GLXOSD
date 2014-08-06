@@ -9,6 +9,10 @@
  */
 #include "Utils.hpp"
 #include <cstdlib>
+#include <vector>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
 #include <X11/Xlib.h>
 namespace glxosd {
 std::string getEnvironment(const std::string & var) {
@@ -31,4 +35,55 @@ uint64_t getMonotonicTimeNanoseconds() {
 	clock_gettime(CLOCK_MONOTONIC, &current);
 	return ((current.tv_sec * 1000000000ULL) + (current.tv_nsec));
 }
+
+std::vector<std::string> &split(const std::string &s, char delim,
+		std::vector<std::string> &elems) {
+	std::stringstream ss(s);
+	std::string item;
+	while (std::getline(ss, item, delim)) {
+		elems.push_back(item);
+	}
+	return elems;
+}
+
+std::vector<std::string> split(const std::string &s, char delim) {
+	std::vector<std::string> elems;
+	split(s, delim, elems);
+	return elems;
+}
+
+KeyCombo stringToKeyCombo(std::string str) {
+	KeyCombo combo;
+	combo.keySym = 0;
+	combo.mask = 0U;
+	bool hasPrimaryKey = false; // If no key is specified, produce an error
+	for (auto token : split(str, '+')) {
+		if (token == "Shift") {
+			combo.mask |= ShiftMask;
+		} else if (token == "Ctrl") {
+			combo.mask |= ControlMask;
+		} else if (token == "Alt") {
+			combo.mask |= Mod1Mask;
+		} else {
+			if (hasPrimaryKey)
+				throw new std::runtime_error(
+						"Invalid key combination: two primary keys!");
+			combo.keySym = XStringToKeysym(token.c_str());
+			if (combo.keySym == NoSymbol)
+				throw new std::runtime_error(
+						"Invalid key combination: invalid key!");
+			hasPrimaryKey = true;
+		}
+	}
+	if (!hasPrimaryKey)
+		throw new std::runtime_error(
+				"Invalid key combination: no primary key specified!");
+	return combo;
+}
+
+bool keyComboMatches(KeyCombo combo, XKeyEvent* event) {
+	return (event->state == combo.mask)
+			&& (event->keycode == XKeysymToKeycode(event->display, combo.keySym));
+}
+
 }
