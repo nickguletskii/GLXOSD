@@ -28,7 +28,7 @@ function escape {
 	echo $(echo $1 | sed -e 's/[\/&]/\\&/g')
 }
 OUTPUT="${TEMPLATE}";
-OUTPUT=$(echo "${OUTPUT}" | sed "s/#{{GLXOSD_LIBRARY_PATH_I386}}/"$(escape ${INSTALL_PREFIX-"/usr/"})"\/"$(escape ${INSTALL_SUFFIX_32-"/lib/i386-linux-gnu/"})"\/gloxsd\//g");
-OUTPUT=$(echo "${OUTPUT}" | sed "s/#{{GLXOSD_LIBRARY_PATH_AMD64}}/"$(escape ${INSTALL_PREFIX-"/usr/"})"\/"$(escape ${INSTALL_SUFFIX_64-"/lib/x86_64-linux-gnu/"})"\/gloxsd\//g");
+OUTPUT=$(echo "${OUTPUT}" | sed "s/{{GLXOSD_LIBRARY_PATH_I386}}/"$(escape ${INSTALL_PREFIX-"/usr/"})"\/"$(escape ${INSTALL_SUFFIX_32-"/lib/i386-linux-gnu/"})"\/glxosd\//g");
+OUTPUT=$(echo "${OUTPUT}" | sed "s/{{GLXOSD_LIBRARY_PATH_AMD64}}/"$(escape ${INSTALL_PREFIX-"/usr/"})"\/"$(escape ${INSTALL_SUFFIX_64-"/lib/x86_64-linux-gnu/"})"\/glxosd\//g");
 echo "${OUTPUT}" > "${TARGET_FILE}"
 chmod +x "${TARGET_FILE}"
