@@ -154,24 +154,25 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 		glFrontFace(GL_CCW);
 	}
 
-	GLfloat blendColour[4];
-	{
-		glGetFloatv(GL_BLEND_COLOR, blendColour);
-		glBlendColor(0, 0, 0, 0);
-	}
-
-	GLboolean colourMask[4];
-	{
-		glGetBooleanv(GL_COLOR_WRITEMASK, colourMask);
-		glColorMask(1, 1, 1, 1);
-	}
-
 	GLint blendSrc;
 	GLint blendDst;
 	{
 		glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrc);
 		glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDst);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	GLfloat blendColour[4];
+	{
+		glGetFloatv(GL_BLEND_COLOR, blendColour);
+	}
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendColor(0, 0, 0, 0);
+
+	GLboolean colourMask[4];
+	{
+		glGetBooleanv(GL_COLOR_WRITEMASK, colourMask);
+		glColorMask(1, 1, 1, 1);
 	}
 
 	GLint depthFunc;
@@ -234,16 +235,32 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 		attribState.set(GL_TEXTURE_2D, GL_TRUE);
 	}
 
-	//Memorise buffer states
 	GLint pixelUnpackBufferBinding = 0, arrayBufferBinding = 0, activeTexture =
-			0, textureBinding2D = 0, vertexArrayBinding = 0;
+			0, textureBinding2D = 0, vertexArrayBinding = 0, textureMinFilter =
+			0, textureMagFilter = 0, textureWrapS = 0, textureWrapT = 0;
+
+	//Memorise buffer states
 	glGetIntegerv(GL_PIXEL_UNPACK_BUFFER_BINDING, &pixelUnpackBufferBinding);
 	glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &arrayBufferBinding);
 	glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTexture);
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding2D);
 	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vertexArrayBinding);
 
+	//Memorise texture parameters
+	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+			&textureMinFilter);
+	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+			&textureMagFilter);
+	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &textureWrapS);
+	glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &textureWrapT);
+
 	renderText(width, height);
+
+	//Revert texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureMinFilter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureMagFilter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWrapS);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWrapT);
 
 	//Revert buffer states
 	glActiveTexture(activeTexture);
@@ -254,11 +271,11 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 
 	//Revert misc settings
 	glDepthFunc(depthFunc);
+	glBlendFunc(blendSrc, blendDst);
 	glBlendColor(blendColour[0], blendColour[1], blendColour[2],
 			blendColour[3]);
 	glColorMask(colourMask[0], colourMask[1], colourMask[2], colourMask[3]);
 	glFrontFace(frontFace);
-	glBlendFunc(blendSrc, blendDst);
 	glUseProgram(program);
 }
 OSDInstance::~OSDInstance() {
