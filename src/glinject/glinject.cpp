@@ -22,25 +22,35 @@
 #include <utility>
 #include <vector>
 
+#define DEFINE_REAL_SYMBOL(name, ret, param)\
+	typedef ret (*name##_type) param;\
+	name##_type real_##name = nullptr;
+
+#define LOAD_SYMBOL_USING_DLSYM(x)\
+	real_##x = (x##_type) \
+	real_dlsym(RTLD_NEXT, #x);\
+	assertSymbolLoaded(real_##x, #x);
+
 typedef std::pair<std::string, void*> function_overload_type;
-//Just some typedefs to make further code easier to read.
-typedef void* (*dlopen_type)(const char *, int);
-typedef void* (*dlsym_type)(const void *, const char *);
-typedef void* (*dlvsym_type)(const void *, const char *, const char *);
-typedef void (*glXDestroyContext_type)(Display *, GLXContext);
-typedef void (*glXSwapBuffers_type)(Display*, GLXDrawable);
-typedef void (*glxinjectConstructor_type)();
-typedef __GLXextFuncPtr (*glXGetProcAddressARB_type)(const GLubyte*);
+
+//Real symbol definitions
+DEFINE_REAL_SYMBOL(dlopen, void*, (const char *, int));
+DEFINE_REAL_SYMBOL(dlsym, void*, (const void *, const char *));
+DEFINE_REAL_SYMBOL(dlvsym, void*, (const void *, const char *, const char *));
+DEFINE_REAL_SYMBOL(glXDestroyContext, void, (Display *, GLXContext));
+DEFINE_REAL_SYMBOL(glXSwapBuffers, void, (Display*, GLXDrawable));
+DEFINE_REAL_SYMBOL(glxinjectConstructor, void, ());
+DEFINE_REAL_SYMBOL(glXGetProcAddressARB, __GLXextFuncPtr, (const GLubyte*));
+DEFINE_REAL_SYMBOL(XIfEvent, int,
+		(Display* display, XEvent* event, Bool (*predicate)(Display* display, XEvent* event, XPointer pointer), XPointer pointer));
+DEFINE_REAL_SYMBOL(XMaskEvent, int, (Display*, long, XEvent*));
+DEFINE_REAL_SYMBOL(XNextEvent, int, (Display*, XEvent*));
+DEFINE_REAL_SYMBOL(XWindowEvent, int, (Display*, Window, long, XEvent*));
+
 //Private functions an variables...
 void init_gl_frame_hooks();
-std::map<std::string, void*>* function_overrides = NULL;
-glXSwapBuffers_type real_glXSwapBuffers = NULL;
-glXDestroyContext_type real_glXDestroyContext = NULL;
-glXGetProcAddressARB_type real_glXGetProcAddressARB = NULL;
-dlopen_type real_dlopen = NULL;
-dlsym_type real_dlsym = NULL;
-dlvsym_type real_dlvsym = NULL;
-std::map<int, gl_frame_handler>* handlers = NULL;
+std::map<std::string, void*>* function_overrides = nullptr;
+std::map<int, gl_frame_handler>* handlers = nullptr;
 int last_id = 0;
 bool initialised = false;
 
@@ -53,9 +63,9 @@ static void executeAll(std::vector<std::string> functionNames, Args ... args) {
 		void (*constructor)(Args...) =
 		(void(*)(Args...)) dlsym(RTLD_NEXT,
 				functionNames[i].c_str());
-		if (constructor == NULL) {
+		if (constructor == nullptr) {
 			std::cerr << "Couldn't find function " << functionNames[i]
-					<< "! dlsym returned a null pointer." << std::endl;
+					<< "! dlsym returned a nullptr pointer." << std::endl;
 			std::cerr << dlerror() << std::endl;
 			exit(-1);
 		}
@@ -78,14 +88,14 @@ static std::vector<std::string> split(std::string str, char separator) {
 
 static std::string getEnvironment(const std::string & var) {
 	const char * val = getenv(var.c_str());
-	return (val == NULL) ? "" : val;
+	return (val == nullptr) ? "" : val;
 }
 
 /*
  * Hooking
  */
 void* get_function_override(const char* name) {
-	if (function_overrides == NULL) { //Initialise the overridden functions map
+	if (function_overrides == nullptr) { //Initialise the overridden functions map
 		function_overrides = new std::map<std::string, void*>();
 		function_overrides->insert(
 				function_overload_type("glXDestroyContext",
@@ -100,23 +110,31 @@ void* get_function_override(const char* name) {
 	std::map<std::string, void*>::iterator it = function_overrides->find(
 			std::string(name));
 	if (it == function_overrides->end())
-		return NULL;
+		return nullptr;
 	return (*(it)).second;
 }
 void handle_buffer_swap(Display* dpy, GLXDrawable ctx) {
-	if (handlers == NULL)
+	if (handlers == nullptr)
 		handlers = new std::map<int, gl_frame_handler>();
 	for (std::map<int, gl_frame_handler>::iterator i = handlers->begin();
 			i != handlers->end(); i++)
 		(*i).second.handle_buffer_swap(dpy, ctx);
 }
 void handle_context_destruction(Display* dpy, GLXContext ctx) {
-	if (handlers == NULL)
+	if (handlers == nullptr)
 		handlers = new std::map<int, gl_frame_handler>();
 	for (std::map<int, gl_frame_handler>::iterator i = handlers->begin();
 			i != handlers->end(); i++)
 		(*i).second.handle_context_destruction(dpy, ctx);
 }
+void handle_key_event(XEvent* event) {
+	if (handlers == nullptr)
+		handlers = new std::map<int, gl_frame_handler>();
+	for (std::map<int, gl_frame_handler>::iterator i = handlers->begin();
+			i != handlers->end(); i++)
+		(*i).second.handle_keyboard_event(&event->xkey);
+}
+
 extern "C" void glXDestroyContext(Display *dpy, GLXContext ctx) {
 	init_gl_frame_hooks();
 	handle_context_destruction(dpy, ctx);
@@ -133,22 +151,68 @@ extern "C" __GLXextFuncPtr glXGetProcAddressARB(const GLubyte *name) {
 			function_overrides->begin(); it != function_overrides->end(); it++)
 		if (strcmp((char*) name, (*it).first.c_str()) == 0)
 			return (__GLXextFuncPtr) ((*it).second);
+
 	return real_glXGetProcAddressARB(name);
 }
 
 extern "C" void * dlsym(void *handle, const char *name) {
 	init_gl_frame_hooks();
 	void* overload = get_function_override(name);
-	if (overload != NULL)
+	if (overload != nullptr)
 		return overload;
 	return real_dlsym(handle, name);
 }
 extern "C" void * dlsvym(void *handle, const char *name, const char *ver) {
 	init_gl_frame_hooks();
 	void* overload = get_function_override(name);
-	if (overload != NULL)
+	if (overload != nullptr)
 		return overload;
 	return real_dlvsym(handle, name, ver);
+}
+extern "C" int XIfEvent(Display* display, XEvent* event,
+Bool (*predicate)(Display* display, XEvent* event, XPointer pointer),
+		XPointer pointer) {
+	init_gl_frame_hooks();
+	int ret = real_XIfEvent(display, event, predicate, pointer);
+	if (event->type == KeyPress) {
+		handle_key_event(event);
+	}
+	return ret;
+}
+extern "C" int XMaskEvent(Display* display, long eventMask, XEvent* event) {
+	init_gl_frame_hooks();
+	int ret = real_XMaskEvent(display, eventMask, event);
+	if (event->type == KeyPress) {
+		handle_key_event(event);
+	}
+	return ret;
+}
+extern "C" int XNextEvent(Display* display, XEvent* event) {
+	init_gl_frame_hooks();
+	int ret = real_XNextEvent(display, event);
+	if (event->type == KeyPress) {
+		handle_key_event(event);
+	}
+	return ret;
+}
+extern "C" int XWindowEvent(Display* display, Window window, long eventMask,
+		XEvent* event) {
+	init_gl_frame_hooks();
+	int ret = real_XWindowEvent(display, window, eventMask, event);
+	if (event->type == KeyPress) {
+		handle_key_event(event);
+	}
+	return ret;
+}
+
+template<typename T>
+void assertSymbolLoaded(T* symbol, std::string name) {
+	if (symbol == nullptr) {
+		std::cerr << "Couldn't find " << name
+				<< "! dlsym returned a nullptr pointer." << std::endl;
+		std::cerr << dlerror() << std::endl;
+		exit(-1);
+	}
 }
 
 void init_gl_frame_hooks() {
@@ -173,43 +237,23 @@ void init_gl_frame_hooks() {
 	eh_destroy_obj(&libdl);
 
 	real_dlopen = (dlopen_type) real_dlsym(RTLD_NEXT, "dlopen");
-	if (real_dlopen == NULL) {
-		std::cerr << "Couldn't find dlopen! dlsym returned a null pointer."
+	if (real_dlopen == nullptr) {
+		std::cerr << "Couldn't find dlopen! dlsym returned a nullptr pointer."
 				<< std::endl;
 		std::cerr << dlerror() << std::endl;
 		exit(-1);
 	}
-	real_glXDestroyContext = (glXDestroyContext_type) real_dlsym(RTLD_NEXT,
-			"glXDestroyContext");
-	if (real_glXDestroyContext == NULL) {
-		std::cerr
-				<< "Couldn't find glXDestroyContext! dlsym returned a null pointer."
-				<< std::endl;
-		std::cerr << dlerror() << std::endl;
-		exit(-1);
-	}
-	real_glXGetProcAddressARB = (glXGetProcAddressARB_type) real_dlsym(
-	RTLD_NEXT, "glXGetProcAddressARB");
-	if (real_glXGetProcAddressARB == NULL) {
-		std::cerr
-				<< "Couldn't find glXGetProcAddressARB! dlsym returned a null pointer."
-				<< std::endl;
-		std::cerr << dlerror() << std::endl;
-		exit(-1);
-	}
-	real_glXSwapBuffers = (glXSwapBuffers_type) real_dlsym(RTLD_NEXT,
-			"glXSwapBuffers");
-	if (real_glXSwapBuffers == NULL) {
-		std::cerr
-				<< "Couldn't find glXSwapBuffers! dlsym returned a null pointer."
-				<< std::endl;
-		std::cerr << dlerror() << std::endl;
-		exit(-1);
-	}
+	LOAD_SYMBOL_USING_DLSYM(glXDestroyContext);
+	LOAD_SYMBOL_USING_DLSYM(glXGetProcAddressARB);
+	LOAD_SYMBOL_USING_DLSYM(glXSwapBuffers);
+	LOAD_SYMBOL_USING_DLSYM(XIfEvent);
+	LOAD_SYMBOL_USING_DLSYM(XMaskEvent);
+	LOAD_SYMBOL_USING_DLSYM(XNextEvent);
+	LOAD_SYMBOL_USING_DLSYM(XWindowEvent);
 }
 
 int glinject_add_gl_frame_handler(gl_frame_handler handler) {
-	if (handlers == NULL)
+	if (handlers == nullptr)
 		handlers = new std::map<int, gl_frame_handler>();
 	handlers->insert(std::pair<int, gl_frame_handler>(++last_id, handler));
 	return handlers->size() - 1;

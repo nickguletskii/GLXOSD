@@ -10,6 +10,8 @@
 
 #include "ConfigurationManager.hpp"
 #include "Utils.hpp"
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/xpressive/xpressive.hpp>
@@ -47,6 +49,11 @@ ConfigurationManager::ConfigurationManager() {
 	addDefaultConfigurationValue("text_spacing_y_float", 0.0f);
 	addDefaultConfigurationValue("fps_format", boost::format("FPS: %1$.1f\n"));
 	addDefaultConfigurationValue("temperature_format", boost::format("%1$i C"));
+	addDefaultConfigurationValue("frame_logging_toggle_key", std::string("F9"));
+	addDefaultConfigurationValue("frame_logging_message_string", std::string("Logging frame timings..."));
+	addDefaultConfigurationValue("osd_toggle_key", std::string("F10"));
+	addDefaultConfigurationValue("frame_log_directory_string",
+			std::string("/tmp/"));
 	addDefaultConfigurationValue("show_text_outline_bool", true); // Deprecated
 	configuration = readConfigChain();
 }
@@ -165,6 +172,8 @@ void ConfigurationManager::readConfig(std::string path,
 			configuration[key] = boost::lexical_cast<double>(value);
 		} else if (stringEndsWith(key, "_float")) {
 			configuration[key] = boost::lexical_cast<float>(value);
+		} else if (stringEndsWith(key, "_key")) {
+			configuration[key] = boost::lexical_cast<std::string>(value);
 		} else {
 			configuration[key] = value;
 		}

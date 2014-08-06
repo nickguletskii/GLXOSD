@@ -22,9 +22,11 @@ class FontRenderer;
 class OSDInstance {
 private:
 	int currentFrameCount; // The number of frames from the last FPS calculation
-	long previousTime; //The time of the previous FPS calculation
+	uint64_t previousTime; //The time of the previous FPS calculation
 	double framesPerSecond; //Current FPS
 	FontRenderer *renderer = nullptr;
+
+	std::string frameLoggingMessage;
 
 	std::string osdText;
 	boost::format fpsFormat;

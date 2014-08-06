@@ -16,5 +16,7 @@ namespace glxosd {
 std::string getEnvironment(const std::string & var);
 
 std::pair<int, int> getDPI();
+
+uint64_t getMonotonicTimeNanoseconds();
 }
 #endif

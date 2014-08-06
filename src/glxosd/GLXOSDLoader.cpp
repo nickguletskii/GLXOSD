@@ -15,7 +15,7 @@
 int id = -1;
 extern "C" void constructGLXOSD() {
 	gl_frame_handler glHandler = { &glxosd::osdHandleBufferSwap,
-			&glxosd::osdHandleContextDestruction };
+			&glxosd::osdHandleContextDestruction, &glxosd::osdHandleKeyPress };
 	id = glinject_add_gl_frame_handler(glHandler);
 }
 extern "C" void destructGLXOSD() {

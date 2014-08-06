@@ -22,6 +22,7 @@
 namespace glxosd {
 void osdHandleBufferSwap(Display* display, GLXDrawable drawable);
 void osdHandleContextDestruction(Display* display, GLXContext context);
+void osdHandleKeyPress(XKeyEvent* event);
 class OSDInstance;
 class ConfigurationManager;
 class GLXOSD;
@@ -40,6 +41,8 @@ private:
 	std::vector<void*>* pluginSharedObjectHandles;
 	void loadAllPlugins();
 	void loadPlugin(std::string name);
+	void startFrameLogging();
+	void stopFrameLogging();
 	static GLXOSD *glxosdInstance;
 public:
 	static GLXOSD* instance();
@@ -48,6 +51,8 @@ public:
 	ConfigurationManager &getConfigurationManager();
 	void osdHandleBufferSwap(Display* display, GLXDrawable drawable);
 	void osdHandleContextDestruction(Display* display, GLXContext context);
+	void osdHandleKeyPress(XKeyEvent* event);
+	bool isFrameLoggingEnabled();
 	std::vector<PluginDataProvider>* getPluginDataProviders();
 	virtual ~GLXOSD();
 };

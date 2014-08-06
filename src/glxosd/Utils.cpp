@@ -15,9 +15,8 @@ std::string getEnvironment(const std::string & var) {
 	const char * val = getenv(var.c_str());
 	return (val == nullptr) ? "" : val;
 }
-}
 
-std::pair<int, int> glxosd::getDPI() {
+std::pair<int, int> getDPI() {
 	Display * dpy = XOpenDisplay(nullptr);
 	int screen = 0; //TODO: find a way to get the current screen
 	int horizontalDPI = ((((double) XDisplayWidth(dpy, screen)) * 25.4)
@@ -25,4 +24,11 @@ std::pair<int, int> glxosd::getDPI() {
 	int verticalDPI = ((((double) XDisplayHeight(dpy, screen)) * 25.4)
 			/ ((double) XDisplayHeightMM(dpy, screen)));
 	return std::pair<int, int>(horizontalDPI, verticalDPI);
+}
+
+uint64_t getMonotonicTimeNanoseconds() {
+	struct timespec current;
+	clock_gettime(CLOCK_MONOTONIC, &current);
+	return ((current.tv_sec * 1000000000ULL) + (current.tv_nsec));
+}
 }

@@ -14,6 +14,7 @@
 #include "GLAttribState.hpp"
 #include "GLLoader.hpp"
 #include "GLXOSD.hpp"
+#include "Utils.hpp"
 #include <algorithm>
 #include <map>
 #include <sstream>
@@ -70,6 +71,9 @@ OSDInstance::OSDInstance() :
 
 	fpsFormat = configurationManager.getProperty<boost::format>("fps_format");
 
+	frameLoggingMessage = configurationManager.getProperty<std::string>(
+			"frame_logging_message_string");
+
 	renderer = new FontRenderer(fontName, fontSize, horizontalDPI, verticalDPI,
 			outlineWidth);
 	renderer->setFontColour(
@@ -86,9 +90,7 @@ OSDInstance::OSDInstance() :
 	currentFrameCount = 0;
 	framesPerSecond = 0;
 //Set the time for the first time.
-	struct timespec current;
-	clock_gettime(CLOCK_MONOTONIC, &current);
-	previousTime = ((current.tv_sec * 1000UL) + (current.tv_nsec / 1000000UL));
+	previousTime = getMonotonicTimeNanoseconds() / 1000000ULL;
 }
 
 void OSDInstance::update(long currentMilliseconds) {
@@ -119,6 +121,9 @@ void OSDInstance::update(long currentMilliseconds) {
 void OSDInstance::renderText(unsigned int width, unsigned int height) {
 	std::stringstream osd_text_reader;
 	osd_text_reader << osdText;
+	if (GLXOSD::instance()->isFrameLoggingEnabled()) {
+		osd_text_reader << std::endl << frameLoggingMessage;
+	}
 
 	std::string str = osd_text_reader.str();
 	std::transform(str.begin(), str.end(), str.begin(), ::toupper);
@@ -128,10 +133,7 @@ void OSDInstance::renderText(unsigned int width, unsigned int height) {
 
 void OSDInstance::render(unsigned int width, unsigned int height) {
 	currentFrameCount++;
-	struct timespec current;
-	clock_gettime(CLOCK_MONOTONIC, &current);
-	long currentTimeMilliseconds = ((current.tv_sec * 1000UL)
-			+ (current.tv_nsec / 1000000UL));
+	long currentTimeMilliseconds = getMonotonicTimeNanoseconds() / 1000000ULL;
 //Refresh the info every 500 milliseconds
 	if (currentTimeMilliseconds - previousTime >= 500) {
 		update(currentTimeMilliseconds);

@@ -12,11 +12,27 @@
 #include "OSDInstance.hpp"
 #include "ConfigurationManager.hpp"
 #include <dlfcn.h>
+#include <fstream>
 #include <iostream>
+#include <limits>
 #include <sstream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/unistd.h>
 
 namespace glxosd {
 GLXOSD* GLXOSD::glxosdInstance = nullptr;
+bool frameLoggingEnabled = false;
+bool osdVisible = true;
+KeySym frameLoggingToggleKey;
+KeySym osdToggleKey;
+int frameLogId = 0;
+
+uint64_t frameLogMonotonicTimeOffset = std::numeric_limits<uint64_t>::max();
+std::string frameLogFilename = "";
+std::string frameLogDirectory = "";
+std::ofstream frameLogStream;
+
 GLXOSD* GLXOSD::instance() {
 	if (glxosdInstance == nullptr) {
 		glxosdInstance = new GLXOSD();
@@ -26,6 +42,17 @@ GLXOSD* GLXOSD::instance() {
 
 GLXOSD::GLXOSD() {
 	configurationManager = new ConfigurationManager();
+
+	frameLoggingToggleKey = XStringToKeysym(
+			getConfigurationManager().getProperty<std::string>(
+					"frame_logging_toggle_key").c_str());
+	osdToggleKey =
+			XStringToKeysym(
+					getConfigurationManager().getProperty<std::string>(
+							"osd_toggle_key").c_str());
+	frameLogDirectory = getConfigurationManager().getProperty<std::string>(
+			"frame_log_directory_string");
+
 	drawableHandlers = new std::map<GLXContext, glxosd::OSDInstance*>;
 	pluginConstructors = new std::vector<PluginConstructor>();
 	pluginDataProviders = new std::vector<PluginDataProvider>();
@@ -40,7 +67,7 @@ void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 	unsigned int width = 1;
 	unsigned int height = 1;
 
-	if (display && drawable) {
+	if (osdVisible && display && drawable) {
 
 		auto it = drawableHandlers->find(glXGetCurrentContext());
 
@@ -66,6 +93,12 @@ void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 
 		instance->render(width, height);
 	}
+
+	if (isFrameLoggingEnabled()) {
+		frameLogStream << drawable << ","
+				<< (getMonotonicTimeNanoseconds() - frameLogMonotonicTimeOffset)
+				<< std::endl;
+	}
 }
 void GLXOSD::osdHandleContextDestruction(Display* display, GLXContext context) {
 	auto it = drawableHandlers->find(context);
@@ -74,6 +107,82 @@ void GLXOSD::osdHandleContextDestruction(Display* display, GLXContext context) {
 		drawableHandlers->erase(it);
 	}
 }
+void createDirectory(std::string path) {
+	for (size_t i = 1; i < path.length(); i++) {
+		if (path[i] == '/') {
+			int status = mkdir(path.substr(0, i).c_str(),
+			S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+			if (status == 0)
+				continue;
+
+			int errsv = errno;
+			switch (errsv) {
+			case EACCES:
+				throw std::runtime_error(
+						"Couldn't create directory " + path
+								+ ": access denied.");
+			case EEXIST:
+				goto next;
+			case ELOOP:
+				throw std::runtime_error(
+						"Couldn't create directory " + path
+								+ ": loop in the tree.");
+			case EMLINK:
+				throw std::runtime_error(
+						"Couldn't create directory " + path
+								+ ": the link count of the parent directory would exceed {LINK_MAX}.");
+			case ENAMETOOLONG:
+				throw std::runtime_error(
+						"Couldn't create directory " + path
+								+ ": the length of the path argument exceeds {PATH_MAX} or a pathname component is longer than {NAME_MAX}.");
+			case ENOSPC:
+				throw std::runtime_error(
+						"Couldn't create directory " + path
+								+ ": the file system does not contain enough space to hold the contents of the new directory or to extend the parent directory of the new directory.");
+			case ENOTDIR:
+				throw std::runtime_error(
+						"Couldn't create directory " + path
+								+ ": a component of the path is not a directory.");
+			case EROFS:
+				throw std::runtime_error(
+						"Couldn't create directory " + path
+								+ ": read only filesystem.");
+			}
+		}
+		next: ;
+	}
+
+}
+void GLXOSD::startFrameLogging() {
+	createDirectory(frameLogDirectory);
+	std::stringstream nameStream;
+	nameStream << frameLogDirectory << "/" << getpid() << "_" << std::time(0)
+			<< "_" << frameLogId++ << ".log";
+	frameLogFilename = nameStream.str();
+	frameLogStream.open(frameLogFilename, std::ofstream::out);
+	frameLogMonotonicTimeOffset = getMonotonicTimeNanoseconds();
+}
+void GLXOSD::stopFrameLogging() {
+	frameLogStream.close();
+	frameLogStream.clear();
+}
+void GLXOSD::osdHandleKeyPress(XKeyEvent* event) {
+	KeySym key = XLookupKeysym(event, 0);
+	if (key == frameLoggingToggleKey) {
+		frameLoggingEnabled = !frameLoggingEnabled;
+		if (frameLoggingEnabled)
+			startFrameLogging();
+		else
+			stopFrameLogging();
+	}
+	if (key == osdToggleKey)
+		osdVisible = !osdVisible;
+
+}
+bool GLXOSD::isFrameLoggingEnabled() {
+	return frameLoggingEnabled;
+}
+
 ConfigurationManager & GLXOSD::getConfigurationManager() {
 	return *configurationManager;
 }
@@ -152,6 +261,9 @@ void osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 }
 void osdHandleContextDestruction(Display* display, GLXContext context) {
 	GLXOSD::instance()->osdHandleContextDestruction(display, context);
+}
+void osdHandleKeyPress(XKeyEvent* event) {
+	GLXOSD::instance()->osdHandleKeyPress(event);
 }
 
 }

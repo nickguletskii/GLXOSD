@@ -18,9 +18,11 @@
  */
 typedef void (*handle_buffer_swap_type)(Display*, GLXDrawable);
 typedef void (*handle_context_destruction_type)(Display*, GLXContext);
+typedef void (*handle_keyboard_event)(XKeyEvent*);
 extern "C" struct gl_frame_handler {
 	handle_buffer_swap_type handle_buffer_swap;
 	handle_context_destruction_type handle_context_destruction;
+	handle_keyboard_event handle_keyboard_event;
 };
 extern "C" int glinject_add_gl_frame_handler(gl_frame_handler handler);
 extern "C" bool glinject_remove_gl_frame_handler(int id);
