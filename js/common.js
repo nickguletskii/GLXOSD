@@ -18,7 +18,7 @@ define(function (require) {
 	window[gaName].l = 1 * new Date();
 
 	// Immediately add a pageview event to the queue.
-	window[gaName]("create", "{{TrackingID}}", "{{Domain}}");
+	window[gaName]("create", "UA-46764899-1", "auto");
 	window[gaName]("send", "pageview");
 
 	// Create a function that wraps `window[gaName]`.
