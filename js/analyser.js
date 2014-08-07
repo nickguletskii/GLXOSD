@@ -50,7 +50,6 @@ function ANALYSER_SCRIPT(common, $) {
 	}
 
 	function setProgressBarStatus(colour) {
-		console.log(colour);
 		progressBarTargetColour = colour;
 		animateProgressBar();
 	}
@@ -463,53 +462,55 @@ function ANALYSER_SCRIPT(common, $) {
 	}
 
 	function handleFileSelect(evt) {
+		var files = evt.target.files || (evt.dataTransfer && evt.dataTransfer.files);
+		if (files) {
+			var file = files[0];
+			var output = [];
 
-		var file = evt.target.files[0];
-		var output = [];
+			var progressBarRoot = progressBar;
 
-		var progressBarRoot = progressBar;
-
-		var reader = new FileReader();
-		reader.onerror = errorHandler;
-		reader.onprogress = function (evt) {
-			setProgressBarValue(100 * evt.loaded / evt.total);
-		};
-		reader.onabort = function (e) {
-			setProgressBarValue(0 * evt.loaded / evt.total);
-		};
-		reader.onloadstart = function (e) {
-			hideOutput();
-			graph.html("");
-			hideFail();
-			modesList
-				.attr("disabled", "disabled");
-
-			setProgressBarStatus(PROGRESS_BAR_COLOUR);
-			setProgressBarValue(0);
-
-			$("#drawables")
-				.children()
-				.filter("div")
-				.remove();
-		};
-		reader.onload = function (e) {
-			try {
-				parseAndShowFrameLog(e.target.result);
-				setProgressBarStatus(PROGRESS_BAR_SUCCESS_COLOUR);
-				setProgressBarValue(100);
+			var reader = new FileReader();
+			reader.onerror = errorHandler;
+			reader.onprogress = function (evt) {
+				setProgressBarValue(100 * evt.loaded / evt.total);
+			};
+			reader.onabort = function (e) {
+				setProgressBarValue(0 * evt.loaded / evt.total);
+			};
+			reader.onloadstart = function (e) {
+				hideOutput();
+				graph.html("");
+				hideFail();
 				modesList
-					.removeAttr("disabled");
-			} catch (err) {
-				var failMsg = err;
-				if (err.stack !== undefined)
-					failMsg += "<pre>" + msg.stack + "</pre>";
-				fail(failMsg);
+					.attr("disabled", "disabled");
+
+				setProgressBarStatus(PROGRESS_BAR_COLOUR);
+				setProgressBarValue(0);
+
+				$("#drawables")
+					.children()
+					.filter("div")
+					.remove();
+			};
+			reader.onload = function (e) {
+				try {
+					parseAndShowFrameLog(e.target.result);
+					setProgressBarStatus(PROGRESS_BAR_SUCCESS_COLOUR);
+					setProgressBarValue(100);
+					modesList
+						.removeAttr("disabled");
+				} catch (err) {
+					var failMsg = err;
+					if (err.stack !== undefined)
+						failMsg += "<pre>" + msg.stack + "</pre>";
+					fail(failMsg);
+				}
+			};
+			try {
+				reader.readAsText(file);
+			} catch (msg) {
+				fail(msg);
 			}
-		};
-		try {
-			reader.readAsText(file);
-		} catch (msg) {
-			fail(msg);
 		}
 	}
 
@@ -523,7 +524,11 @@ function ANALYSER_SCRIPT(common, $) {
 			if (window.File && window.FileReader && window.FileList && window.Blob) {
 				var dropZone = $("#dropZone");
 				dropZone.on('dragover', handleDragOver);
-				dropZone.on('drop', handleFileSelect);
+				dropZone.on('drop', function (evt) {
+					evt.stopPropagation();
+					evt.preventDefault();
+					handleFileSelect(evt.originalEvent);
+				});
 				$("#logFile")
 					.on('change', handleFileSelect);
 				$("#analyserRoot")
