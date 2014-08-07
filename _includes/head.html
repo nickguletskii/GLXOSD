@@ -1,13 +1,105 @@
 <head>
 	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	{% if page.description %}
-	<meta name="Description" CONTENT="{{ page.description }}">
-	{% else %}
-	<meta name="Description" CONTENT="{{ page.title }}">
-	{% endif %}
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />{% if page.description %}
+	<meta name="Description" CONTENT="{{ page.description }}">{% else %}
+	<meta name="Description" CONTENT="{{ page.title }}">{% endif %}
 	<title>{{ page.title }} - {{ site.title }}</title>
-	<link rel="stylesheet" href="/css/foundation.css" />
-	<link rel="stylesheet" href="/css/app.css" />
-	<script src="/js/modernizr.js"></script>
+	<link rel="stylesheet" href="{{site.url}}/css/foundation.css" />
+	<link rel="stylesheet" href="{{site.url}}/css/foundicon.css" />
+	<link rel="stylesheet" href="{{site.url}}/css/app.css" />
+	<script>
+	var siteUrl = '{{site.url}}';
+	</script>
+
+	<script>
+	var require = {
+		baseUrl: siteUrl + "/js",
+		paths: {
+			"jquery": "jquery",
+			"jquery-ui": "jquery-ui",
+			"foundation": "foundation.min",
+			"jquery.colorhelpers": "jquery.colorhelpers",
+			"jquery.flot.canvas": "jquery.flot.canvas",
+			"jquery.flot.categories": "jquery.flot.categories",
+			"jquery.flot.crosshair": "jquery.flot.crosshair",
+			"jquery.flot.errorbars": "jquery.flot.errorbars",
+			"jquery.flot.fillbetween": "jquery.flot.fillbetween",
+			"jquery.flot.image": "jquery.flot.image",
+			"jquery.flot": "jquery.flot",
+			"jquery.flot.navigate": "jquery.flot.navigate",
+			"jquery.flot.pie": "jquery.flot.pie",
+			"jquery.flot.resize": "jquery.flot.resize",
+			"jquery.flot.selection": "jquery.flot.selection",
+			"jquery.flot.stack": "jquery.flot.stack",
+			"jquery.flot.symbol": "jquery.flot.symbol",
+			"jquery.flot.threshold": "jquery.flot.threshold",
+			"jquery.flot.time": "jquery.flot.time"
+		},
+		shim: {
+			'foundation': {
+				deps: ['jquery']
+			},
+			'jquery': {
+				deps: []
+			},
+			"jquery.colorhelpers": {
+				deps: ["jquery"]
+			},
+			"jquery.flot": {
+				deps: ["jquery", "jquery.colorhelpers"]
+			},
+			'jquery-ui': {
+				deps: ['jquery']
+			},
+			"jquery.flot.canvas": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.categories": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.crosshair": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.errorbars": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.fillbetween": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.image": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.navigate": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.pie": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.resize": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.selection": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.stack": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.symbol": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.threshold": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			},
+			"jquery.flot.time": {
+				deps: ["jquery", "jquery.flot", "jquery.colorhelpers"]
+			}
+		}
+	};
+	</script>
+	{% if page.pageScript %}
+	<script data-main="{{site.url}}/js/{{page.pageScript}}.js" src="{{site.url}}/js/require.js"></script>
+	{% else %}
+	<script data-main="{{site.url}}/js/common.js" src="{{site.url}}/js/require.js"></script>
+	{% endif %}
+	<script src="{{site.url}}/js/modernizr.js"></script>
 </head>

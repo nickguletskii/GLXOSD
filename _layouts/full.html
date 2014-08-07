@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+{% include legal.html %}
+<html>
+
+{% include head.html %}
+
+<body>
+
+	{% include header.html %}
+	</br>
+	<div class="row">
+		<div class="large-12 large-centered columns">
+			<main>
+				<h1>{{ page.title }}</h1>
+				{{ content }}
+			</main>
+		</div>
+	</div>
+
+	{% include footer.html %}
+
+</body>
+
+</html>

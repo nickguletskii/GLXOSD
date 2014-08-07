@@ -1,7 +1,21 @@
 /*
+	Analyser styles
+*/
+#dropZone {
+	border: 4px dashed #bbb;
+	text-align: center;
+	padding-left: 4rem;
+	padding-right: 4rem;
+	padding-top: 4rem;
+	padding-bottom: 4rem;
+	margin-bottom: 1rem;
+	font-size: 2rem;
+	color: #bbb;
+}
+/*
 	Style for importance boxes
 */
- .important.warning {
+.important.warning {
     background-color: #f08a24;
     border-color: #de770f;
     color: #fff;

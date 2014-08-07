@@ -36,6 +36,20 @@ To remove the need of launching the application through the terminal, you should
 ![The game properties window](img/steam/step6.png)
 7. Done! You can now start the game and you should see GLXOSD in it. If the game starts without GLXOSD or doesn't start at all, please [send me an email](mailto:nickguletskii200@gmail.com) or file an issue on the [issue tracker](https://github.com/nickguletskii/GLXOSD/issues?state=open).
 
+# Turning the OSD off and on
+
+The default shortcut for turning the GLXOSD on and off is <kbd>Shift</kbd> + <kbd>F10</kbd>. You can change this in the [config file]({{site.url}}/faq.html#how-do-i-customise-glxosd).
+
+# Benchmarking #
+
+The default shortcut for starting and stopping GLXOSD frame logging is <kbd>Shift</kbd> + <kbd>F9</kbd>. The default output location for GLXOSD frame timing logs is /tmp/. Both of these options can be configured through the [config file]({{site.url}}/faq.html#how-do-i-customise-glxosd).
+
+When logging starts, a file in the output directory will be created. The filename of that file will be in the format of "PROCESSID_CURRENTTIME_ID.log". 
+
+It contains a line per frame, each one of them has two comma-separated numbers: the ID of the X11 drawable and the number of nanoseconds that have elapsed since logging started. Please note that the overhead of logging is bigger than a nanosecond, therefore you can't really say that we are measuring with nanosecond precision here.
+
+To make benchmarking more fair, please put the output location on a fast filesystem.
+
 # Additional options #
 
 glxosd [options] command
