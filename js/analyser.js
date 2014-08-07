@@ -17,8 +17,19 @@ function ANALYSER_SCRIPT(common, $) {
 	var progressBarValue = $("#uploadProgress > .meter");
 	var statistics = $("#statistics");
 	var statisticsRoot = $("#statisticsRoot");
+
 	var progressBarTargetValue = 0;
 	var progressBarTargetColour = PROGRESS_BAR_COLOUR;
+
+	function saveGraph() {
+		html2canvas(graph[0], {
+			onrendered: function (canvas) {
+				canvas.toBlob(function (blob) {
+					saveAs(blob, "glxosdGraph.png");
+				});
+			}
+		});
+	}
 
 	function animateProgressBar() {
 		progressBarValue.stop(true);
@@ -47,6 +58,8 @@ function ANALYSER_SCRIPT(common, $) {
 	function hideOutput() {
 		graph.addClass("hide");
 		statisticsRoot.addClass("hide");
+		$("#saveButtonContainer")
+			.addClass("hide");
 	}
 
 	function setProgressBarStatus(colour) {
@@ -187,7 +200,7 @@ function ANALYSER_SCRIPT(common, $) {
 					currentInputDataToValueMapper = parseInt($(this)
 						.attr("value"));
 				});
-			renderGraph(true);
+			redraw(true);
 		});
 	$("#drawables")
 		.on("change", function (evt) {
@@ -199,7 +212,7 @@ function ANALYSER_SCRIPT(common, $) {
 					drawables[$(this)
 						.attr("data-drawableid")].show = true;
 				});
-			renderGraph(true);
+			redraw(true);
 		});
 
 	function calculatePoints(drawable, inputDataToValueMapper) {
@@ -254,7 +267,7 @@ function ANALYSER_SCRIPT(common, $) {
 			.reduce(reducer, initial);
 	}
 
-	function renderGraph(refresh) {
+	function redraw(refresh) {
 		graph.removeClass("hide");
 		statisticsRoot.removeClass("hide");
 		if ($("#graphTooltip")
@@ -384,6 +397,8 @@ function ANALYSER_SCRIPT(common, $) {
 		graph.css({
 			cursor: "none"
 		});
+		$("#saveButtonContainer")
+			.removeClass("hide");
 	}
 
 	function parseAndShowFrameLog(frameLog) {
@@ -443,7 +458,7 @@ function ANALYSER_SCRIPT(common, $) {
 						drawable + "</label></div>");
 			});
 
-		renderGraph(true);
+		redraw(true);
 	}
 
 	function errorHandler(evt) {
@@ -531,6 +546,10 @@ function ANALYSER_SCRIPT(common, $) {
 				});
 				$("#logFile")
 					.on('change', handleFileSelect);
+
+				$("#saveButton")
+					.click(saveGraph);
+
 				$("#analyserRoot")
 					.removeClass("hide");
 			} else {
@@ -540,5 +559,5 @@ function ANALYSER_SCRIPT(common, $) {
 }
 require(['common', 'jquery', 'jquery-ui', "jquery.flot",
 	"jquery.flot.crosshair",
-	"jquery.flot.navigate"
+	"jquery.flot.navigate", "html2canvas", "FileSaver"
 ], ANALYSER_SCRIPT);

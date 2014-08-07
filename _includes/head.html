@@ -33,7 +33,10 @@
 			"jquery.flot.stack": "jquery.flot.stack",
 			"jquery.flot.symbol": "jquery.flot.symbol",
 			"jquery.flot.threshold": "jquery.flot.threshold",
-			"jquery.flot.time": "jquery.flot.time"
+			"jquery.flot.time": "jquery.flot.time",
+			"html2canvas": "html2canvas",
+			"canvas-toBlob": "canvas-toBlob",
+			"FileSaver": "FileSaver"
 		},
 		shim: {
 			'foundation': {
@@ -41,6 +44,15 @@
 			},
 			'jquery': {
 				deps: []
+			},
+			'html2canvas': {
+				deps: []
+			},
+			'canvas-toBlob': {
+				deps: []
+			},
+			'FileSaver': {
+				deps: ['canvas-toBlob']
 			},
 			"jquery.colorhelpers": {
 				deps: ["jquery"]
