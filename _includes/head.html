@@ -4,11 +4,11 @@
 	<meta name="Description" CONTENT="{{ page.description }}">{% else %}
 	<meta name="Description" CONTENT="{{ page.title }}">{% endif %}
 	<title>{{ page.title }} - {{ site.title }}</title>
-	<link rel="stylesheet" href="{{site.url}}/css/foundation.css" />
-	<link rel="stylesheet" href="{{site.url}}/css/foundicon.css" />
-	<link rel="stylesheet" href="{{site.url}}/css/app.css" />
+	<link rel="stylesheet" href="{{site.baseurl}}/css/foundation.css" />
+	<link rel="stylesheet" href="{{site.baseurl}}/css/foundicon.css" />
+	<link rel="stylesheet" href="{{site.baseurl}}/css/app.css" />
 	<script>
-	var siteUrl = '{{site.url}}';
+	var siteUrl = '{{site.baseurl}}';
 	</script>
 
 	<script>
@@ -109,9 +109,9 @@
 	};
 	</script>
 	{% if page.pageScript %}
-	<script data-main="{{site.url}}/js/{{page.pageScript}}.js" src="{{site.url}}/js/require.js"></script>
+	<script data-main="{{site.baseurl}}/js/{{page.pageScript}}.js" src="{{site.baseurl}}/js/require.js"></script>
 	{% else %}
-	<script data-main="{{site.url}}/js/common.js" src="{{site.url}}/js/require.js"></script>
+	<script data-main="{{site.baseurl}}/js/common.js" src="{{site.baseurl}}/js/require.js"></script>
 	{% endif %}
-	<script src="{{site.url}}/js/modernizr.js"></script>
+	<script src="{{site.baseurl}}/js/modernizr.js"></script>
 </head>

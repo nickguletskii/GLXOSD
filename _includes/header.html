@@ -7,11 +7,11 @@
 	</ul>
 	<section class="top-bar-section">
 		<ul class="right">
-			<li {% if ((page.url == "/index.html") or (page.url == "/")) %} class="active" {% endif %} ><a href="{{site.url}}/index.html">Home</a></li>
-			<li {% if (page.url == "/install.html") %} class="active" {% endif %}><a href="{{site.url}}/install.html">Install</a></li>
-			<li {% if (page.url == "/usage.html") %} class="active" {% endif %}><a href="{{site.url}}/usage.html">How to use</a></li>
-			<li {% if (page.url == "/analyse.html") %} class="active" {% endif %}><a href="{{site.url}}/analyse.html">Analyse</a></li>
-			<li {% if (page.url == "/faq.html") %} class="active" {% endif %}><a href="{{site.url}}/faq.html">FAQ</a></li>
+			<li {% if ((page.url == "/index.html") or (page.url == "/")) %} class="active" {% endif %} ><a href="{{site.baseurl}}/index.html">Home</a></li>
+			<li {% if (page.url == "/install.html") %} class="active" {% endif %}><a href="{{site.baseurl}}/install.html">Install</a></li>
+			<li {% if (page.url == "/usage.html") %} class="active" {% endif %}><a href="{{site.baseurl}}/usage.html">How to use</a></li>
+			<li {% if (page.url == "/analyse.html") %} class="active" {% endif %}><a href="{{site.baseurl}}/analyse.html">Analyse</a></li>
+			<li {% if (page.url == "/faq.html") %} class="active" {% endif %}><a href="{{site.baseurl}}/faq.html">FAQ</a></li>
 			<li><a href="https://github.com/nickguletskii/GLXOSD">Source code</a></li>
 			<li><a href="https://github.com/nickguletskii/GLXOSD/issues?state=open">Issue tracker</a></li>
 		</ul>

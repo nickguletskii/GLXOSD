@@ -15,7 +15,7 @@ Please see the configuration files:
 
 ### How do I launch a Steam game with GLXOSD? ###
 
-[How to use GLXOSD with Steam]({{site.url}}/usage.html#steam-games)
+[How to use GLXOSD with Steam]({{site.baseurl}}/usage.html#steam-games)
 
 ### How do I launch a 32 bit application on a 64 bit OS with GLXOSD? ###
 

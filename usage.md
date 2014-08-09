@@ -38,11 +38,11 @@ To remove the need of launching the application through the terminal, you should
 
 # Turning the OSD off and on
 
-The default shortcut for turning the GLXOSD on and off is <kbd>Shift</kbd> + <kbd>F10</kbd>. You can change this in the [config file]({{site.url}}/faq.html#how-do-i-customise-glxosd).
+The default shortcut for turning the GLXOSD on and off is <kbd>Shift</kbd> + <kbd>F10</kbd>. You can change this in the [config file]({{site.baseurl}}/faq.html#how-do-i-customise-glxosd).
 
 # Benchmarking #
 
-The default shortcut for starting and stopping GLXOSD frame logging is <kbd>Shift</kbd> + <kbd>F9</kbd>. The default output location for GLXOSD frame timing logs is /tmp/. Both of these options can be configured through the [config file]({{site.url}}/faq.html#how-do-i-customise-glxosd).
+The default shortcut for starting and stopping GLXOSD frame logging is <kbd>Shift</kbd> + <kbd>F9</kbd>. The default output location for GLXOSD frame timing logs is /tmp/. Both of these options can be configured through the [config file]({{site.baseurl}}/faq.html#how-do-i-customise-glxosd).
 
 When logging starts, a file in the output directory will be created. The filename of that file will be in the format of "PROCESSID_CURRENTTIME_ID.log". 
 

@@ -1,6 +1,6 @@
 ---
 layout: full
-title:  "What is GLXOSD?"
+title:  "GLXOSD, an OSD and benchmarking tool for Linux"
 description: "GLXOSD is an on-screen display (OSD)/overlay for OpenGL applications running on Linux with X11. It can show FPS, the temperature of your CPU, and if you have an NVIDIA graphics card (with proprietary drivers), it will also show the temperature of the GPU. Also, it can log frame timings, which is useful for benchmarking."
 ---
 <dfn style="font-style: normal;">GLXOSD</dfn> is an on-screen display (OSD)/overlay for OpenGL applications running on Linux with X11. It can show FPS, the temperature of your CPU, and if you have an NVIDIA graphics card (with proprietary drivers), it will also show the temperature of the GPU. Also, it can log frame timings, which is useful for benchmarking.
@@ -70,7 +70,7 @@ description: "GLXOSD is an on-screen display (OSD)/overlay for OpenGL applicatio
 	<div class="large-9 small-12 columns text-justify">
 		<h1>Analyse</h1>
 		<p>As GLXOSD frame timing logs are CSVs, you will have no trouble processing them with your tool of choice.</p>
-		<p>There is also a <a href="{{site/url}}/analyse.html">little web tool</a> that can calculate FPS, frame frequency, delays between frames and plot them.</p>
+		<p>There is also a <a href="{{site.baseurl}}/analyse.html">little web tool</a> that can calculate FPS, frame frequency, delays between frames and plot them.</p>
 	</div>
 </div>
 <hr>
