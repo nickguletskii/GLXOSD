@@ -65,8 +65,16 @@ const std::map<std::string, boost::any> ConfigurationManager::readConfigChain() 
 	std::map<std::string, boost::any> configuration;
 
 	std::string globalPath = "/etc/glxosd.conf";
-	std::string userPath = getEnvironment("HOME") + "/.glxosd/glxosd.conf";
+	std::string userPath;
 	std::string customPath = getEnvironment("GLXOSD_CONFIG_PATH");
+
+	// Select user config location based on XDG basedir spec
+	if (!getEnvironment("XDG_CONFIG_HOME").empty()) {
+		userPath = getEnvironment("XDG_CONFIG_HOME") + "/glxosd/glxosd.conf";
+	}
+	else {
+		userPath = getEnvironment("HOME") + "/.config/glxosd/glxosd.conf";
+	}
 
 	// Read the global config first...
 	std::cout << "[GLXOSD] Reading global configuration file at \""
