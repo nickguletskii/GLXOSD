@@ -77,12 +77,20 @@ description: "GLXOSD is an on-screen display (OSD)/overlay for OpenGL applicatio
 
 # Latest changes #
 
-* 2014/08/07, version 2.2.1:
+* 2014-08-13, version 2.2.2:
+  * Fix blend functions not being reverted.
+  * Fix GL_ELEMENT_ARRAY_BUFFER not being reverted.
+  * Fix keyboard event state handling.
+  * Move user config location to XDG compliant directory.
+  * Add the ability of disabling key combos.
+  * Now works on OpenGL 3.
+
+* 2014-08-07, version 2.2.1:
   * Add the ability to log frame timings, which allows users to benchmark
   applications.
   * Add key bindings for toggling the OSD.
 
-* 2014/07/05, version 2.1.2 (together with 2.1.1):
+* 2014-07-05, version 2.1.2 (together with 2.1.1):
   * **BREAKING CHANGE!** Migrate to OpenGL 3 (adds support for OpenGL core profile). This also means that this project no longer requires FTGL. Also, the text looks better now.
   * Add support for configuring GLXOSD by specifying the path to the
      configuration file.
