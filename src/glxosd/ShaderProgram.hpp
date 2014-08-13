@@ -27,6 +27,8 @@ public:
 	void setUniform1i(int loc, GLint v);
 	void setUniform1f(int loc, GLfloat v);
 
+	GLint getAttribLocation(std::string name) ;
+
 	void start();
 	void stop();
 

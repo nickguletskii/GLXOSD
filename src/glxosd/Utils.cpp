@@ -14,6 +14,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <X11/Xlib.h>
+#include <X11/keysym.h>
 namespace glxosd {
 std::string getEnvironment(const std::string & var) {
 	const char * val = getenv(var.c_str());
@@ -56,6 +57,10 @@ KeyCombo stringToKeyCombo(std::string str) {
 	KeyCombo combo;
 	combo.keySym = 0;
 	combo.mask = 0U;
+	if(str.empty()){
+		combo.keySym = XK_VoidSymbol;
+		return combo;
+	}
 	bool hasPrimaryKey = false; // If no key is specified, produce an error
 	for (auto token : split(str, '+')) {
 		if (token == "Shift") {
@@ -82,7 +87,7 @@ KeyCombo stringToKeyCombo(std::string str) {
 }
 
 bool keyComboMatches(KeyCombo combo, XKeyEvent* event) {
-	return (event->state == combo.mask)
+	return ((event->state & (ShiftMask | ControlMask | Mod1Mask)) == combo.mask)
 			&& (event->keycode == XKeysymToKeycode(event->display, combo.keySym));
 }
 

@@ -146,8 +146,6 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 		glUseProgram(0);
 	}
 
-	glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
 	GLint frontFace;
 	{
 		glGetIntegerv(GL_FRONT_FACE, &frontFace);
@@ -169,15 +167,9 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	GLint blendSrc;
 	GLint blendDst;
 	{
-		glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrc);
-		glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDst);
+		glGetIntegerv(GL_BLEND_SRC, &blendSrc);
+		glGetIntegerv(GL_BLEND_DST, &blendDst);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-
-	GLint depthFunc;
-	{
-		glGetIntegerv(GL_DEPTH_FUNC, &depthFunc);
-		glDepthFunc(GL_LESS);
 	}
 
 	//Equivalent to glPushAttrib -> glEnable/Disable -> glPopAttrib
@@ -236,12 +228,14 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 
 	//Memorise buffer states
 	GLint pixelUnpackBufferBinding = 0, arrayBufferBinding = 0, activeTexture =
-			0, textureBinding2D = 0, vertexArrayBinding = 0;
+			0, textureBinding2D = 0, vertexArrayBinding = 0,
+			elementArrayBufferBinding = 0;
 	glGetIntegerv(GL_PIXEL_UNPACK_BUFFER_BINDING, &pixelUnpackBufferBinding);
 	glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &arrayBufferBinding);
 	glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTexture);
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding2D);
 	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vertexArrayBinding);
+	glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &elementArrayBufferBinding);
 
 	renderText(width, height);
 
@@ -249,16 +243,16 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	glActiveTexture(activeTexture);
 	glBindTexture(GL_TEXTURE_2D, textureBinding2D);
 	glBindVertexArray(vertexArrayBinding);
-	glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pixelUnpackBufferBinding);
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pixelUnpackBufferBinding);
 	glBindBuffer(GL_ARRAY_BUFFER, arrayBufferBinding);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementArrayBufferBinding);
 
 	//Revert misc settings
-	glDepthFunc(depthFunc);
 	glBlendColor(blendColour[0], blendColour[1], blendColour[2],
 			blendColour[3]);
+	glBlendFunc(blendSrc, blendDst);
 	glColorMask(colourMask[0], colourMask[1], colourMask[2], colourMask[3]);
 	glFrontFace(frontFace);
-	glBlendFunc(blendSrc, blendDst);
 	glUseProgram(program);
 }
 OSDInstance::~OSDInstance() {

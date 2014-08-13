@@ -14,25 +14,25 @@
 namespace glxosd {
 
 std::string vertex_source =
-		"#version 330\n"
+		"#version 130\n"
 				"uniform float posX;"
 				"uniform float posY;"
 				"uniform float width;"
 				"uniform float height;"
 				"uniform float imageWidth;"
 				"uniform float imageHeight;"
-				"layout(location = 0) in vec4 vposition;\n"
-				"layout(location = 1) in vec2 vtexcoord;\n"
+				"in vec4 vposition;\n"
+				"in vec2 vtexcoord;\n"
 				"out vec2 ftexcoord;\n"
 				"void main() {\n"
 				"   ftexcoord = vtexcoord;\n"
 				"   gl_Position = (vposition*vec4(2*imageWidth/width, 2*imageHeight/height, 0, 1))+vec4(-1,1,0,0)+vec4(2*posX/width, 2*posY/height, 0, 0);\n"
 				"}\n";
 
-std::string fragment_source = "#version 330\n"
+std::string fragment_source = "#version 130\n"
 		"uniform sampler2D tex;\n"
 		"in vec2 ftexcoord;\n"
-		"layout(location = 0) out vec4 FragColor;\n"
+		"out vec4 FragColor;\n"
 		"void main() {\n"
 		"   FragColor = texture(tex, ftexcoord);\n"
 		"}\n";
@@ -57,6 +57,9 @@ VertexBuffer::VertexBuffer(std::vector<GLfloat> vertices,
 	imageWidthLocation = shaderProgram->getUniformLocation("imageWidth");
 	imageHeightLocation = shaderProgram->getUniformLocation("imageHeight");
 
+	GLint vpositionAttrib = shaderProgram->getAttribLocation("vposition");
+	GLint vtexcoordAttrib = shaderProgram->getAttribLocation("vtexcoord");
+
 	glGenVertexArrays(1, &vao);
 
 	glBindVertexArray(vao);
@@ -68,16 +71,14 @@ VertexBuffer::VertexBuffer(std::vector<GLfloat> vertices,
 				vertices.data(),
 				GL_STATIC_DRAW);
 
-		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(vpositionAttrib);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),
-				(char*) 0 + 0 * sizeof(GLfloat));
+		glVertexAttribPointer(vpositionAttrib, 3, GL_FLOAT, GL_FALSE,
+				5 * sizeof(GLfloat), (char*) 0 + 0 * sizeof(GLfloat));
 
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),
-				(char*) 0 + 3 * sizeof(GLfloat));
-
-		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(vtexcoordAttrib);
+		glVertexAttribPointer(vtexcoordAttrib, 2, GL_FLOAT, GL_FALSE,
+				5 * sizeof(GLfloat), (char*) 0 + 3 * sizeof(GLfloat));
 
 		glGenBuffers(1, &ibo);
 

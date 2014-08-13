@@ -89,6 +89,10 @@ void ShaderProgram::setUniform1f(int loc, GLfloat v) {
 	glUniform1f(loc, v);
 }
 
+GLint ShaderProgram::getAttribLocation(std::string name) {
+	return glGetAttribLocation(shaderProgram, name.c_str());
+}
+
 ShaderProgram::ShaderProgram::~ShaderProgram() {
 	glDeleteProgram(shaderProgram);
 }
@@ -113,3 +117,4 @@ ShaderProgram* ShaderProgram::getOrBuild(std::string name,
 }
 
 } /* namespace glxosd */
+
