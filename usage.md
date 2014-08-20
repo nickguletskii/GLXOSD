@@ -44,7 +44,7 @@ The default shortcut for turning the GLXOSD on and off is <kbd>Shift</kbd> + <kb
 
 The default shortcut for starting and stopping GLXOSD frame logging is <kbd>Shift</kbd> + <kbd>F9</kbd>. The default output location for GLXOSD frame timing logs is /tmp/. Both of these options can be configured through the [config file]({{site.baseurl}}/faq.html#how-do-i-customise-glxosd).
 
-When logging starts, a file in the output directory will be created. The filename of that file will be in the format of "PROCESSID_CURRENTTIME_ID.log". 
+When logging starts, a file in the output directory will be created. The filename of that file will be in the format of "glxosd_PROCESSID_CURRENTTIME_ID.log". 
 
 It contains a line per frame, each one of them has two comma-separated numbers: the ID of the X11 drawable and the number of nanoseconds that have elapsed since logging started. Please note that the overhead of logging is bigger than a nanosecond, therefore you can't really say that we are measuring with nanosecond precision here.
 
