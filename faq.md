@@ -11,7 +11,8 @@ description: "FAQ"
 Please see the configuration files:
 
 * /etc/glxosd.conf for global configuration, contains the default config
-* ~/.glxosd/glxosd.conf for user configuration
+* $XDG_CONFIG_HOME/glxosd/glxosd.conf for user configuration (or $HOME/.config/glxosd/glxosd.conf if $XDG_CONFIG_HOME isn't defined)
+* See [Launching GLXOSD with a different config]({{site.baseurl}}/usage.html#launch-with-a-different-config)
 
 ### How do I launch a Steam game with GLXOSD? ###
 
