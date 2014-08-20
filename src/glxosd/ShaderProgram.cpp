@@ -8,9 +8,9 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "glinject.hpp"
 #include "GLXOSD.hpp"
 #include "ShaderProgram.hpp"
-#include "GLLoader.hpp"
 #include <GL/gl.h>
 
 namespace glxosd {
@@ -18,16 +18,16 @@ namespace glxosd {
 std::map<std::string, ShaderProgram*> *shaderPrograms = nullptr;
 
 ShaderProgram::ShaderProgram() {
-	shaderProgram = glCreateProgram();
+	shaderProgram = rgl(CreateProgram)();
 }
 void checkShaderCompileStatus(GLuint shader) {
 	GLint status;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+	rgl(GetShaderiv)(shader, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE) {
 		GLint length;
-		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+		rgl(GetShaderiv)(shader, GL_INFO_LOG_LENGTH, &length);
 		std::vector<char> log(length, '\0');
-		glGetShaderInfoLog(shader, length, &length, log.data());
+		rgl(GetShaderInfoLog)(shader, length, &length, log.data());
 		throw std::runtime_error(
 				"Couldn't compile GLXOSD shader: "
 						+ std::string(log.begin(), log.end()));
@@ -35,66 +35,66 @@ void checkShaderCompileStatus(GLuint shader) {
 }
 void checkProgramLinkStatus(GLuint obj) {
 	GLint status;
-	glGetProgramiv(obj, GL_LINK_STATUS, &status);
+	rgl(GetProgramiv)(obj, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE) {
 		GLint length;
-		glGetProgramiv(obj, GL_INFO_LOG_LENGTH, &length);
+		rgl(GetProgramiv)(obj, GL_INFO_LOG_LENGTH, &length);
 		std::vector<char> log(length, '\0');
-		glGetProgramInfoLog(obj, length, &length, log.data());
+		rgl(GetProgramInfoLog)(obj, length, &length, log.data());
 		throw std::runtime_error(
 				"Couldn't link GLXOSD shader program: "
 						+ std::string(log.begin(), log.end()));
 	}
 }
 ShaderProgram* ShaderProgram::addShader(GLenum type, std::string shaderSource) {
-	GLuint shader = glCreateShader(type);
+	GLuint shader = rgl(CreateShader)(type);
 	const GLchar* source = static_cast<const GLchar*>(shaderSource.c_str());
 	const int length = shaderSource.size();
-	glShaderSource(shader, 1, &source, &length);
-	glCompileShader(shader);
+	rgl(ShaderSource)(shader, 1, &source, &length);
+	rgl(CompileShader)(shader);
 	checkShaderCompileStatus(shader);
 
-	glAttachShader(shaderProgram, shader);
+	rgl(AttachShader)(shaderProgram, shader);
 
 	shaders.push_back(shader);
 
 	return this;
 }
 ShaderProgram* ShaderProgram::build() {
-	glLinkProgram(shaderProgram);
+	rgl(LinkProgram)(shaderProgram);
 
 	for (auto shader : shaders)
-		glDeleteShader(shader);
+		rgl(DeleteShader)(shader);
 
 	checkProgramLinkStatus(shaderProgram);
 
 	return this;
 }
 GLint ShaderProgram::getUniformLocation(std::string name) {
-	return glGetUniformLocation(shaderProgram, name.c_str());
+	return rgl(GetUniformLocation)(shaderProgram, name.c_str());
 }
 
 void ShaderProgram::start() {
-	glUseProgram(shaderProgram);
+	rgl(UseProgram)(shaderProgram);
 }
 
 void ShaderProgram::stop() {
-	glUseProgram(0);
+	rgl(UseProgram)(0);
 }
 
 void ShaderProgram::setUniform1i(int loc, GLint v) {
-	glUniform1i(loc, v);
+	rgl(Uniform1i)(loc, v);
 }
 void ShaderProgram::setUniform1f(int loc, GLfloat v) {
-	glUniform1f(loc, v);
+	rgl(Uniform1f)(loc, v);
 }
 
 GLint ShaderProgram::getAttribLocation(std::string name) {
-	return glGetAttribLocation(shaderProgram, name.c_str());
+	return rgl(GetAttribLocation)(shaderProgram, name.c_str());
 }
 
 ShaderProgram::ShaderProgram::~ShaderProgram() {
-	glDeleteProgram(shaderProgram);
+	rgl(DeleteProgram)(shaderProgram);
 }
 
 ShaderProgram* ShaderProgram::getOrBuild(std::string name,

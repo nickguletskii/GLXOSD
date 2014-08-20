@@ -10,13 +10,53 @@
 #ifndef GLINJECT_HPP_
 #define GLINJECT_HPP_
 
+#include "lock.hpp"
 #include <GL/glx.h>
 #include <X11/Xlib.h>
+
+typedef __GLXextFuncPtr (*gl_function_provider_type)(const GLubyte* name);
+gl_function_provider_type get_gl_function_provider();
+
+/*
+ * Utility macro to mask glinject_real_gl
+ */
+#define rgl(x) glinject_real_gl##x
+
+/*
+ * Real symbol definitions
+ */
+#define DEFINE_REAL_GL_FUNC(name, returns, arg)\
+		typedef returns ( * glinject_##name##_type) arg;\
+		const glinject_##name##_type glinject_real_##name __attribute__((unused))= \
+		(glinject_##name##_type) get_gl_function_provider()((const GLubyte *)#name);
+
+#define GLOBALLY_SYNCHRONIZE_FUNCTION_VOID_RET(name, arg, call)\
+		DEFINE_REAL_GL_FUNC(name, void, arg)
+
+#define GLOBALLY_SYNCHRONIZE_FUNCTION(name, ret, arg, call)\
+		DEFINE_REAL_GL_FUNC(name, ret, arg)
+
+#define SYNCHRONIZE_FUNCTION_VOID_RET(name, arg, call)\
+		DEFINE_REAL_GL_FUNC(name, void, arg)
+
+#define SYNCHRONIZE_FUNCTION(name, ret, arg, call)\
+		DEFINE_REAL_GL_FUNC(name, ret, arg)
+
+#include "syncopengl.hpp"
+
+#undef GLOBALLY_SYNCHRONIZE_FUNCTION
+
+#undef GLOBALLY_SYNCHRONIZE_FUNCTION_VOID_RET
+
+#undef SYNCHRONIZE_FUNCTION
+
+#undef SYNCHRONIZE_FUNCTION_VOID_RET
 
 /*
  * glinject external API
  */
-typedef Bool (*XIfEvent_predicate_type)(Display* display, XEvent* event, XPointer pointer);
+typedef Bool (*XIfEvent_predicate_type)(Display* display, XEvent* event,
+		XPointer pointer);
 typedef void (*handle_buffer_swap_type)(Display*, GLXDrawable);
 typedef void (*handle_context_destruction_type)(Display*, GLXContext);
 typedef void (*handle_keyboard_event_type)(XKeyEvent*);
@@ -28,6 +68,10 @@ extern "C" struct gl_frame_handler {
 };
 extern "C" int glinject_add_gl_frame_handler(gl_frame_handler handler);
 extern "C" bool glinject_remove_gl_frame_handler(int id);
+extern "C" void glinject_lock_gl();
+extern "C" void glinject_unlock_gl();
+
+extern "C" pthread_mutex_t GLINJECT_GLOBAL_MUTEX;
 
 /*
  * Library initialisation/construction hooks

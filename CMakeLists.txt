@@ -9,11 +9,11 @@ SET(INSTALLATION_SUFFIX_64 "/lib/x86_64-linux-gnu/" CACHE STRING "The part of th
 get_filename_component(OUTPUT_DIR "bin/" ABSOLUTE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
 ##### Compiler #####
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++0x")
 ##### Set version #####
 set(GLXOSD_VERSION_MAJOR 2)
-set(GLXOSD_VERSION_MINOR 2)
-set(GLXOSD_VERSION_PATCH 2)
+set(GLXOSD_VERSION_MINOR 3)
+set(GLXOSD_VERSION_PATCH 1)
 set(GLXOSD_VERSION_STRING ${GLXOSD_VERSION_MAJOR}.${GLXOSD_VERSION_MINOR}.${GLXOSD_VERSION_PATCH})
 ##### Find the libraries #####
 #Find OpenGL
@@ -39,6 +39,11 @@ include_directories(${FONTCONFIG_INCLUDE_DIRS})
 if(NOT FONTCONFIG_FOUND)
     message(ERROR " FontConfig not found!")
 endif(NOT FONTCONFIG_FOUND)
+#Find POSIX threads
+find_package(Threads REQUIRED)
+if(NOT Threads_FOUND)
+    message(ERROR " POSIX threads not found!")
+endif(NOT Threads_FOUND)
 #Find X11
 find_package(X11 REQUIRED)
 include_directories(${X11_INCLUDE_DIRS})

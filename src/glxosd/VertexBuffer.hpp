@@ -12,7 +12,7 @@
 #define VERTEXBUFFER_HPP_
 #include "ShaderProgram.hpp"
 #include "Colour.hpp"
-#include<GL/gl.h>
+#include <GL/gl.h>
 namespace glxosd {
 
 class VertexBuffer {

@@ -8,19 +8,20 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "GLXOSDLoader.hpp"
-#include "glinject.hpp"
-#include "GLXOSD.hpp"
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XIfEvent, int,
+		(Display* display, XEvent* event, XIfEvent_predicate_type predicate, XPointer pointer),
+		(display, event, predicate, pointer))
 
-int id = -1;
-extern "C" void constructGLXOSD() {
-	gl_frame_handler glHandler = { &glxosd::osdHandleBufferSwap,
-			&glxosd::osdHandleContextDestruction, &glxosd::osdHandleKeyPress, &glxosd::osdEventFilter };
-	id = glinject_add_gl_frame_handler(glHandler);
-}
-extern "C" void destructGLXOSD() {
-	glxosd::GLXOSD::cleanup();
-	if (id != -1) {
-		glinject_remove_gl_frame_handler(id);
-	}
-}
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XCheckIfEvent, Bool,
+		(Display* display, XEvent* event, XIfEvent_predicate_type predicate, XPointer pointer),
+		(display, event, predicate, pointer))
+
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XMaskEvent, int,
+		(Display* display, long mask, XEvent* event), (display, mask, event))
+
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XNextEvent, int,
+		(Display* display, XEvent* event), (display, event))
+
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XWindowEvent, int,
+		(Display* display, Window window, long mask, XEvent* event),
+		(display, window, mask, event))

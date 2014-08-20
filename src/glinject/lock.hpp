@@ -7,20 +7,38 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#ifndef LOCK_HPP_
+#define LOCK_HPP_
+#include <pthread.h>
+#include <X11/Xlib.h>
 
-#include "GLXOSDLoader.hpp"
-#include "glinject.hpp"
-#include "GLXOSD.hpp"
-
-int id = -1;
-extern "C" void constructGLXOSD() {
-	gl_frame_handler glHandler = { &glxosd::osdHandleBufferSwap,
-			&glxosd::osdHandleContextDestruction, &glxosd::osdHandleKeyPress, &glxosd::osdEventFilter };
-	id = glinject_add_gl_frame_handler(glHandler);
-}
-extern "C" void destructGLXOSD() {
-	glxosd::GLXOSD::cleanup();
-	if (id != -1) {
-		glinject_remove_gl_frame_handler(id);
+class Lock {
+public:
+	Lock(pthread_mutex_t *mutex) :
+			mutex(mutex), locked(true) {
+		pthread_mutex_lock(mutex);
 	}
-}
+
+	~Lock() {
+		if (locked)
+			pthread_mutex_unlock(mutex);
+	}
+
+	operator bool() const {
+		return locked;
+	}
+
+	void unlock() {
+		pthread_mutex_unlock(mutex);
+		locked = false;
+	}
+
+private:
+	pthread_mutex_t *mutex;
+	bool locked;
+};
+
+#define PTHREADS_MUTEX(name) pthread_mutex_t name = PTHREAD_MUTEX_INITIALIZER;
+#define PTHREADS_COND(name) pthread_cond_t name = PTHREAD_COND_INITIALIZER;
+
+#endif /* LOCK_HPP_ */

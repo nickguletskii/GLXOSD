@@ -8,6 +8,7 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "GLXOSD.hpp"
+#include "glinject.hpp"
 #include "Utils.hpp"
 #include "OSDInstance.hpp"
 #include "ConfigurationManager.hpp"
@@ -33,10 +34,24 @@ int frameLogId = 0;
 uint64_t frameLogMonotonicTimeOffset = std::numeric_limits<uint64_t>::max();
 std::string frameLogFilename = "";
 std::string frameLogDirectory = "";
+uint64_t frameLoggingDuration = 0;
 std::ofstream frameLogStream;
 
 bool frameLogToggledThisFrame = false;
 bool osdToggledThisFrame = false;
+
+/*
+ * RAII is much better than try/finally, especially in this case! /s
+ */
+class GlinjectGLLockRAIIHelper {
+public:
+	GlinjectGLLockRAIIHelper() {
+		glinject_lock_gl();
+	}
+	~GlinjectGLLockRAIIHelper() {
+		glinject_unlock_gl();
+	}
+};
 
 GLXOSD* GLXOSD::instance() {
 	if (glxosdInstance == nullptr) {
@@ -51,6 +66,8 @@ GLXOSD::GLXOSD() {
 	frameLoggingToggleKey = stringToKeyCombo(
 			getConfigurationManager().getProperty<std::string>(
 					"frame_logging_toggle_keycombo"));
+	frameLoggingDuration = getConfigurationManager().getProperty<uint64_t>(
+			"frame_logging_duration_ms");
 	osdToggleKey = stringToKeyCombo(
 			getConfigurationManager().getProperty<std::string>(
 					"osd_toggle_keycombo"));
@@ -88,9 +105,9 @@ void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 		} else {
 			instance = (*it).second;
 		}
-
+		GlinjectGLLockRAIIHelper raiiHelper;
 		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT, viewport);
+		rgl(GetIntegerv)(GL_VIEWPORT, viewport);
 		width = viewport[2];
 		height = viewport[3];
 
@@ -102,10 +119,20 @@ void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 	}
 
 	if (isFrameLoggingEnabled()) {
-		frameLogStream << drawable << ","
-				<< (getMonotonicTimeNanoseconds() - frameLogMonotonicTimeOffset)
-				<< std::endl;
+		frameLogTick(drawable);
 	}
+}
+void GLXOSD::frameLogTick(GLXDrawable drawable) {
+	if (frameLoggingDuration > 0
+			&& frameLogMonotonicTimeOffset + frameLoggingDuration * 1000000
+					< getMonotonicTimeNanoseconds()) {
+		stopFrameLogging();
+		return;
+	}
+	Lock lock(&frameLogMutex);
+	frameLogStream << drawable << ","
+			<< (getMonotonicTimeNanoseconds() - frameLogMonotonicTimeOffset)
+			<< std::endl;
 }
 void GLXOSD::osdHandleContextDestruction(Display* display, GLXContext context) {
 	auto it = drawableHandlers->find(context);
@@ -161,15 +188,19 @@ void createDirectory(std::string path) {
 
 }
 void GLXOSD::startFrameLogging() {
+	Lock lock(&frameLogMutex);
+	frameLoggingEnabled = true;
 	createDirectory(frameLogDirectory);
 	std::stringstream nameStream;
-	nameStream << frameLogDirectory << "/" << getpid() << "_" << std::time(0)
-			<< "_" << frameLogId++ << ".log";
+	nameStream << frameLogDirectory << "/glxosd_" << getpid() << "_"
+			<< std::time(0) << "_" << frameLogId++ << ".log";
 	frameLogFilename = nameStream.str();
 	frameLogStream.open(frameLogFilename, std::ofstream::out);
 	frameLogMonotonicTimeOffset = getMonotonicTimeNanoseconds();
 }
 void GLXOSD::stopFrameLogging() {
+	Lock lock(&frameLogMutex);
+	frameLoggingEnabled = false;
 	frameLogStream.close();
 	frameLogStream.clear();
 }
@@ -177,11 +208,10 @@ void GLXOSD::osdHandleKeyPress(XKeyEvent* event) {
 	if (!frameLogToggledThisFrame
 			&& keyComboMatches(frameLoggingToggleKey, event)) {
 		frameLogToggledThisFrame = true;
-		frameLoggingEnabled = !frameLoggingEnabled;
 		if (frameLoggingEnabled)
-			startFrameLogging();
-		else
 			stopFrameLogging();
+		else
+			startFrameLogging();
 	}
 	if (!osdToggledThisFrame && keyComboMatches(osdToggleKey, event)) {
 		osdToggledThisFrame = true;

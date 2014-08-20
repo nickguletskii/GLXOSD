@@ -48,9 +48,11 @@ ConfigurationManager::ConfigurationManager() {
 	addDefaultConfigurationValue("text_spacing_x_float", 0.0f);
 	addDefaultConfigurationValue("text_spacing_y_float", 0.0f);
 	addDefaultConfigurationValue("fps_format", boost::format("FPS: %1$.1f\n"));
-	addDefaultConfigurationValue("temperature_format", boost::format("%1$i C"));
+	addDefaultConfigurationValue("temperature_format",
+			boost::format("%1$.0f C"));
 	addDefaultConfigurationValue("frame_logging_toggle_keycombo",
 			std::string("Shift+F9"));
+	addDefaultConfigurationValue("frame_logging_duration_ms", (uint64_t) 0ULL);
 	addDefaultConfigurationValue("frame_logging_message_string",
 			std::string("Logging frame timings..."));
 	addDefaultConfigurationValue("osd_toggle_keycombo",
@@ -71,8 +73,7 @@ const std::map<std::string, boost::any> ConfigurationManager::readConfigChain() 
 	// Select user config location based on XDG basedir spec
 	if (!getEnvironment("XDG_CONFIG_HOME").empty()) {
 		userPath = getEnvironment("XDG_CONFIG_HOME") + "/glxosd/glxosd.conf";
-	}
-	else {
+	} else {
 		userPath = getEnvironment("HOME") + "/.config/glxosd/glxosd.conf";
 	}
 
@@ -179,6 +180,8 @@ void ConfigurationManager::readConfig(std::string path,
 			configuration[key] = (value == "true");
 		} else if (stringEndsWith(key, "_int")) {
 			configuration[key] = boost::lexical_cast<int>(value);
+		} else if (stringEndsWith(key, "_ms")) {
+			configuration[key] = boost::lexical_cast<uint64_t>(value);
 		} else if (stringEndsWith(key, "_double")) {
 			configuration[key] = boost::lexical_cast<double>(value);
 		} else if (stringEndsWith(key, "_float")) {

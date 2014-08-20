@@ -9,8 +9,6 @@
  */
 #ifndef GLXOSDLOADER_HPP_
 #define GLXOSDLOADER_HPP_
-#include "glinject.hpp"
-#include "GLXOSD.hpp"
 extern "C" void constructGLXOSD();
 extern "C" void destructGLXOSD();
 #endif

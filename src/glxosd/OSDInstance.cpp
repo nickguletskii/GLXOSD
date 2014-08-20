@@ -8,11 +8,11 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "OSDInstance.hpp"
+#include "glinject.hpp"
 #include "Colour.hpp"
 #include "ConfigurationManager.hpp"
 #include "FontRenderer.hpp"
 #include "GLAttribState.hpp"
-#include "GLLoader.hpp"
 #include "GLXOSD.hpp"
 #include "Utils.hpp"
 #include <algorithm>
@@ -142,40 +142,40 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	// Memorise misc. settings
 	GLint program;
 	{
-		glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-		glUseProgram(0);
+		rgl(GetIntegerv)(GL_CURRENT_PROGRAM, &program);
+		rgl(UseProgram)(0);
 	}
 
 	GLint frontFace;
 	{
-		glGetIntegerv(GL_FRONT_FACE, &frontFace);
-		glFrontFace(GL_CCW);
+		rgl(GetIntegerv)(GL_FRONT_FACE, &frontFace);
+		rgl(FrontFace)(GL_CCW);
 	}
 
 	GLfloat blendColour[4];
 	{
-		glGetFloatv(GL_BLEND_COLOR, blendColour);
-		glBlendColor(0, 0, 0, 0);
+		rgl(GetFloatv)(GL_BLEND_COLOR, blendColour);
+		rgl(BlendColor)(0, 0, 0, 0);
 	}
 
 	GLboolean colourMask[4];
 	{
-		glGetBooleanv(GL_COLOR_WRITEMASK, colourMask);
-		glColorMask(1, 1, 1, 1);
+		rgl(GetBooleanv)(GL_COLOR_WRITEMASK, colourMask);
+		rgl(ColorMask)(1, 1, 1, 1);
 	}
 
 	GLint blendSrc;
 	GLint blendDst;
 	{
-		glGetIntegerv(GL_BLEND_SRC, &blendSrc);
-		glGetIntegerv(GL_BLEND_DST, &blendDst);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		rgl(GetIntegerv)(GL_BLEND_SRC, &blendSrc);
+		rgl(GetIntegerv)(GL_BLEND_DST, &blendDst);
+		rgl(BlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	//Equivalent to glPushAttrib -> glEnable/Disable -> glPopAttrib
-	GLAttribState attribState(glEnable, glDisable, glIsEnabled);
+	GLAttribState attribState(rgl(Enable), rgl(Disable), rgl(IsEnabled));
 	GLAttribState clientAttribState(glEnableClientState, glDisableClientState,
-			glIsEnabled);
+			rgl(IsEnabled));
 	{
 		attribState.set(GL_ALPHA_TEST, GL_FALSE);
 		attribState.set(GL_AUTO_NORMAL, GL_FALSE);
@@ -230,30 +230,33 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	GLint pixelUnpackBufferBinding = 0, arrayBufferBinding = 0, activeTexture =
 			0, textureBinding2D = 0, vertexArrayBinding = 0,
 			elementArrayBufferBinding = 0;
-	glGetIntegerv(GL_PIXEL_UNPACK_BUFFER_BINDING, &pixelUnpackBufferBinding);
-	glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &arrayBufferBinding);
-	glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTexture);
-	glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding2D);
-	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vertexArrayBinding);
-	glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &elementArrayBufferBinding);
+	rgl(GetIntegerv)(GL_PIXEL_UNPACK_BUFFER_BINDING,
+			&pixelUnpackBufferBinding);
+	rgl(GetIntegerv)(GL_ARRAY_BUFFER_BINDING, &arrayBufferBinding);
+	rgl(GetIntegerv)(GL_ACTIVE_TEXTURE, &activeTexture);
+	rgl(GetIntegerv)(GL_TEXTURE_BINDING_2D, &textureBinding2D);
+	rgl(GetIntegerv)(GL_VERTEX_ARRAY_BINDING, &vertexArrayBinding);
+	rgl(GetIntegerv)(GL_ELEMENT_ARRAY_BUFFER_BINDING,
+			&elementArrayBufferBinding);
 
 	renderText(width, height);
 
 	//Revert buffer states
-	glActiveTexture(activeTexture);
-	glBindTexture(GL_TEXTURE_2D, textureBinding2D);
-	glBindVertexArray(vertexArrayBinding);
-	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pixelUnpackBufferBinding);
-	glBindBuffer(GL_ARRAY_BUFFER, arrayBufferBinding);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementArrayBufferBinding);
+	rgl(ActiveTexture)(activeTexture);
+	rgl(BindTexture)(GL_TEXTURE_2D, textureBinding2D);
+	rgl(BindVertexArray)(vertexArrayBinding);
+	rgl(BindBuffer)(GL_PIXEL_UNPACK_BUFFER, pixelUnpackBufferBinding);
+	rgl(BindBuffer)(GL_ARRAY_BUFFER, arrayBufferBinding);
+	rgl(BindBuffer)(GL_ELEMENT_ARRAY_BUFFER, elementArrayBufferBinding);
 
 	//Revert misc settings
-	glBlendColor(blendColour[0], blendColour[1], blendColour[2],
+	rgl(BlendColor)(blendColour[0], blendColour[1], blendColour[2],
 			blendColour[3]);
-	glBlendFunc(blendSrc, blendDst);
-	glColorMask(colourMask[0], colourMask[1], colourMask[2], colourMask[3]);
-	glFrontFace(frontFace);
-	glUseProgram(program);
+	rgl(BlendFunc)(blendSrc, blendDst);
+	rgl(ColorMask)(colourMask[0], colourMask[1], colourMask[2],
+			colourMask[3]);
+	rgl(FrontFace)(frontFace);
+	rgl(UseProgram)(program);
 }
 OSDInstance::~OSDInstance() {
 }

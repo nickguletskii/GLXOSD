@@ -11,6 +11,7 @@
 #define GLXOSD_HPP_
 #include "OSDInstance.hpp"
 #include "Wrapper.hpp"
+#include "lock.hpp"
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <X11/Xlib.h>
@@ -34,6 +35,7 @@ typedef Wrapper<void, glxosd::GLXOSD*> PluginDestructor;
 
 class GLXOSD {
 private:
+	PTHREADS_MUTEX(frameLogMutex);
 	ConfigurationManager *configurationManager;
 	std::map<GLXContext, glxosd::OSDInstance*>* drawableHandlers;
 	std::vector<PluginConstructor>* pluginConstructors;
@@ -44,6 +46,7 @@ private:
 	void loadPlugin(std::string name);
 	void startFrameLogging();
 	void stopFrameLogging();
+	void frameLogTick(GLXDrawable drawable);
 	static GLXOSD *glxosdInstance;
 public:
 	static GLXOSD* instance();

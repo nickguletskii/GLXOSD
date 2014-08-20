@@ -20,6 +20,7 @@
 boost::format chipFormat;
 boost::format libsensorsChipFeatureFormat;
 boost::xpressive::sregex libsensorsChipFeatureFilter;
+boost::xpressive::sregex libsensorsChipFilter;
 boost::format temperatureFormat;
 void glxosdPluginConstructor(glxosd::GLXOSD *glxosd) {
 	glxosd::ConfigurationManager &configurationManager =
@@ -32,6 +33,9 @@ void glxosdPluginConstructor(glxosd::GLXOSD *glxosd) {
 			"libsensors_chip_feature_filter",
 			boost::xpressive::sregex::compile("Core.*",
 					boost::xpressive::regex_constants::icase));
+	configurationManager.addDefaultConfigurationValue("libsensors_chip_filter",
+			boost::xpressive::sregex::compile("",
+					boost::xpressive::regex_constants::icase));
 
 	chipFormat = configurationManager.getProperty<boost::format>(
 			"libsensors_chip_format");
@@ -40,10 +44,12 @@ void glxosdPluginConstructor(glxosd::GLXOSD *glxosd) {
 					"libsensors_chip_feature_format");
 	libsensorsChipFeatureFilter = configurationManager.getProperty<
 			boost::xpressive::sregex>("libsensors_chip_feature_filter");
+	libsensorsChipFilter = configurationManager.getProperty<
+			boost::xpressive::sregex>("libsensors_chip_filter");
 	temperatureFormat = configurationManager.getProperty<boost::format>(
 			"temperature_format");
 
-	sensors_init(NULL);
+	sensors_init(nullptr);
 }
 
 std::string* glxosdPluginDataProvider(glxosd::GLXOSD *glxosdInstance) {
@@ -54,12 +60,15 @@ std::string* glxosdPluginDataProvider(glxosd::GLXOSD *glxosdInstance) {
 	std::stringstream stringBuilder;
 	while ((chip = sensors_get_detected_chips(0, &chipNumber)) != 0) {
 
-		char chipName[256];
-		sensors_snprintf_chip_name(chipName, 256, chip);
+		char chipNameBuffer[256];
+		sensors_snprintf_chip_name(chipNameBuffer, 256, chip);
+		std::string chipName(chipNameBuffer);
 
-		stringBuilder
-				<< boost::str(
-						boost::format(chipFormat) % std::string(chipName));
+		if (boost::xpressive::regex_match(chipName.begin(), chipName.end(),
+				libsensorsChipFilter))
+			continue;
+
+		stringBuilder << boost::str(boost::format(chipFormat) % chipName);
 
 		sensors_feature const *feature;
 		int feature_number = 0;
@@ -71,8 +80,10 @@ std::string* glxosdPluginDataProvider(glxosd::GLXOSD *glxosdInstance) {
 			std::string feature_name = sensors_get_label(chip, feature);
 
 			if (boost::xpressive::regex_match(feature_name.begin(),
-					feature_name.end(), libsensorsChipFeatureFilter))
+					feature_name.end(), libsensorsChipFeatureFilter)){
+				std::cout<<"Skipping feature name \""<<feature_name<<" "<<std::endl;
 				continue;
+			}
 
 			std::string temperature;
 
