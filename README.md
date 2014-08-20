@@ -3,12 +3,9 @@ GLXOSD
 
 [You should probably have a look at GLXOSD's Github pages first!](http://nickguletskii.github.io/GLXOSD/)
 -------------
+GLXOSD is an on-screen display (OSD)/overlay for OpenGL applications running on Linux with X11. It can show FPS, the temperature of your CPU, and if you have an NVIDIA graphics card (with proprietary drivers), it will also show the temperature of the GPU. Also, it can log frame timings, which is useful for benchmarking. This project aims to provide some of the functionality that RivaTuner OSD (which is used by MSI Afterburner) provides under Windows.
 
-GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired from RivaTuner OSD on Windows.
-
-![Screenshot of glxgears with GLXOSD](https://raw.github.com/nickguletskii/GLXOSD/master/screenshots/glxgears.png "Screenshot of glxgears with GLXOSD")
-
-THIS PROJECT IS EXPERIMENTAL, USE IT AT YOUR OWN RISK!
+![Screenshot of glxgears with GLXOSD](https://raw.github.com/nickguletskii/GLXOSD/master/screenshots/glxgears.png "Screenshot of GLXOSD in glxgears")
 
 Compiling
 =============
@@ -48,7 +45,7 @@ sudo make install
 Configuring
 =============
 
-You can change system-wide settings by editing "/etc/glxosd.conf". You can also create a folder called ".glxosd" in your home directory and a file called "glxosd.conf" in it to change user settings.
+https://nickguletskii.github.io/GLXOSD/faq.html#how-do-i-customise-glxosd
 
 Using
 =============
@@ -62,7 +59,6 @@ glxosd glxgears
 Known limitations
 =============
 
-* 32 bit applications running under a 64 bit operating system can't be injected.
 * Doesn't read AMD graphics card temperatures.
 
 For developers
