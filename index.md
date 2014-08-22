@@ -77,6 +77,9 @@ description: "GLXOSD is an on-screen display (OSD)/overlay for OpenGL applicatio
 
 # Latest changes #
 
+* 2014-08-22, version 2.3.2:
+  * Stop GLXOSD from spamming stdout.
+
 * 2014-08-20, version 2.3.1:
   * Use pthreads for mutexes and signaling.
   * Fix crashes on Arch Linux.
