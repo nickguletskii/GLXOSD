@@ -81,7 +81,6 @@ std::string* glxosdPluginDataProvider(glxosd::GLXOSD *glxosdInstance) {
 
 			if (boost::xpressive::regex_match(feature_name.begin(),
 					feature_name.end(), libsensorsChipFeatureFilter)){
-				std::cout<<"Skipping feature name \""<<feature_name<<" "<<std::endl;
 				continue;
 			}
 
