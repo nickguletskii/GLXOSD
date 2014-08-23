@@ -1,30 +1,94 @@
-glxosd (1.4-1ubuntu1) trusty; urgency=medium
+glxosd (2.3.3) trusty; urgency=medium
+
+  * Allow Boost Format arguments to be unused.
+
+ -- Nick Guletskii <nickguletskii200@gmail.com>  Sat, 23 Aug 2014 16:05:26 +0300
+
+glxosd (2.3.2) trusty; urgency=medium
+
+  * Remove stdout spam.
+
+ -- Nick Guletskii <nickguletskii200@gmail.com>  Fri, 22 Aug 2014 09:26:18 +0300
+
+glxosd (2.3.1) trusty; urgency=medium
+
+  * Use pthreads for mutexes and signaling.
+  * Fix crashes.
+  * Add frame logging timed stop.
+  * Add libsensors chip filter.
+
+ -- Nick Guletskii <nickguletskii200@gmail.com>  Wed, 20 Aug 2014 13:38:44 +0300
+
+glxosd (2.2.2) trusty; urgency=medium
+
+  * Fix blend functions not being reverted.
+  * Fix GL_ELEMENT_ARRAY_BUFFER not being reverted.
+  * Fix keyboard event state handling.
+  * Move user config location to XDG compliant directory.
+  * Add the ability of disabling key combos.
+  * Now works on OpenGL 3.
+
+ -- Nick Guletskii <nickguletskii200@gmail.com>  Wed, 13 Aug 2014 14:27:06 +0300
+
+glxosd (2.2.1) trusty; urgency=medium
+
+  * Add the ability to log frame timings, which allows users to benchmark
+    applications.
+  * Add key bindings for toggling the OSD.
+
+ -- Nick Guletskii <nickguletskii200@gmail.com>  Wed, 06 Aug 2014 17:07:43 +0300
+
+glxosd (2.1.2) trusty; urgency=medium
+
+  * Revert "Use std::chrono instead of sys/time.h" because it causes
+    incompatibilities.
+
+ -- Nick Guletskii <nickguletskii200@gmail.com>  Sat, 05 Jul 2014 11:11:24 +0300
+
+glxosd (2.1.1) trusty; urgency=medium
+
+  * Migrate to OpenGL 3 (adds support for OpenGL core profile). This also means
+    that this project no longer requires FTGL. Also, the text looks better now.
+  * Use std::chrono instead of sys/time.h
+  * Add support for configuring GLXOSD by specifying the path to the 
+    configuration file
+
+ -- Nick Guletskii <nickguletskii200@gmail.com>  Sun, 29 Jun 2014 15:30:53 +0300
+
+glxosd (1.4.1ubuntu2) trusty; urgency=medium
+
+  * Fix debian control file to depend on libftgl:i386 instead of :amd64 when
+    installing the 32 bit package.
+
+ -- Nick Guletskii <nickguletskii200@gmail.com>  Sat, 14 Jun 2014 13:42:08 +0300
+
+glxosd (1.4.1ubuntu1) trusty; urgency=medium
 
   * Remove libxext version requirement
 
  -- Nick Guletskii <nickguletskii200@gmail.com>  Thu, 12 Jun 2014 12:30:26 +0300
 
-glxosd (1.4-1) trusty; urgency=medium
+glxosd (1.4.1) trusty; urgency=medium
 
   * Add Steam support.
   * Fix the OSD not being displayed properly when shaders are used.
 
  -- Nick Guletskii <nickguletskii200@gmail.com>  Thu, 12 Jun 2014 10:37:23 +0300
 
-glxosd (1.3-1ubuntu1) trusty; urgency=medium
+glxosd (1.3.1ubuntu1) trusty; urgency=medium
 
   * Fixed Debian installation files.
 
  -- Nick Guletskii <nickguletskii200@gmail.com>  Sun, 08 Jun 2014 01:16:08 +0300
 
-glxosd (1.3-1) trusty; urgency=low
+glxosd (1.3.1) trusty; urgency=low
 
   * Removed FTGL from the sourcecode tree.
   * Move to TTF from OTF because OTFs cause segfaults for some reason.
 
  -- Nick Guletskii <nickguletskii200@gmail.com>  Sat, 07 Jun 2014 18:36:21 +0300
 
-glxosd (1.2-1) precise; urgency=low
+glxosd (1.2.1) precise; urgency=low
 
   * Changed the plugin loading mechanics to stop libraries from being inserted
   into memory more than once. Fixes crashes when the configuration files are
@@ -32,7 +96,7 @@ glxosd (1.2-1) precise; urgency=low
 
  -- Nick Guletskii <nickguletskii200@gmail.com>  Thu, 26 Dec 2013 11:09:32 +0300
 
-glxosd (1.1-1) precise; urgency=low
+glxosd (1.1.1) precise; urgency=low
 
   * Made the launcher more dynamic by making it scan for libraries to inject.
   * Add NVIDIA sensor support for installations done through dpkg.
@@ -40,7 +104,7 @@ glxosd (1.1-1) precise; urgency=low
 
  -- Nick Guletskii <nickguletskii200@gmail.com>  Tue, 17 Dec 2013 23:26:07 +0300
 
-glxosd (1.0-1) precise; urgency=low
+glxosd (1.0.1) precise; urgency=low
 
   * Initial release (Closes: #2)
 

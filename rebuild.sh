@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-VERSION=1.3
+VERSION=2.3.3
 echo -e "[\e[32mrebuild.sh\e[00m] Installing required packages..."
 sudo apt-get install git debhelper pbuilder dh-make debootstrap devscripts
 if [ ! -d glxosd-$VERSION-orig ] 
@@ -22,7 +22,7 @@ echo -e "[\e[32mrebuild.sh\e[00m] Copying sourcecode into work directory..."
 rsync -abrv --progress --delete glxosd-$VERSION-orig/* glxosd-$VERSION/
 cd glxosd-$VERSION/
 echo -e "[\e[32mrebuild.sh\e[00m] Making original tgz..."
-yes | dh_make --createorig -s
+yes | dh_make --createorig -s -e nickguletskii200@gmail.com
 echo -e "[\e[32mrebuild.sh\e[00m] Copying Debian control files..."
 rsync -abrv --progress --delete ../debian .
 mkdir ../result
@@ -40,3 +40,7 @@ do
     lintian $f
 done
 echo -e "[\e[32mrebuild.sh\e[00m] \e[32mSuccess!\e[00m"
+cd ../result
+sudo dpkg -i *data*.deb
+sudo dpkg -i *libs*.deb
+sudo dpkg -i glxosd_*.deb
