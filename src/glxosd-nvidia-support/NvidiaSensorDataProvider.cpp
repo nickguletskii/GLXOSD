@@ -12,6 +12,7 @@
 #include "ConfigurationManager.hpp"
 #include "GLXOSD.hpp"
 #include "OSDInstance.hpp"
+#include "Utils.hpp"
 #include <sstream>
 #include <NVCtrl/NVCtrl.h>
 #include <NVCtrl/NVCtrlLib.h>
@@ -23,7 +24,7 @@ boost::format nvidiaGPUFormat;
 std::vector<std::string> displayNames;
 void glxosdPluginConstructor(glxosd::GLXOSD *glxosd) {
 	glxosd->getConfigurationManager().addDefaultConfigurationValue(
-			"nvidia_gpu_format", boost::format("%1% (%2%): %3%\n"));
+			"nvidia_gpu_format", glxosd::glxosdFormat("%1% (%2%): %3%\n"));
 
 	nvidiaGPUFormat = glxosd->getConfigurationManager().getProperty < boost::format
 			> ("nvidia_gpu_format");

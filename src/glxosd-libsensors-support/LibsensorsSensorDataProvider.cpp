@@ -11,6 +11,7 @@
 #include "GLXOSD.hpp"
 #include "LibsensorsSensorDataProvider.hpp"
 #include "ConfigurationManager.hpp"
+#include "Utils.hpp"
 #include <boost/format.hpp>
 #include <boost/xpressive/xpressive.hpp>
 #include <sensors/sensors.h>
@@ -26,9 +27,9 @@ void glxosdPluginConstructor(glxosd::GLXOSD *glxosd) {
 	glxosd::ConfigurationManager &configurationManager =
 			glxosd->getConfigurationManager();
 	configurationManager.addDefaultConfigurationValue("libsensors_chip_format",
-			boost::format("%1%:\n"));
+			glxosd::glxosdFormat("%1%:\n"));
 	configurationManager.addDefaultConfigurationValue(
-			"libsensors_chip_feature_format", boost::format(" %1%: %2%\n"));
+			"libsensors_chip_feature_format", glxosd::glxosdFormat(" %1%: %2%\n"));
 	configurationManager.addDefaultConfigurationValue(
 			"libsensors_chip_feature_filter",
 			boost::xpressive::sregex::compile("Core.*",

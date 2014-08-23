@@ -12,6 +12,7 @@
 #define UTILS_HPP_
 #include<string>
 #include<utility>
+#include<boost/format.hpp>
 #include<X11/Xlib.h>
 namespace glxosd {
 
@@ -29,5 +30,7 @@ uint64_t getMonotonicTimeNanoseconds();
 KeyCombo stringToKeyCombo(std::string);
 
 bool keyComboMatches(KeyCombo combo, XKeyEvent* event);
+
+boost::format glxosdFormat(const std::string & str);
 }
 #endif

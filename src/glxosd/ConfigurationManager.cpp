@@ -47,9 +47,9 @@ ConfigurationManager::ConfigurationManager() {
 	addDefaultConfigurationValue("text_pos_y_int", 2);
 	addDefaultConfigurationValue("text_spacing_x_float", 0.0f);
 	addDefaultConfigurationValue("text_spacing_y_float", 0.0f);
-	addDefaultConfigurationValue("fps_format", boost::format("FPS: %1$.1f\n"));
+	addDefaultConfigurationValue("fps_format", glxosdFormat("FPS: %1$.1f\n"));
 	addDefaultConfigurationValue("temperature_format",
-			boost::format("%1$.0f C"));
+			glxosdFormat("%1$.0f C"));
 	addDefaultConfigurationValue("frame_logging_toggle_keycombo",
 			std::string("Shift+F9"));
 	addDefaultConfigurationValue("frame_logging_duration_ms", (uint64_t) 0ULL);
@@ -172,7 +172,7 @@ void ConfigurationManager::readConfig(std::string path,
 		value = unescape(value);
 
 		if (stringEndsWith(key, "_format")) {
-			configuration[key] = boost::format(value);
+			configuration[key] = glxosdFormat(value);
 		} else if (stringEndsWith(key, "_filter")) {
 			configuration[key] = boost::xpressive::sregex::compile(value,
 					boost::xpressive::regex_constants::icase);

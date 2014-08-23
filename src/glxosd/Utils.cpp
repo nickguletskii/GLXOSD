@@ -57,7 +57,7 @@ KeyCombo stringToKeyCombo(std::string str) {
 	KeyCombo combo;
 	combo.keySym = 0;
 	combo.mask = 0U;
-	if(str.empty()){
+	if (str.empty()) {
 		combo.keySym = XK_VoidSymbol;
 		return combo;
 	}
@@ -89,6 +89,13 @@ KeyCombo stringToKeyCombo(std::string str) {
 bool keyComboMatches(KeyCombo combo, XKeyEvent* event) {
 	return ((event->state & (ShiftMask | ControlMask | Mod1Mask)) == combo.mask)
 			&& (event->keycode == XKeysymToKeycode(event->display, combo.keySym));
+}
+
+boost::format glxosdFormat(const std::string& str) {
+	boost::format formatter(str);
+	formatter.exceptions(
+			boost::io::all_error_bits ^ (boost::io::too_many_args_bit));
+	return formatter;
 }
 
 }
