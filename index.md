@@ -77,6 +77,9 @@ description: "GLXOSD is an on-screen display (OSD)/overlay for OpenGL applicatio
 
 # Latest changes #
 
+* 2014-08-23, version 2.3.3:
+  * Allow Boost Format arguments to be unused.
+
 * 2014-08-22, version 2.3.2:
   * Stop GLXOSD from spamming stdout.
 
