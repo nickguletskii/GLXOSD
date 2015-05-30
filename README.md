@@ -1,7 +1,7 @@
 GLXOSD
 =============
 
-[You should probably have a look at GLXOSD's Github pages first!](http://nickguletskii.github.io/GLXOSD/)
+[You should probably have a look at GLXOSD's Github pages first!](http://glxosd.nickguletskii.com/)
 -------------
 GLXOSD is an on-screen display (OSD)/overlay for OpenGL applications running on Linux with X11. It can show FPS, the temperature of your CPU, and if you have an NVIDIA graphics card (with proprietary drivers), it will also show the temperature of the GPU. Also, it can log frame timings, which is useful for benchmarking. This project aims to provide some of the functionality that RivaTuner OSD (which is used by MSI Afterburner) provides under Windows.
 
@@ -10,7 +10,7 @@ GLXOSD is an on-screen display (OSD)/overlay for OpenGL applications running on 
 Compiling
 =============
 
-[You should probably have a look at the installation page on GLXOSD's Github pages first!](http://nickguletskii.github.io/GLXOSD/install.html)
+[You should probably have a look at the installation page on GLXOSD's Github pages first!](http://glxosd.nickguletskii.com/install.html)
 
 Before compiling, you need to make sure that you have GCC and CMake installed. On Ubuntu, all you need to do is paste the following line into the terminal:
 
@@ -34,7 +34,7 @@ make all
 Installing
 =============
 
-[You should probably have a look at the installation page on GLXOSD's Github pages first!](http://nickguletskii.github.io/GLXOSD/install.html)
+[You should probably have a look at the installation page on GLXOSD's Github pages first!](http://glxosd.nickguletskii.com/install.html)
 
 To install GLXOSD, just execute
 
@@ -45,7 +45,7 @@ sudo make install
 Configuring
 =============
 
-https://nickguletskii.github.io/GLXOSD/faq.html#how-do-i-customise-glxosd
+http://glxosd.nickguletskii.com/faq.html#how-do-i-customise-glxosd
 
 Using
 =============
