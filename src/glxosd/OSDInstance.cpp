@@ -184,7 +184,6 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 		attribState.set(GL_COLOR_TABLE, GL_FALSE);
 		attribState.set(GL_CONVOLUTION_1D, GL_FALSE);
 		attribState.set(GL_CONVOLUTION_2D, GL_FALSE);
-		attribState.set(GL_CULL_FACE, GL_FALSE);
 		attribState.set(GL_DEPTH_TEST, GL_FALSE);
 		attribState.set(GL_DITHER, GL_FALSE);
 		attribState.set(GL_FOG, GL_FALSE);
@@ -197,16 +196,11 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 		attribState.set(GL_SCISSOR_TEST, GL_FALSE);
 		attribState.set(GL_STENCIL_TEST, GL_FALSE);
 		attribState.set(GL_SAMPLE_ALPHA_TO_COVERAGE, GL_FALSE);
-		attribState.set(GL_COLOR_LOGIC_OP, GL_FALSE);
-		attribState.set(GL_CULL_FACE, GL_FALSE);
-		attribState.set(GL_DEPTH_TEST, GL_FALSE);
 		attribState.set(GL_MULTISAMPLE, GL_FALSE);
 		attribState.set(GL_POLYGON_OFFSET_POINT, GL_FALSE);
 		attribState.set(GL_POLYGON_OFFSET_LINE, GL_FALSE);
 		attribState.set(GL_POLYGON_OFFSET_FILL, GL_FALSE);
 		attribState.set(GL_SAMPLE_COVERAGE, GL_FALSE);
-		attribState.set(GL_SCISSOR_TEST, GL_FALSE);
-		attribState.set(GL_STENCIL_TEST, GL_FALSE);
 		attribState.set(GL_TEXTURE_GEN_Q, GL_FALSE);
 		attribState.set(GL_TEXTURE_GEN_R, GL_FALSE);
 		attribState.set(GL_TEXTURE_GEN_S, GL_FALSE);
