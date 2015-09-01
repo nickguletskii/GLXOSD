@@ -251,3 +251,4 @@ SYNCHRONIZE_FUNCTION_VOID_RET(glGenTextures, (GLsizei n, GLuint *arrays), (n, ar
 GLOBALLY_SYNCHRONIZE_FUNCTION_VOID_RET(glBindBuffer,(GLuint target, GLuint buffer), (target,buffer))
 GLOBALLY_SYNCHRONIZE_FUNCTION_VOID_RET(glBindVertexArray, (GLuint array), (array))
 GLOBALLY_SYNCHRONIZE_FUNCTION_VOID_RET(glUseProgram,(GLuint program), (program))
+GLOBALLY_SYNCHRONIZE_FUNCTION_VOID_RET(glPolygonMode, (GLenum face, GLenum mode), (face, mode));

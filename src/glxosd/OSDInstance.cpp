@@ -223,7 +223,8 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	//Memorise buffer states
 	GLint pixelUnpackBufferBinding = 0, arrayBufferBinding = 0, activeTexture =
 			0, textureBinding2D = 0, vertexArrayBinding = 0,
-			elementArrayBufferBinding = 0;
+			elementArrayBufferBinding = 0, drawFramebufferBinding = 0,
+			readFramebufferBinding = 0, glPolygonModeFrontAndBack = 0;
 	rgl(GetIntegerv)(GL_PIXEL_UNPACK_BUFFER_BINDING,
 			&pixelUnpackBufferBinding);
 	rgl(GetIntegerv)(GL_ARRAY_BUFFER_BINDING, &arrayBufferBinding);
@@ -232,7 +233,17 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	rgl(GetIntegerv)(GL_VERTEX_ARRAY_BINDING, &vertexArrayBinding);
 	rgl(GetIntegerv)(GL_ELEMENT_ARRAY_BUFFER_BINDING,
 			&elementArrayBufferBinding);
-
+	rgl(GetIntegerv)(GL_DRAW_FRAMEBUFFER_BINDING,
+			&drawFramebufferBinding);
+	rgl(GetIntegerv)(GL_READ_FRAMEBUFFER_BINDING,
+			&readFramebufferBinding);
+	rgl(GetIntegerv)(GL_POLYGON_MODE,
+			&glPolygonModeFrontAndBack);
+	
+	rgl(BindFramebuffer)(GL_DRAW_FRAMEBUFFER_BINDING, 0);
+	rgl(BindFramebuffer)(GL_READ_FRAMEBUFFER_BINDING, 0);
+	rgl(PolygonMode)(GL_FRONT_AND_BACK, GL_FILL);
+	
 	renderText(width, height);
 
 	//Revert buffer states
@@ -242,6 +253,10 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	rgl(BindBuffer)(GL_PIXEL_UNPACK_BUFFER, pixelUnpackBufferBinding);
 	rgl(BindBuffer)(GL_ARRAY_BUFFER, arrayBufferBinding);
 	rgl(BindBuffer)(GL_ELEMENT_ARRAY_BUFFER, elementArrayBufferBinding);
+	rgl(BindFramebuffer)(GL_DRAW_FRAMEBUFFER_BINDING, drawFramebufferBinding);
+	rgl(BindFramebuffer)(GL_READ_FRAMEBUFFER_BINDING, readFramebufferBinding);
+	
+	rgl(PolygonMode)(GL_FRONT_AND_BACK, glPolygonModeFrontAndBack);
 
 	//Revert misc settings
 	rgl(BlendColor)(blendColour[0], blendColour[1], blendColour[2],
