@@ -73,6 +73,8 @@ OSDInstance::OSDInstance() :
 
 	frameLoggingMessage = configurationManager.getProperty<std::string>(
 			"frame_logging_message_string");
+	frameLoggingDumpInProgressMessage = configurationManager.getProperty<std::string>(
+			"frame_logging_dump_in_progress_message_string");
 
 	renderer = new FontRenderer(fontName, fontSize, horizontalDPI, verticalDPI,
 			outlineWidth);
@@ -123,6 +125,9 @@ void OSDInstance::renderText(unsigned int width, unsigned int height) {
 	osd_text_reader << osdText;
 	if (GLXOSD::instance()->isFrameLoggingEnabled()) {
 		osd_text_reader << std::endl << frameLoggingMessage;
+	}
+	if (GLXOSD::instance()->isFrameLoggingDumpInProgress()) {
+		osd_text_reader << std::endl << frameLoggingDumpInProgressMessage;
 	}
 
 	std::string str = osd_text_reader.str();

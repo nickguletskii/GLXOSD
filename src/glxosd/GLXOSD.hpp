@@ -58,6 +58,7 @@ public:
 	void osdHandleKeyPress(XKeyEvent* event);
 	Bool osdEventFilter(Display* display, XEvent* event, XPointer pointer);
 	bool isFrameLoggingEnabled();
+	bool isFrameLoggingDumpInProgress();
 	std::vector<PluginDataProvider>* getPluginDataProviders();
 	virtual ~GLXOSD();
 };

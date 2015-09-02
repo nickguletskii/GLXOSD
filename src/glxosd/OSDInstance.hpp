@@ -29,6 +29,7 @@ private:
 	std::string frameLoggingMessage;
 
 	std::string osdText;
+	std::string frameLoggingDumpInProgressMessage;
 	boost::format fpsFormat;
 
 	void update(long currentMilliseconds);

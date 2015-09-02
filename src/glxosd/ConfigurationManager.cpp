@@ -55,6 +55,9 @@ ConfigurationManager::ConfigurationManager() {
 	addDefaultConfigurationValue("frame_logging_duration_ms", (uint64_t) 0ULL);
 	addDefaultConfigurationValue("frame_logging_message_string",
 			std::string("Logging frame timings..."));
+	addDefaultConfigurationValue("frame_logging_dump_in_progress_message_string",
+			std::string("Frame log dump in progress. Quitting now will result in data loss."));
+	addDefaultConfigurationValue("frame_log_keep_in_memory_bool", false);
 	addDefaultConfigurationValue("osd_toggle_keycombo",
 			std::string("Shift+F10"));
 	addDefaultConfigurationValue("frame_log_directory_string",
