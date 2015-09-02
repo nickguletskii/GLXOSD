@@ -113,6 +113,7 @@ void VertexBuffer::render(int x, int y, int width, int height) {
 
 	rgl(ActiveTexture)(GL_TEXTURE0);
 	rgl(BindTexture)(GL_TEXTURE_2D, texture);
+	rgl(BindSampler)(0, 0);
 
 	shaderProgram->setUniform1i(texture_location, 0);
 	shaderProgram->setUniform1f(posXLocation, x);

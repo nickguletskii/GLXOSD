@@ -25,6 +25,7 @@ namespace glxosd {
 
 GLXOSD* GLXOSD::glxosdInstance = nullptr;
 bool frameLoggingEnabled = false;
+bool frameLogDumpInProgress = false;
 bool osdVisible = true;
 KeyCombo frameLoggingToggleKey;
 KeyCombo osdToggleKey;
@@ -36,6 +37,8 @@ std::string frameLogFilename = "";
 std::string frameLogDirectory = "";
 uint64_t frameLoggingDuration = 0;
 std::ofstream frameLogStream;
+std::vector<std::pair<GLXDrawable, uint64_t> > frameLog;
+bool keepFrameLogInMemory = false;
 
 bool frameLogToggledThisFrame = false;
 bool osdToggledThisFrame = false;
@@ -73,6 +76,8 @@ GLXOSD::GLXOSD() {
 					"osd_toggle_keycombo"));
 	frameLogDirectory = getConfigurationManager().getProperty<std::string>(
 			"frame_log_directory_string");
+	keepFrameLogInMemory = getConfigurationManager().getProperty<bool>(
+			"frame_log_keep_in_memory_bool");
 
 	drawableHandlers = new std::map<GLXContext, glxosd::OSDInstance*>;
 	pluginConstructors = new std::vector<PluginConstructor>();
@@ -130,9 +135,18 @@ void GLXOSD::frameLogTick(GLXDrawable drawable) {
 		return;
 	}
 	Lock lock(&frameLogMutex);
-	frameLogStream << drawable << ","
-			<< (getMonotonicTimeNanoseconds() - frameLogMonotonicTimeOffset)
-			<< std::endl;
+	if(keepFrameLogInMemory) {
+		frameLog.push_back(
+			std::pair<GLXDrawable, uint64_t>(
+				drawable, 
+				(getMonotonicTimeNanoseconds() - frameLogMonotonicTimeOffset)
+			)
+		);
+	} else {
+		frameLogStream << drawable << ","
+				<< (getMonotonicTimeNanoseconds() - frameLogMonotonicTimeOffset)
+				<< std::endl;
+	}
 }
 void GLXOSD::osdHandleContextDestruction(Display* display, GLXContext context) {
 	auto it = drawableHandlers->find(context);
@@ -195,12 +209,26 @@ void GLXOSD::startFrameLogging() {
 	nameStream << frameLogDirectory << "/glxosd_" << getpid() << "_"
 			<< std::time(0) << "_" << frameLogId++ << ".log";
 	frameLogFilename = nameStream.str();
-	frameLogStream.open(frameLogFilename, std::ofstream::out);
+	if(!keepFrameLogInMemory) {
+		frameLogStream.open(frameLogFilename, std::ofstream::out);
+	}
 	frameLogMonotonicTimeOffset = getMonotonicTimeNanoseconds();
 }
 void GLXOSD::stopFrameLogging() {
 	Lock lock(&frameLogMutex);
 	frameLoggingEnabled = false;
+	if(keepFrameLogInMemory) {
+		frameLogDumpInProgress = true;
+		frameLogStream.open(frameLogFilename, std::ofstream::out);
+		for(auto frameLogEntry : frameLog){
+			frameLogStream <<
+				frameLogEntry.first << "," <<
+				frameLogEntry.second << "\n";
+		}
+		frameLogStream.flush();
+		frameLogDumpInProgress = false;
+		frameLog.clear();
+	}
 	frameLogStream.close();
 	frameLogStream.clear();
 }
@@ -229,6 +257,10 @@ Bool GLXOSD::osdEventFilter(Display* display, XEvent* event, XPointer pointer) {
 
 bool GLXOSD::isFrameLoggingEnabled() {
 	return frameLoggingEnabled;
+}
+
+bool GLXOSD::isFrameLoggingDumpInProgress() {
+	return frameLogDumpInProgress;
 }
 
 ConfigurationManager & GLXOSD::getConfigurationManager() {

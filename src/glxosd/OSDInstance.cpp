@@ -73,6 +73,8 @@ OSDInstance::OSDInstance() :
 
 	frameLoggingMessage = configurationManager.getProperty<std::string>(
 			"frame_logging_message_string");
+	frameLoggingDumpInProgressMessage = configurationManager.getProperty<std::string>(
+			"frame_logging_dump_in_progress_message_string");
 
 	renderer = new FontRenderer(fontName, fontSize, horizontalDPI, verticalDPI,
 			outlineWidth);
@@ -123,6 +125,9 @@ void OSDInstance::renderText(unsigned int width, unsigned int height) {
 	osd_text_reader << osdText;
 	if (GLXOSD::instance()->isFrameLoggingEnabled()) {
 		osd_text_reader << std::endl << frameLoggingMessage;
+	}
+	if (GLXOSD::instance()->isFrameLoggingDumpInProgress()) {
+		osd_text_reader << std::endl << frameLoggingDumpInProgressMessage;
 	}
 
 	std::string str = osd_text_reader.str();
@@ -223,7 +228,9 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	//Memorise buffer states
 	GLint pixelUnpackBufferBinding = 0, arrayBufferBinding = 0, activeTexture =
 			0, textureBinding2D = 0, vertexArrayBinding = 0,
-			elementArrayBufferBinding = 0;
+			elementArrayBufferBinding = 0, drawFramebufferBinding = 0,
+			readFramebufferBinding = 0, glPolygonModeFrontAndBack = 0,
+			samplerBinding = 0;
 	rgl(GetIntegerv)(GL_PIXEL_UNPACK_BUFFER_BINDING,
 			&pixelUnpackBufferBinding);
 	rgl(GetIntegerv)(GL_ARRAY_BUFFER_BINDING, &arrayBufferBinding);
@@ -232,9 +239,27 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	rgl(GetIntegerv)(GL_VERTEX_ARRAY_BINDING, &vertexArrayBinding);
 	rgl(GetIntegerv)(GL_ELEMENT_ARRAY_BUFFER_BINDING,
 			&elementArrayBufferBinding);
-
+	rgl(GetIntegerv)(GL_DRAW_FRAMEBUFFER_BINDING,
+			&drawFramebufferBinding);
+	rgl(GetIntegerv)(GL_READ_FRAMEBUFFER_BINDING,
+			&readFramebufferBinding);
+	rgl(GetIntegerv)(GL_POLYGON_MODE,
+			&glPolygonModeFrontAndBack);
+	
+	//We are borrowing GL_TEXTURE0, so we need to reset its sampler
+	rgl(ActiveTexture)(GL_TEXTURE0);
+	rgl(GetIntegerv)(GL_SAMPLER_BINDING, &samplerBinding);
+	
+	rgl(BindFramebuffer)(GL_DRAW_FRAMEBUFFER_BINDING, 0);
+	rgl(BindFramebuffer)(GL_READ_FRAMEBUFFER_BINDING, 0);
+	rgl(PolygonMode)(GL_FRONT_AND_BACK, GL_FILL);
+	
 	renderText(width, height);
 
+	//Revert sampler
+	rgl(ActiveTexture)(GL_TEXTURE0);
+	rgl(BindSampler)(0, samplerBinding);
+	
 	//Revert buffer states
 	rgl(ActiveTexture)(activeTexture);
 	rgl(BindTexture)(GL_TEXTURE_2D, textureBinding2D);
@@ -242,6 +267,10 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	rgl(BindBuffer)(GL_PIXEL_UNPACK_BUFFER, pixelUnpackBufferBinding);
 	rgl(BindBuffer)(GL_ARRAY_BUFFER, arrayBufferBinding);
 	rgl(BindBuffer)(GL_ELEMENT_ARRAY_BUFFER, elementArrayBufferBinding);
+	rgl(BindFramebuffer)(GL_DRAW_FRAMEBUFFER_BINDING, drawFramebufferBinding);
+	rgl(BindFramebuffer)(GL_READ_FRAMEBUFFER_BINDING, readFramebufferBinding);
+	
+	rgl(PolygonMode)(GL_FRONT_AND_BACK, glPolygonModeFrontAndBack);
 
 	//Revert misc settings
 	rgl(BlendColor)(blendColour[0], blendColour[1], blendColour[2],
@@ -255,4 +284,5 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 OSDInstance::~OSDInstance() {
 }
 }
+
 

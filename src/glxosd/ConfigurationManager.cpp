@@ -55,6 +55,9 @@ ConfigurationManager::ConfigurationManager() {
 	addDefaultConfigurationValue("frame_logging_duration_ms", (uint64_t) 0ULL);
 	addDefaultConfigurationValue("frame_logging_message_string",
 			std::string("Logging frame timings..."));
+	addDefaultConfigurationValue("frame_logging_dump_in_progress_message_string",
+			std::string("Frame log dump in progress. Quitting now will result in data loss."));
+	addDefaultConfigurationValue("frame_log_keep_in_memory_bool", false);
 	addDefaultConfigurationValue("osd_toggle_keycombo",
 			std::string("Shift+F10"));
 	addDefaultConfigurationValue("frame_log_directory_string",
@@ -146,7 +149,7 @@ void ConfigurationManager::readConfig(std::string path,
 		std::string line;
 		std::getline(configFile, line);
 		std::string::size_type keyBegin = line.find_first_not_of(" \f\t\v");
-		if ((keyBegin == std::string::npos) || (line[keyBegin] == '#')) { //Empty or comment
+		if (line.empty() || (keyBegin == std::string::npos) || (line[keyBegin] == '#')) { //Empty or comment
 			continue;
 		}
 		std::string::size_type assignOp = line.find('=', keyBegin);
@@ -155,9 +158,17 @@ void ConfigurationManager::readConfig(std::string path,
 		std::string key = line.substr(keyBegin, keyEnd - keyBegin + 1);
 		std::string::size_type valueBegin = line.find_first_not_of(
 				" \f\n\r\t\v", assignOp + 1);
-		std::string::size_type valueEnd = line.find_last_not_of(" \f\n\r\t\v")
-				+ 1;
-		std::string value = line.substr(valueBegin, valueEnd - valueBegin);
+		
+		std::string value;
+		
+		if(valueBegin != std::string::npos)
+		{
+			std::string::size_type valueEnd = line.find_last_not_of(" \f\n\r\t\v")
+					+ 1;
+			value = line.substr(valueBegin, valueEnd - valueBegin);
+		} else {
+			value = "";
+		}
 
 		if ((value.size() > 1) && (value[0] == '"')
 				&& (value[value.size() - 1] == '"')) {
