@@ -10,8 +10,6 @@
 
 #include "ConfigurationManager.hpp"
 #include "Utils.hpp"
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/xpressive/xpressive.hpp>
