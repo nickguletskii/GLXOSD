@@ -1,3 +1,5 @@
+#define GLX_GLXEXT_PROTOTYPES
+
 /*
  * Copyright (C) 2013-2014 Nick Guletskii
  *
@@ -27,8 +29,10 @@ GLXOSD* GLXOSD::glxosdInstance = nullptr;
 bool frameLoggingEnabled = false;
 bool frameLogDumpInProgress = false;
 bool osdVisible = true;
+bool toggleVsync = false;
 KeyCombo frameLoggingToggleKey;
 KeyCombo osdToggleKey;
+KeyCombo vsyncToggleKey;
 
 int frameLogId = 0;
 
@@ -42,6 +46,7 @@ bool keepFrameLogInMemory = false;
 
 bool frameLogToggledThisFrame = false;
 bool osdToggledThisFrame = false;
+bool vsyncToggledThisFrame = false;
 
 /*
  * RAII is much better than try/finally, especially in this case! /s
@@ -74,6 +79,9 @@ GLXOSD::GLXOSD() {
 	osdToggleKey = stringToKeyCombo(
 			getConfigurationManager().getProperty<std::string>(
 					"osd_toggle_keycombo"));
+	vsyncToggleKey = stringToKeyCombo(
+				getConfigurationManager().getProperty<std::string>(
+					"vsync_toggle_keycombo"));
 	frameLogDirectory = getConfigurationManager().getProperty<std::string>(
 			"frame_log_directory_string");
 	keepFrameLogInMemory = getConfigurationManager().getProperty<bool>(
@@ -95,6 +103,16 @@ void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 
 	unsigned int width = 1;
 	unsigned int height = 1;
+
+	if (toggleVsync)
+	{
+		unsigned int swapInterval;
+		glXQueryDrawable(display, drawable, GLX_SWAP_INTERVAL_EXT, &swapInterval);
+		swapInterval = (swapInterval > 0) ? 0 : 1;
+
+		glXSwapIntervalEXT(display, drawable, swapInterval);
+		toggleVsync = false;
+	}
 
 	if (osdVisible && display && drawable) {
 
@@ -244,6 +262,10 @@ void GLXOSD::osdHandleKeyPress(XKeyEvent* event) {
 	if (!osdToggledThisFrame && keyComboMatches(osdToggleKey, event)) {
 		osdToggledThisFrame = true;
 		osdVisible = !osdVisible;
+	}
+	if (!vsyncToggledThisFrame && keyComboMatches(vsyncToggleKey, event)) {
+		vsyncToggledThisFrame = false;
+		toggleVsync = true;
 	}
 }
 
