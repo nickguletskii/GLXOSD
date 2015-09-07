@@ -103,9 +103,6 @@ void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 	osdToggledThisFrame = false;
 	frameLogToggledThisFrame = false;
 
-	unsigned int width = 1;
-	unsigned int height = 1;
-
 	if (toggleVsync)
 	{
 		unsigned int swapInterval;
@@ -131,16 +128,22 @@ void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 			instance = (*it).second;
 		}
 		GlinjectGLLockRAIIHelper raiiHelper;
-		GLint viewport[4];
-		rgl(GetIntegerv)(GL_VIEWPORT, viewport);
-		width = viewport[2];
-		height = viewport[3];
+		unsigned int windowWidth = 0, windowHeight = 0;
+		glXQueryDrawable(display, drawable, GLX_WIDTH, &windowWidth);
+		glXQueryDrawable(display, drawable, GLX_HEIGHT, &windowHeight);
 
-		if (width < 1 || height < 1) {
+		if (windowWidth < 1 || windowHeight < 1) {
 			return;
 		}
 
-		instance->render(width, height);
+		GLint viewport[4];
+		rgl(GetIntegerv)(GL_VIEWPORT, viewport);
+
+		rgl(Viewport)(0, 0, windowWidth, windowHeight);
+
+		instance->render(windowWidth, windowHeight);
+
+		rgl(Viewport)(viewport[0], viewport[1], viewport[2], viewport[3]);
 	}
 
 	if (isFrameLoggingEnabled()) {
