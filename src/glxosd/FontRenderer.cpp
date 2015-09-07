@@ -38,8 +38,12 @@ void handleFreetypeError(FT_Error error) {
 	HANDLE_FREETYPE_ERROR(Invalid_Table)
 	HANDLE_FREETYPE_ERROR(Invalid_Offset)
 	HANDLE_FREETYPE_ERROR(Array_Too_Large)
+#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 4 && FREETYPE_PATCH >= 9
 	HANDLE_FREETYPE_ERROR(Missing_Module)
+#endif
+#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 4 && FREETYPE_PATCH >= 10
 	HANDLE_FREETYPE_ERROR(Missing_Property)
+#endif
 	HANDLE_FREETYPE_ERROR(Invalid_Glyph_Index)
 	HANDLE_FREETYPE_ERROR(Invalid_Character_Code)
 	HANDLE_FREETYPE_ERROR(Invalid_Glyph_Format)
@@ -106,7 +110,9 @@ void handleFreetypeError(FT_Error error) {
 	HANDLE_FREETYPE_ERROR(Stack_Underflow)
 	HANDLE_FREETYPE_ERROR(Ignore)
 	HANDLE_FREETYPE_ERROR(No_Unicode_Glyph_Name)
+#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 4 && FREETYPE_PATCH >= 11
 	HANDLE_FREETYPE_ERROR(Glyph_Too_Big)
+#endif
 	HANDLE_FREETYPE_ERROR(Missing_Startfont_Field)
 	HANDLE_FREETYPE_ERROR(Missing_Font_Field)
 	HANDLE_FREETYPE_ERROR(Missing_Size_Field)

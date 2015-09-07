@@ -17,6 +17,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include<vector>
+#include<string>
 #include"Optional.hpp"
 
 namespace glxosd {
