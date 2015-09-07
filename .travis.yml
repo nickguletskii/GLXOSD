@@ -13,9 +13,6 @@ addons:
     - libsensors4-dev
     - libboost-dev
 
-git:
-  depth: 1
-
 language: cpp
 
 compiler:
