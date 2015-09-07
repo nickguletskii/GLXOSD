@@ -69,6 +69,8 @@ GLXOSD* GLXOSD::instance() {
 }
 
 GLXOSD::GLXOSD() {
+	frameLogMutex = PTHREAD_MUTEX_INITIALIZER;
+
 	configurationManager = new ConfigurationManager();
 
 	frameLoggingToggleKey = stringToKeyCombo(

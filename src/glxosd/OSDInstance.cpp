@@ -27,6 +27,7 @@
 namespace glxosd {
 
 OSDInstance::OSDInstance() :
+		renderer(nullptr),
 		osdText("Gathering data...") {
 	const ConfigurationManager &configurationManager =
 			GLXOSD::instance()->getConfigurationManager();

@@ -51,7 +51,6 @@ local.properties
 .buildpath
 
 #Linux
-.*
 !.gitignore
 *~
 
