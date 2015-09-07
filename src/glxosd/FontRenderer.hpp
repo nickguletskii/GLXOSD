@@ -57,10 +57,10 @@ private:
 	int fontSize;
 	float outlineWidth;
 
-	float textSpacingX = 0;
-	float textSpacingY = 0;
-	int textPositionX = 0;
-	int textPositionY = 0;
+	float textSpacingX;
+	float textSpacingY;
+	int textPositionX;
+	int textPositionY;
 
 	ColourRGBA fontColour;
 	ColourRGBA fontOutlineColour;

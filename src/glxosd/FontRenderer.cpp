@@ -126,7 +126,11 @@ void handleFreetypeError(FT_Error error) {
 
 FontRenderer::FontRenderer(std::string name, int fontSize, int horizontalDPI,
 		int verticalDPI, float outlineWidth) :
-		fontSize(fontSize), outlineWidth(outlineWidth) {
+		fontSize(fontSize), outlineWidth(outlineWidth),
+		textSpacingX(0),
+		textSpacingY(0),
+		textPositionX(0),
+		textPositionY(0) {
 	std::string fontFile = getFontPath(name);
 
 	if (fontFile.empty())
