@@ -130,14 +130,14 @@ void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 		glXQueryDrawable(display, drawable, GLX_WIDTH, &windowWidth);
 		glXQueryDrawable(display, drawable, GLX_HEIGHT, &windowHeight);
 
+		if (windowWidth < 1 || windowHeight < 1) {
+			return;
+		}
+
 		GLint viewport[4];
 		rgl(GetIntegerv)(GL_VIEWPORT, viewport);
 
 		rgl(Viewport)(0, 0, windowWidth, windowHeight);
-
-		if (windowWidth < 1 || windowHeight < 1) {
-			return;
-		}
 
 		instance->render(windowWidth, windowHeight);
 
