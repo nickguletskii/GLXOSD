@@ -69,6 +69,8 @@ GLXOSD* GLXOSD::instance() {
 }
 
 GLXOSD::GLXOSD() {
+	keyCombosInitialised = false;
+
 	frameLogMutex = PTHREAD_MUTEX_INITIALIZER;
 
 	configurationManager = new ConfigurationManager();
