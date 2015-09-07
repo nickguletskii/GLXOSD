@@ -268,8 +268,8 @@ const Glyph* FontRenderer::createGlyph(char c) {
 			int x = outlineX - (imageWidth - mainBitmap.width) / 2;
 
 			GLuint baseAlpha =
-					(y >= 0 && x >= 0 && y < mainBitmap.rows
-							&& x < mainBitmap.width) ?
+					(y >= 0 && x >= 0 && y < static_cast<int>(mainBitmap.rows)
+							&& x < static_cast<int>(mainBitmap.width)) ?
 							mainBitmap.buffer[x + mainBitmap.width * y] : 0;
 
 			GLuint outlineAlpha = outlineBitmapGlyph->bitmap.buffer[outlineX
