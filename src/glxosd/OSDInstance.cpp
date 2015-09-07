@@ -27,6 +27,7 @@
 namespace glxosd {
 
 OSDInstance::OSDInstance() :
+		renderer(nullptr),
 		osdText("Gathering data...") {
 	const ConfigurationManager &configurationManager =
 			GLXOSD::instance()->getConfigurationManager();
@@ -250,8 +251,8 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	rgl(ActiveTexture)(GL_TEXTURE0);
 	rgl(GetIntegerv)(GL_SAMPLER_BINDING, &samplerBinding);
 	
-	rgl(BindFramebuffer)(GL_DRAW_FRAMEBUFFER_BINDING, 0);
-	rgl(BindFramebuffer)(GL_READ_FRAMEBUFFER_BINDING, 0);
+	rgl(BindFramebuffer)(GL_DRAW_FRAMEBUFFER, 0);
+	rgl(BindFramebuffer)(GL_READ_FRAMEBUFFER, 0);
 	rgl(PolygonMode)(GL_FRONT_AND_BACK, GL_FILL);
 	
 	renderText(width, height);
@@ -267,8 +268,8 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	rgl(BindBuffer)(GL_PIXEL_UNPACK_BUFFER, pixelUnpackBufferBinding);
 	rgl(BindBuffer)(GL_ARRAY_BUFFER, arrayBufferBinding);
 	rgl(BindBuffer)(GL_ELEMENT_ARRAY_BUFFER, elementArrayBufferBinding);
-	rgl(BindFramebuffer)(GL_DRAW_FRAMEBUFFER_BINDING, drawFramebufferBinding);
-	rgl(BindFramebuffer)(GL_READ_FRAMEBUFFER_BINDING, readFramebufferBinding);
+	rgl(BindFramebuffer)(GL_DRAW_FRAMEBUFFER, drawFramebufferBinding);
+	rgl(BindFramebuffer)(GL_READ_FRAMEBUFFER, readFramebufferBinding);
 	
 	rgl(PolygonMode)(GL_FRONT_AND_BACK, glPolygonModeFrontAndBack);
 

@@ -17,6 +17,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include<vector>
+#include<string>
 #include"Optional.hpp"
 
 namespace glxosd {
@@ -57,10 +58,10 @@ private:
 	int fontSize;
 	float outlineWidth;
 
-	float textSpacingX = 0;
-	float textSpacingY = 0;
-	int textPositionX = 0;
-	int textPositionY = 0;
+	float textSpacingX;
+	float textSpacingY;
+	int textPositionX;
+	int textPositionY;
 
 	ColourRGBA fontColour;
 	ColourRGBA fontOutlineColour;
