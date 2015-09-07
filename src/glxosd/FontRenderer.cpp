@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+
 #include FT_ERRORS_H
 #include FT_STROKER_H
 #include FT_BITMAP_H
@@ -25,108 +26,29 @@ void handleFreetypeError(FT_Error error) {
 		return;
 	std::string errorMessage = "";
 
-	//XXX: Find a cleaner way to translate error code to error message
-	switch (error) {
-#define HANDLE_FREETYPE_ERROR(x) case FT_Err_##x : {errorMessage = #x; break;}
-	HANDLE_FREETYPE_ERROR(Cannot_Open_Resource)
-	HANDLE_FREETYPE_ERROR(Unknown_File_Format)
-	HANDLE_FREETYPE_ERROR(Invalid_File_Format)
-	HANDLE_FREETYPE_ERROR(Invalid_Version)
-	HANDLE_FREETYPE_ERROR(Lower_Module_Version)
-	HANDLE_FREETYPE_ERROR(Invalid_Argument)
-	HANDLE_FREETYPE_ERROR(Unimplemented_Feature)
-	HANDLE_FREETYPE_ERROR(Invalid_Table)
-	HANDLE_FREETYPE_ERROR(Invalid_Offset)
-	HANDLE_FREETYPE_ERROR(Array_Too_Large)
-#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 4 && FREETYPE_PATCH >= 9
-	HANDLE_FREETYPE_ERROR(Missing_Module)
-#endif
-#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 4 && FREETYPE_PATCH >= 10
-	HANDLE_FREETYPE_ERROR(Missing_Property)
-#endif
-	HANDLE_FREETYPE_ERROR(Invalid_Glyph_Index)
-	HANDLE_FREETYPE_ERROR(Invalid_Character_Code)
-	HANDLE_FREETYPE_ERROR(Invalid_Glyph_Format)
-	HANDLE_FREETYPE_ERROR(Cannot_Render_Glyph)
-	HANDLE_FREETYPE_ERROR(Invalid_Outline)
-	HANDLE_FREETYPE_ERROR(Invalid_Composite)
-	HANDLE_FREETYPE_ERROR(Too_Many_Hints)
-	HANDLE_FREETYPE_ERROR(Invalid_Pixel_Size)
-	HANDLE_FREETYPE_ERROR(Invalid_Handle)
-	HANDLE_FREETYPE_ERROR(Invalid_Library_Handle)
-	HANDLE_FREETYPE_ERROR(Invalid_Driver_Handle)
-	HANDLE_FREETYPE_ERROR(Invalid_Face_Handle)
-	HANDLE_FREETYPE_ERROR(Invalid_Size_Handle)
-	HANDLE_FREETYPE_ERROR(Invalid_Slot_Handle)
-	HANDLE_FREETYPE_ERROR(Invalid_CharMap_Handle)
-	HANDLE_FREETYPE_ERROR(Invalid_Cache_Handle)
-	HANDLE_FREETYPE_ERROR(Invalid_Stream_Handle)
-	HANDLE_FREETYPE_ERROR(Too_Many_Drivers)
-	HANDLE_FREETYPE_ERROR(Too_Many_Extensions)
-	HANDLE_FREETYPE_ERROR(Out_Of_Memory)
-	HANDLE_FREETYPE_ERROR(Unlisted_Object)
-	HANDLE_FREETYPE_ERROR(Cannot_Open_Stream)
-	HANDLE_FREETYPE_ERROR(Invalid_Stream_Seek)
-	HANDLE_FREETYPE_ERROR(Invalid_Stream_Skip)
-	HANDLE_FREETYPE_ERROR(Invalid_Stream_Read)
-	HANDLE_FREETYPE_ERROR(Invalid_Stream_Operation)
-	HANDLE_FREETYPE_ERROR(Invalid_Frame_Operation)
-	HANDLE_FREETYPE_ERROR(Nested_Frame_Access)
-	HANDLE_FREETYPE_ERROR(Invalid_Frame_Read)
-	HANDLE_FREETYPE_ERROR(Raster_Uninitialized)
-	HANDLE_FREETYPE_ERROR(Raster_Corrupted)
-	HANDLE_FREETYPE_ERROR(Raster_Overflow)
-	HANDLE_FREETYPE_ERROR(Raster_Negative_Height)
-	HANDLE_FREETYPE_ERROR(Too_Many_Caches)
-	HANDLE_FREETYPE_ERROR(Invalid_Opcode)
-	HANDLE_FREETYPE_ERROR(Too_Few_Arguments)
-	HANDLE_FREETYPE_ERROR(Stack_Overflow)
-	HANDLE_FREETYPE_ERROR(Code_Overflow)
-	HANDLE_FREETYPE_ERROR(Bad_Argument)
-	HANDLE_FREETYPE_ERROR(Divide_By_Zero)
-	HANDLE_FREETYPE_ERROR(Invalid_Reference)
-	HANDLE_FREETYPE_ERROR(Debug_OpCode)
-	HANDLE_FREETYPE_ERROR(ENDF_In_Exec_Stream)
-	HANDLE_FREETYPE_ERROR(Nested_DEFS)
-	HANDLE_FREETYPE_ERROR(Invalid_CodeRange)
-	HANDLE_FREETYPE_ERROR(Execution_Too_Long)
-	HANDLE_FREETYPE_ERROR(Too_Many_Function_Defs)
-	HANDLE_FREETYPE_ERROR(Too_Many_Instruction_Defs)
-	HANDLE_FREETYPE_ERROR(Table_Missing)
-	HANDLE_FREETYPE_ERROR(Horiz_Header_Missing)
-	HANDLE_FREETYPE_ERROR(Locations_Missing)
-	HANDLE_FREETYPE_ERROR(Name_Table_Missing)
-	HANDLE_FREETYPE_ERROR(CMap_Table_Missing)
-	HANDLE_FREETYPE_ERROR(Hmtx_Table_Missing)
-	HANDLE_FREETYPE_ERROR(Post_Table_Missing)
-	HANDLE_FREETYPE_ERROR(Invalid_Horiz_Metrics)
-	HANDLE_FREETYPE_ERROR(Invalid_CharMap_Format)
-	HANDLE_FREETYPE_ERROR(Invalid_PPem)
-	HANDLE_FREETYPE_ERROR(Invalid_Vert_Metrics)
-	HANDLE_FREETYPE_ERROR(Could_Not_Find_Context)
-	HANDLE_FREETYPE_ERROR(Invalid_Post_Table_Format)
-	HANDLE_FREETYPE_ERROR(Invalid_Post_Table)
-	HANDLE_FREETYPE_ERROR(Syntax_Error)
-	HANDLE_FREETYPE_ERROR(Stack_Underflow)
-	HANDLE_FREETYPE_ERROR(Ignore)
-	HANDLE_FREETYPE_ERROR(No_Unicode_Glyph_Name)
-#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 4 && FREETYPE_PATCH >= 11
-	HANDLE_FREETYPE_ERROR(Glyph_Too_Big)
-#endif
-	HANDLE_FREETYPE_ERROR(Missing_Startfont_Field)
-	HANDLE_FREETYPE_ERROR(Missing_Font_Field)
-	HANDLE_FREETYPE_ERROR(Missing_Size_Field)
-	HANDLE_FREETYPE_ERROR(Missing_Fontboundingbox_Field)
-	HANDLE_FREETYPE_ERROR(Missing_Chars_Field)
-	HANDLE_FREETYPE_ERROR(Missing_Startchar_Field)
-	HANDLE_FREETYPE_ERROR(Missing_Encoding_Field)
-	HANDLE_FREETYPE_ERROR(Missing_Bbx_Field)
-	HANDLE_FREETYPE_ERROR(Bbx_Too_Big)
-	HANDLE_FREETYPE_ERROR(Corrupted_Font_Header)
-	HANDLE_FREETYPE_ERROR(Corrupted_Font_Glyphs)
-#undef HANDLE_FREETYPE_ERROR
+	#undef __FTERRORS_H__
+
+	#define FT_ERRORDEF( e, v, s )  { e, s },
+	#define FT_ERROR_START_LIST     {
+	#define FT_ERROR_END_LIST       { 0, 0 } };
+
+	const struct
+	{
+	  int          err_code;
+	  const char*  err_msg;
+	} ft_errors[] =
+
+	#include FT_ERRORS_H
+
+	for (unsigned int i=0; i<sizeof(ft_errors)/sizeof(ft_errors[0]); ++i)
+	{
+		if (ft_errors[i].err_code == error)
+		{
+			errorMessage = ft_errors[i].err_msg;
+			break;
+		}
 	}
-	std::replace(errorMessage.begin(), errorMessage.end(), '_', ' ');
+
 	throw std::runtime_error("Freetype error: " + errorMessage);
 }
 
