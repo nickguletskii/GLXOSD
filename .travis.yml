@@ -1,3 +1,18 @@
+sudo: false
+
+addons:
+  apt:
+    packages:
+    - cmake
+    - build-essential
+    - mesa-common-dev
+    - libgl1-mesa-dev
+    - libglu1-mesa-dev
+    - libfontconfig1-dev
+    - libfreetype6-dev
+    - libsensors4-dev
+    - libboost-dev
+
 git:
   depth: 1
 
@@ -10,10 +25,6 @@ branches:
   only:
     - development
     - master
-
-before_install:
- - sudo apt-get install build-essential cmake
- - sudo apt-get install mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev libsensors4-dev libboost-dev
 
 before_script:
  - mkdir build
