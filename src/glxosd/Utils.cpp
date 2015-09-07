@@ -53,7 +53,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 	return elems;
 }
 
-KeyCombo stringToKeyCombo(std::string str) {
+KeyCombo stringToKeyCombo(std::string str, Display* display) {
 	KeyCombo combo;
 	combo.keySym = 0;
 	combo.mask = 0U;
@@ -77,6 +77,7 @@ KeyCombo stringToKeyCombo(std::string str) {
 			if (combo.keySym == NoSymbol)
 				throw new std::runtime_error(
 						"Invalid key combination: invalid key!");
+			combo.keyCode = XKeysymToKeycode(display, combo.keySym);
 			hasPrimaryKey = true;
 		}
 	}
@@ -88,7 +89,7 @@ KeyCombo stringToKeyCombo(std::string str) {
 
 bool keyComboMatches(KeyCombo combo, XKeyEvent* event) {
 	return ((event->state & (ShiftMask | ControlMask | Mod1Mask)) == combo.mask)
-			&& (event->keycode == XKeysymToKeycode(event->display, combo.keySym));
+			&& (event->keycode == combo.keyCode);
 }
 
 boost::format glxosdFormat(const std::string& str) {

@@ -66,14 +66,8 @@ GLXOSD* GLXOSD::instance() {
 GLXOSD::GLXOSD() {
 	configurationManager = new ConfigurationManager();
 
-	frameLoggingToggleKey = stringToKeyCombo(
-			getConfigurationManager().getProperty<std::string>(
-					"frame_logging_toggle_keycombo"));
 	frameLoggingDuration = getConfigurationManager().getProperty<uint64_t>(
 			"frame_logging_duration_ms");
-	osdToggleKey = stringToKeyCombo(
-			getConfigurationManager().getProperty<std::string>(
-					"osd_toggle_keycombo"));
 	frameLogDirectory = getConfigurationManager().getProperty<std::string>(
 			"frame_log_directory_string");
 	keepFrameLogInMemory = getConfigurationManager().getProperty<bool>(
@@ -90,6 +84,7 @@ GLXOSD::GLXOSD() {
 }
 
 void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
+	
 	osdToggledThisFrame = false;
 	frameLogToggledThisFrame = false;
 
@@ -97,6 +92,14 @@ void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 	unsigned int height = 1;
 
 	if (osdVisible && display && drawable) {
+		frameLoggingToggleKey = stringToKeyCombo(
+			getConfigurationManager().getProperty<std::string>(
+					"frame_logging_toggle_keycombo"), display);
+		osdToggleKey = stringToKeyCombo(
+			getConfigurationManager().getProperty<std::string>(
+					"osd_toggle_keycombo"), display);
+		
+		keyCombosInitialised = true;
 
 		auto it = drawableHandlers->find(glXGetCurrentContext());
 
@@ -234,6 +237,7 @@ void GLXOSD::stopFrameLogging() {
 }
 void GLXOSD::osdHandleKeyPress(XKeyEvent* event) {
 	if (!frameLogToggledThisFrame
+			&& keyCombosInitialised
 			&& keyComboMatches(frameLoggingToggleKey, event)) {
 		frameLogToggledThisFrame = true;
 		if (frameLoggingEnabled)
@@ -241,7 +245,7 @@ void GLXOSD::osdHandleKeyPress(XKeyEvent* event) {
 		else
 			startFrameLogging();
 	}
-	if (!osdToggledThisFrame && keyComboMatches(osdToggleKey, event)) {
+	if (!osdToggledThisFrame && keyCombosInitialised && keyComboMatches(osdToggleKey, event)) {
 		osdToggledThisFrame = true;
 		osdVisible = !osdVisible;
 	}
@@ -251,8 +255,8 @@ Bool GLXOSD::osdEventFilter(Display* display, XEvent* event, XPointer pointer) {
 	if (event->type != KeyPress)
 		return false;
 	XKeyEvent * keyEvent = &event->xkey;
-	return keyComboMatches(osdToggleKey, keyEvent)
-			|| keyComboMatches(frameLoggingToggleKey, keyEvent);
+	return keyCombosInitialised && ( keyComboMatches(osdToggleKey, keyEvent)
+			|| keyComboMatches(frameLoggingToggleKey, keyEvent) );
 }
 
 bool GLXOSD::isFrameLoggingEnabled() {

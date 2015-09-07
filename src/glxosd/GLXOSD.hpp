@@ -48,6 +48,7 @@ private:
 	void stopFrameLogging();
 	void frameLogTick(GLXDrawable drawable);
 	static GLXOSD *glxosdInstance;
+	bool keyCombosInitialised = false;
 public:
 	static GLXOSD* instance();
 	static void cleanup();
