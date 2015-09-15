@@ -60,6 +60,8 @@ ConfigurationManager::ConfigurationManager() {
 	addDefaultConfigurationValue("frame_log_keep_in_memory_bool", false);
 	addDefaultConfigurationValue("osd_toggle_keycombo",
 			std::string("Shift+F10"));
+	addDefaultConfigurationValue("vsync_toggle_keycombo",
+			std::string("Shift+F11"));
 	addDefaultConfigurationValue("frame_log_directory_string",
 			std::string("/tmp/"));
 	addDefaultConfigurationValue("show_text_outline_bool", true); // Deprecated
