@@ -72,6 +72,7 @@ GLXOSD::GLXOSD() {
 	keyCombosInitialised = false;
 
 	frameLogMutex = PTHREAD_MUTEX_INITIALIZER;
+	osdRenderingMutex = PTHREAD_MUTEX_INITIALIZER;
 
 	configurationManager = new ConfigurationManager();
 
@@ -93,6 +94,7 @@ GLXOSD::GLXOSD() {
 }
 
 void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
+	Lock lock(&osdRenderingMutex);
 	
 	osdToggledThisFrame = false;
 	frameLogToggledThisFrame = false;
@@ -278,7 +280,7 @@ void GLXOSD::osdHandleKeyPress(XKeyEvent* event) {
 		osdToggledThisFrame = true;
 		osdVisible = !osdVisible;
 	}
-	if (!vsyncToggledThisFrame && keyComboMatches(vsyncToggleKey, event)) {
+	if (!vsyncToggledThisFrame && keyCombosInitialised && keyComboMatches(vsyncToggleKey, event)) {
 		vsyncToggledThisFrame = false;
 		toggleVsync = true;
 	}
