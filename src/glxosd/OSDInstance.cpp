@@ -246,6 +246,18 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	rgl(GetIntegerv)(GL_POLYGON_MODE,
 			&glPolygonModeFrontAndBack);
 	
+	// Memorise pixel unpack states
+	GLint unpackSwapBytes = 0, unpackLsbFirst = 0, unpackRowLength = 0, unpackImageHeight = 0,
+			unpackSkipRows = 0, unpackSkipPixels = 0, unpackSkipImages = 0, unpackAlignment = 0;
+	rgl(GetIntegerv)(GL_UNPACK_SWAP_BYTES, &unpackSwapBytes);
+	rgl(GetIntegerv)(GL_UNPACK_LSB_FIRST, &unpackLsbFirst);
+	rgl(GetIntegerv)(GL_UNPACK_ROW_LENGTH, &unpackRowLength);
+	rgl(GetIntegerv)(GL_UNPACK_IMAGE_HEIGHT, &unpackImageHeight);
+	rgl(GetIntegerv)(GL_UNPACK_SKIP_ROWS, &unpackSkipRows);
+	rgl(GetIntegerv)(GL_UNPACK_SKIP_PIXELS, &unpackSkipPixels);
+	rgl(GetIntegerv)(GL_UNPACK_SKIP_IMAGES, &unpackSkipImages);
+	rgl(GetIntegerv)(GL_UNPACK_ALIGNMENT, &unpackAlignment);
+
 	//We are borrowing GL_TEXTURE0, so we need to reset its sampler
 	rgl(ActiveTexture)(GL_TEXTURE0);
 	rgl(GetIntegerv)(GL_SAMPLER_BINDING, &samplerBinding);
@@ -272,6 +284,15 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	rgl(BindFramebuffer)(GL_READ_FRAMEBUFFER, readFramebufferBinding);
 	
 	rgl(PolygonMode)(GL_FRONT_AND_BACK, glPolygonModeFrontAndBack);
+
+	rgl(PixelStorei)(GL_UNPACK_SWAP_BYTES, unpackSwapBytes);
+	rgl(PixelStorei)(GL_UNPACK_LSB_FIRST, unpackLsbFirst);
+	rgl(PixelStorei)(GL_UNPACK_ROW_LENGTH, unpackRowLength);
+	rgl(PixelStorei)(GL_UNPACK_IMAGE_HEIGHT, unpackImageHeight);
+	rgl(PixelStorei)(GL_UNPACK_SKIP_ROWS, unpackSkipRows);
+	rgl(PixelStorei)(GL_UNPACK_SKIP_PIXELS, unpackSkipPixels);
+	rgl(PixelStorei)(GL_UNPACK_SKIP_IMAGES, unpackSkipImages);
+	rgl(PixelStorei)(GL_UNPACK_ALIGNMENT, unpackAlignment);
 
 	//Revert misc settings
 	rgl(BlendColor)(blendColour[0], blendColour[1], blendColour[2],
