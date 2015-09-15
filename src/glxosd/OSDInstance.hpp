@@ -21,6 +21,7 @@ class ConfigurationManager;
 class FontRenderer;
 class OSDInstance {
 private:
+	bool firstFrame;
 	int currentFrameCount; // The number of frames from the last FPS calculation
 	uint64_t previousTime; //The time of the previous FPS calculation
 	double framesPerSecond; //Current FPS

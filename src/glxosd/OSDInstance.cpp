@@ -27,6 +27,7 @@
 namespace glxosd {
 
 OSDInstance::OSDInstance() :
+		firstFrame(true),
 		renderer(nullptr),
 		osdText("Gathering data...") {
 	const ConfigurationManager &configurationManager =
@@ -138,6 +139,14 @@ void OSDInstance::renderText(unsigned int width, unsigned int height) {
 }
 
 void OSDInstance::render(unsigned int width, unsigned int height) {
+	if (firstFrame)
+	{
+		// Don't render in the first frame. This is an attempt to prevent rendering on game
+		// launchers and splash screens were benchmarking is not desired.
+		firstFrame = false;
+		return;
+	}
+
 	currentFrameCount++;
 	long currentTimeMilliseconds = getMonotonicTimeNanoseconds() / 1000000ULL;
 //Refresh the info every 500 milliseconds
