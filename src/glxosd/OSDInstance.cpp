@@ -236,7 +236,6 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 			&pixelUnpackBufferBinding);
 	rgl(GetIntegerv)(GL_ARRAY_BUFFER_BINDING, &arrayBufferBinding);
 	rgl(GetIntegerv)(GL_ACTIVE_TEXTURE, &activeTexture);
-	rgl(GetIntegerv)(GL_TEXTURE_BINDING_2D, &textureBinding2D);
 	rgl(GetIntegerv)(GL_VERTEX_ARRAY_BINDING, &vertexArrayBinding);
 	rgl(GetIntegerv)(GL_ELEMENT_ARRAY_BUFFER_BINDING,
 			&elementArrayBufferBinding);
@@ -250,6 +249,7 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	//We are borrowing GL_TEXTURE0, so we need to reset its sampler
 	rgl(ActiveTexture)(GL_TEXTURE0);
 	rgl(GetIntegerv)(GL_SAMPLER_BINDING, &samplerBinding);
+	rgl(GetIntegerv)(GL_TEXTURE_BINDING_2D, &textureBinding2D);
 	
 	rgl(BindFramebuffer)(GL_DRAW_FRAMEBUFFER, 0);
 	rgl(BindFramebuffer)(GL_READ_FRAMEBUFFER, 0);
@@ -260,10 +260,10 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	//Revert sampler
 	rgl(ActiveTexture)(GL_TEXTURE0);
 	rgl(BindSampler)(0, samplerBinding);
-	
+	rgl(BindTexture)(GL_TEXTURE_2D, textureBinding2D);
+
 	//Revert buffer states
 	rgl(ActiveTexture)(activeTexture);
-	rgl(BindTexture)(GL_TEXTURE_2D, textureBinding2D);
 	rgl(BindVertexArray)(vertexArrayBinding);
 	rgl(BindBuffer)(GL_PIXEL_UNPACK_BUFFER, pixelUnpackBufferBinding);
 	rgl(BindBuffer)(GL_ARRAY_BUFFER, arrayBufferBinding);
