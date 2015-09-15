@@ -97,6 +97,22 @@ void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 	osdToggledThisFrame = false;
 	frameLogToggledThisFrame = false;
 
+	if (!keyCombosInitialised)
+	{
+		frameLoggingToggleKey = stringToKeyCombo(
+			getConfigurationManager().getProperty<std::string>(
+					"frame_logging_toggle_keycombo"), display);
+		osdToggleKey = stringToKeyCombo(
+			getConfigurationManager().getProperty<std::string>(
+					"osd_toggle_keycombo"), display);
+
+		vsyncToggleKey = stringToKeyCombo(
+			getConfigurationManager().getProperty<std::string>(
+					"vsync_toggle_keycombo"), display);
+
+		keyCombosInitialised = true;
+	}
+
 	if (toggleVsync)
 	{
 		unsigned int swapInterval;
@@ -108,15 +124,6 @@ void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 	}
 
 	if (osdVisible && display && drawable) {
-		frameLoggingToggleKey = stringToKeyCombo(
-			getConfigurationManager().getProperty<std::string>(
-					"frame_logging_toggle_keycombo"), display);
-		osdToggleKey = stringToKeyCombo(
-			getConfigurationManager().getProperty<std::string>(
-					"osd_toggle_keycombo"), display);
-		
-		keyCombosInitialised = true;
-
 		auto it = drawableHandlers->find(glXGetCurrentContext());
 
 		OSDInstance* instance;
