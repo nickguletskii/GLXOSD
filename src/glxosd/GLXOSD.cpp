@@ -1,3 +1,5 @@
+#define GLX_GLXEXT_PROTOTYPES
+
 /*
  * Copyright (C) 2013-2014 Nick Guletskii
  *
@@ -27,8 +29,10 @@ GLXOSD* GLXOSD::glxosdInstance = nullptr;
 bool frameLoggingEnabled = false;
 bool frameLogDumpInProgress = false;
 bool osdVisible = true;
+bool toggleVsync = false;
 KeyCombo frameLoggingToggleKey;
 KeyCombo osdToggleKey;
+KeyCombo vsyncToggleKey;
 
 int frameLogId = 0;
 
@@ -42,6 +46,7 @@ bool keepFrameLogInMemory = false;
 
 bool frameLogToggledThisFrame = false;
 bool osdToggledThisFrame = false;
+bool vsyncToggledThisFrame = false;
 
 /*
  * RAII is much better than try/finally, especially in this case! /s
@@ -64,16 +69,15 @@ GLXOSD* GLXOSD::instance() {
 }
 
 GLXOSD::GLXOSD() {
+	keyCombosInitialised = false;
+
+	frameLogMutex = PTHREAD_MUTEX_INITIALIZER;
+	osdRenderingMutex = PTHREAD_MUTEX_INITIALIZER;
+
 	configurationManager = new ConfigurationManager();
 
-	frameLoggingToggleKey = stringToKeyCombo(
-			getConfigurationManager().getProperty<std::string>(
-					"frame_logging_toggle_keycombo"));
 	frameLoggingDuration = getConfigurationManager().getProperty<uint64_t>(
 			"frame_logging_duration_ms");
-	osdToggleKey = stringToKeyCombo(
-			getConfigurationManager().getProperty<std::string>(
-					"osd_toggle_keycombo"));
 	frameLogDirectory = getConfigurationManager().getProperty<std::string>(
 			"frame_log_directory_string");
 	keepFrameLogInMemory = getConfigurationManager().getProperty<bool>(
@@ -90,14 +94,38 @@ GLXOSD::GLXOSD() {
 }
 
 void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
+	Lock lock(&osdRenderingMutex);
+	
 	osdToggledThisFrame = false;
 	frameLogToggledThisFrame = false;
 
-	unsigned int width = 1;
-	unsigned int height = 1;
+	if (!keyCombosInitialised)
+	{
+		frameLoggingToggleKey = stringToKeyCombo(
+			getConfigurationManager().getProperty<std::string>(
+					"frame_logging_toggle_keycombo"), display);
+		osdToggleKey = stringToKeyCombo(
+			getConfigurationManager().getProperty<std::string>(
+					"osd_toggle_keycombo"), display);
+
+		vsyncToggleKey = stringToKeyCombo(
+			getConfigurationManager().getProperty<std::string>(
+					"vsync_toggle_keycombo"), display);
+
+		keyCombosInitialised = true;
+	}
+
+	if (toggleVsync)
+	{
+		unsigned int swapInterval;
+		glXQueryDrawable(display, drawable, GLX_SWAP_INTERVAL_EXT, &swapInterval);
+		swapInterval = (swapInterval > 0) ? 0 : 1;
+
+		glXSwapIntervalEXT(display, drawable, swapInterval);
+		toggleVsync = false;
+	}
 
 	if (osdVisible && display && drawable) {
-
 		auto it = drawableHandlers->find(glXGetCurrentContext());
 
 		OSDInstance* instance;
@@ -111,16 +139,22 @@ void GLXOSD::osdHandleBufferSwap(Display* display, GLXDrawable drawable) {
 			instance = (*it).second;
 		}
 		GlinjectGLLockRAIIHelper raiiHelper;
-		GLint viewport[4];
-		rgl(GetIntegerv)(GL_VIEWPORT, viewport);
-		width = viewport[2];
-		height = viewport[3];
+		unsigned int windowWidth = 0, windowHeight = 0;
+		glXQueryDrawable(display, drawable, GLX_WIDTH, &windowWidth);
+		glXQueryDrawable(display, drawable, GLX_HEIGHT, &windowHeight);
 
-		if (width < 1 || height < 1) {
+		if (windowWidth < 1 || windowHeight < 1) {
 			return;
 		}
 
-		instance->render(width, height);
+		GLint viewport[4];
+		rgl(GetIntegerv)(GL_VIEWPORT, viewport);
+
+		rgl(Viewport)(0, 0, windowWidth, windowHeight);
+
+		instance->render(windowWidth, windowHeight);
+
+		rgl(Viewport)(viewport[0], viewport[1], viewport[2], viewport[3]);
 	}
 
 	if (isFrameLoggingEnabled()) {
@@ -234,6 +268,7 @@ void GLXOSD::stopFrameLogging() {
 }
 void GLXOSD::osdHandleKeyPress(XKeyEvent* event) {
 	if (!frameLogToggledThisFrame
+			&& keyCombosInitialised
 			&& keyComboMatches(frameLoggingToggleKey, event)) {
 		frameLogToggledThisFrame = true;
 		if (frameLoggingEnabled)
@@ -241,9 +276,13 @@ void GLXOSD::osdHandleKeyPress(XKeyEvent* event) {
 		else
 			startFrameLogging();
 	}
-	if (!osdToggledThisFrame && keyComboMatches(osdToggleKey, event)) {
+	if (!osdToggledThisFrame && keyCombosInitialised && keyComboMatches(osdToggleKey, event)) {
 		osdToggledThisFrame = true;
 		osdVisible = !osdVisible;
+	}
+	if (!vsyncToggledThisFrame && keyCombosInitialised && keyComboMatches(vsyncToggleKey, event)) {
+		vsyncToggledThisFrame = false;
+		toggleVsync = true;
 	}
 }
 
@@ -251,8 +290,8 @@ Bool GLXOSD::osdEventFilter(Display* display, XEvent* event, XPointer pointer) {
 	if (event->type != KeyPress)
 		return false;
 	XKeyEvent * keyEvent = &event->xkey;
-	return keyComboMatches(osdToggleKey, keyEvent)
-			|| keyComboMatches(frameLoggingToggleKey, keyEvent);
+	return keyCombosInitialised && ( keyComboMatches(osdToggleKey, keyEvent)
+			|| keyComboMatches(frameLoggingToggleKey, keyEvent) );
 }
 
 bool GLXOSD::isFrameLoggingEnabled() {

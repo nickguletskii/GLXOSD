@@ -18,6 +18,7 @@ namespace glxosd {
 
 struct KeyCombo {
 	KeySym keySym;
+	KeyCode keyCode;
 	unsigned long int mask;
 };
 
@@ -27,7 +28,7 @@ std::pair<int, int> getDPI();
 
 uint64_t getMonotonicTimeNanoseconds();
 
-KeyCombo stringToKeyCombo(std::string);
+KeyCombo stringToKeyCombo(std::string, Display*);
 
 bool keyComboMatches(KeyCombo combo, XKeyEvent* event);
 

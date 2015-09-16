@@ -99,6 +99,15 @@ VertexBuffer::VertexBuffer(std::vector<GLfloat> vertices,
 	rgl(TexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
 	GL_CLAMP_TO_EDGE);
 
+	rgl(PixelStorei)(GL_UNPACK_SWAP_BYTES, false);
+	rgl(PixelStorei)(GL_UNPACK_LSB_FIRST, false);
+	rgl(PixelStorei)(GL_UNPACK_ROW_LENGTH, 0);
+	rgl(PixelStorei)(GL_UNPACK_IMAGE_HEIGHT, 0);
+	rgl(PixelStorei)(GL_UNPACK_SKIP_ROWS, 0);
+	rgl(PixelStorei)(GL_UNPACK_SKIP_PIXELS, 0);
+	rgl(PixelStorei)(GL_UNPACK_SKIP_IMAGES, 0);
+	rgl(PixelStorei)(GL_UNPACK_ALIGNMENT, 4);
+
 	rgl(TexImage2D)(GL_TEXTURE_2D, 0, GL_RGBA8, imageWidth, imageHeight, 0,
 	GL_RGBA,
 	GL_UNSIGNED_BYTE, image.data());

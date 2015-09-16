@@ -13,6 +13,8 @@
 #include "ConfigurationManager.hpp"
 #include "Utils.hpp"
 #include <boost/format.hpp>
+// workaround X.h clash with Boost-xpressive < 1.53 (https://svn.boost.org/trac/boost/ticket/8204)
+#undef None
 #include <boost/xpressive/xpressive.hpp>
 #include <sensors/sensors.h>
 #include <sstream>

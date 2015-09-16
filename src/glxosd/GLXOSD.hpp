@@ -35,7 +35,8 @@ typedef Wrapper<void, glxosd::GLXOSD*> PluginDestructor;
 
 class GLXOSD {
 private:
-	PTHREADS_MUTEX(frameLogMutex);
+	pthread_mutex_t frameLogMutex;
+	pthread_mutex_t osdRenderingMutex;
 	ConfigurationManager *configurationManager;
 	std::map<GLXContext, glxosd::OSDInstance*>* drawableHandlers;
 	std::vector<PluginConstructor>* pluginConstructors;
@@ -48,6 +49,7 @@ private:
 	void stopFrameLogging();
 	void frameLogTick(GLXDrawable drawable);
 	static GLXOSD *glxosdInstance;
+	bool keyCombosInitialised;
 public:
 	static GLXOSD* instance();
 	static void cleanup();

@@ -10,10 +10,10 @@
 
 #include "ConfigurationManager.hpp"
 #include "Utils.hpp"
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
+// workaround X.h clash with Boost-xpressive < 1.53 (https://svn.boost.org/trac/boost/ticket/8204)
+#undef None
 #include <boost/xpressive/xpressive.hpp>
 #include <fstream>
 #include <iostream>
@@ -60,6 +60,8 @@ ConfigurationManager::ConfigurationManager() {
 	addDefaultConfigurationValue("frame_log_keep_in_memory_bool", false);
 	addDefaultConfigurationValue("osd_toggle_keycombo",
 			std::string("Shift+F10"));
+	addDefaultConfigurationValue("vsync_toggle_keycombo",
+			std::string("Shift+F11"));
 	addDefaultConfigurationValue("frame_log_directory_string",
 			std::string("/tmp/"));
 	addDefaultConfigurationValue("show_text_outline_bool", true); // Deprecated

@@ -13,6 +13,7 @@
 #include<map>
 #include<functional>
 #include<vector>
+#include<string>
 #include<GL/gl.h>
 namespace glxosd {
 
