@@ -272,6 +272,8 @@ void OSDInstance::render(unsigned int width, unsigned int height) {
 	rgl(GetIntegerv)(GL_SAMPLER_BINDING, &samplerBinding);
 	rgl(GetIntegerv)(GL_TEXTURE_BINDING_2D, &textureBinding2D);
 	
+	rgl(BindBuffer)(GL_PIXEL_UNPACK_BUFFER, 0);
+	rgl(BindBuffer)(GL_ARRAY_BUFFER, 0);
 	rgl(BindFramebuffer)(GL_DRAW_FRAMEBUFFER, 0);
 	rgl(BindFramebuffer)(GL_READ_FRAMEBUFFER, 0);
 	rgl(PolygonMode)(GL_FRONT_AND_BACK, GL_FILL);
