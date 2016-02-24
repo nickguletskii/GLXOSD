@@ -1,3 +1,4 @@
+include(GNUInstallDirs)
 set(GLXOSD_SOURCE_FILES GLXOSD.cpp GLXOSDLoader.cpp OSDInstance.cpp ConfigurationManager.cpp Utils.cpp GLAttribState.cpp FontRenderer.cpp ShaderProgram.cpp VertexBuffer.cpp Colour.cpp)
 add_library(glxosd SHARED ${GLXOSD_SOURCE_FILES})
 add_dependencies(glxosd glinject)
@@ -6,5 +7,5 @@ set_target_properties(glxosd PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR} L
 set_target_properties(glxosd PROPERTIES VERSION ${GLXOSD_VERSION_STRING}
                                           SOVERSION ${GLXOSD_VERSION_MAJOR})
 INSTALL(TARGETS glxosd
-  LIBRARY DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE}/glxosd
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/glxosd
 )

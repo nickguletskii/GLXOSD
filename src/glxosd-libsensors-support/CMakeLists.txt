@@ -1,3 +1,4 @@
+include(GNUInstallDirs)
 SET(GLXOSD_LIBSENSORS_SUPPORT_SOURCE_FILES LibsensorsSensorDataProvider.cpp)
 add_library(glxosd-libsensors-support SHARED ${GLXOSD_LIBSENSORS_SUPPORT_SOURCE_FILES})
 add_dependencies(glxosd-libsensors-support glxosd)
@@ -6,5 +7,5 @@ set_target_properties(glxosd-libsensors-support PROPERTIES LIBRARY_OUTPUT_DIRECT
 set_target_properties(glxosd-libsensors-support PROPERTIES VERSION ${GLXOSD_VERSION_STRING}
                                           SOVERSION ${GLXOSD_VERSION_MAJOR})
 INSTALL(TARGETS glxosd-libsensors-support
-  LIBRARY DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE}/glxosd
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/glxosd
 )
