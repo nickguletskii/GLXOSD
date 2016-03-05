@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Nick Guletskii
+ * Copyright (C) 2013-2016 Nick Guletskii
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -7,40 +7,24 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#ifndef GLINJECT_HPP_
+#define GLINJECT_HPP_
 
-#ifndef CONFIGURATIONMANAGER_HPP_
-#define CONFIGURATIONMANAGER_HPP_
+#include <GL/glx.h>
+#include <X11/Xlib.h>
 
-#include <boost/any.hpp>
-#include <map>
-#include <stdexcept>
-#include <string>
-#include <typeinfo>
+typedef __GLXextFuncPtr (*gl_function_provider_type)(const GLubyte* name);
+gl_function_provider_type get_gl_function_provider();
 
-namespace glxosd {
-class ConfigurationManager {
-private:
-	std::map<std::string, boost::any> defaultConfiguration;
-	std::map<std::string, boost::any> configuration;
-	const std::map<std::string, boost::any> readConfigChain();
-	void readConfig(std::string path,
-			std::map<std::string, boost::any>& configuration);
-	boost::any __getProperty(std::string key) const;
-public:
-	ConfigurationManager();
-	void addDefaultConfigurationValue(std::string key, boost::any value);
-	template<typename T>
-	T getProperty(std::string key) const {
-		boost::any obj = __getProperty(key);
-		if (obj.type() != typeid(T)) {
-			throw std::runtime_error(
-					"GLXOSD property " + key
-							+ " has an incorrect type! Expected "
-							+ typeid(T).name() + ", got " + obj.type().name());
-		}
-		T val = boost::any_cast<T>(obj);
-		return val;
-	}
-};
-}
-#endif
+void * dlvsym(void *handle, const char *name, const char *ver);
+/*
+ * glinject external API
+ */
+
+/*
+ * Library initialisation/construction hooks
+ */
+__attribute__((constructor)) void glinject_construct();
+__attribute__((destructor)) void glinject_destruct();
+
+#endif /* GLINJECT_HPP_ */

@@ -6,10 +6,15 @@ SET(ATTEMPT_NVIDIA_LINK TRUE CACHE BOOL "If set to true, GLXOSD will link to the
 SET(INSTALLATION_SUFFIX_32 "/lib/i386-linux-gnu/" CACHE STRING "The part of the path to the installation directory for 32 bit libraries that comes after the prefix.")
 SET(INSTALLATION_SUFFIX_64 "/lib/x86_64-linux-gnu/" CACHE STRING "The part of the path to the installation directory for 64 bit libraries that comes after the prefix.")
 
-get_filename_component(OUTPUT_DIR "bin/" ABSOLUTE)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
+
+add_definitions(-DLUA_SOURCECODE_PATH="${CMAKE_SOURCE_DIR}/src/")
 ##### Compiler #####
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++0x")
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=c11")
+SET(CMAKE_C_LINK_EXECUTABLE  "${CMAKE_C_LINK_EXECUTABLE}")
 ##### Set version #####
 set(GLXOSD_VERSION_MAJOR 2)
 set(GLXOSD_VERSION_MINOR 5)
@@ -54,12 +59,22 @@ endif(NOT X11_FOUND)
 find_package(Sensors)
 include_directories(${SENSORS_INCLUDE_DIRS})
 if(NOT SENSORS_FOUND)
-    message(ERROR " libsensors not found!")
-    SET(SENSORS_LIBRARIES "")
+	message(ERROR " libsensors not found!")
+	SET(SENSORS_LIBRARIES "")
 else(NOT SENSORS_FOUND)
-    message(INFO " libsensors found!")
+	message(INFO " libsensors found!")
 	add_definitions( -DFOUND_SENSORS )
 endif(NOT SENSORS_FOUND)
+#Find luajit
+find_package(LuaJIT)
+include_directories(${LUAJIT_INCLUDE_DIR})
+if(NOT LUAJIT_FOUND)
+	message(ERROR " LuaJIT not found!")
+	SET(LUAJIT_LIBRARIES "")
+else(NOT LUAJIT_FOUND)
+	message(INFO " luajit found!")
+	add_definitions( -DFOUND_LUAJIT )
+endif(NOT LUAJIT_FOUND)
 #Find NVCTRL if no additional flag is set
 if(ATTEMPT_NVIDIA_LINK)
 	find_package(NVCTRL)
@@ -72,17 +87,8 @@ if(ATTEMPT_NVIDIA_LINK)
 		add_definitions( -DFOUND_NVCTRL )
 	endif(NOT NVCTRL_FOUND)
 endif(ATTEMPT_NVIDIA_LINK)
-#Find Boost
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON) 
-set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost REQUIRED)
-    include_directories(${Boost_INCLUDE_DIRS})
-if(NOT Boost_FOUND)
-    message(ERROR " Boost not found!")                                                                                                                                                                                                                    
-endif(NOT Boost_FOUND)
 ##### Link to local libraries #####
-link_directories(${OUTPUT_DIR})
+link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 ##### Add subdirectories #####
 add_subdirectory(src)
 
@@ -101,6 +107,6 @@ add_custom_target(glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh
 --installation-suffix-32 ${INSTALLATION_SUFFIX_32}
 --installation-suffix-64 ${INSTALLATION_SUFFIX_64}
 COMMENT "Creating the startup script...")
-add_dependencies(glxosd glxosdlauncher)
-install(PROGRAMS glxosd DESTINATION bin)
+#add_dependencies(glxosd glxosdlauncher)
+#install(PROGRAMS glxosd DESTINATION bin)
 

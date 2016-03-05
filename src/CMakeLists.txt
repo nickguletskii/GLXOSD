@@ -1,21 +1,17 @@
 ##### Add include paths #####
 include_directories(${PROJECT_SOURCE_DIR}/src/elfhacks)
 include_directories(${PROJECT_SOURCE_DIR}/src/glinject)
-include_directories(${PROJECT_SOURCE_DIR}/src/glxosd)
 
+
+SET(freetype-gl_USE_VAO TRUE)
+SET(freetype-gl_BUILD_DEMOS FALSE)
+SET(freetype-gl_BUILD_APIDOC FALSE)
+SET(freetype-gl_BUILD_HARFBUZZ FALSE)
+SET(freetype-gl_BUILD_MAKEFONT FALSE)
 
 ##### Descend into components #####
 add_subdirectory(elfhacks)
 add_subdirectory(glinject)
-add_subdirectory(glxosd)
 
-##### Plugins #####
-if(NVCTRL_FOUND)
-	include_directories(${PROJECT_SOURCE_DIR}/src/glxosd-nvidia-support)
-	add_subdirectory(glxosd-nvidia-support)
-endif(NVCTRL_FOUND)
 
-if(SENSORS_FOUND)
-	include_directories(${PROJECT_SOURCE_DIR}/src/glxosd-libsensors-support)
-	add_subdirectory(glxosd-libsensors-support)
-endif(SENSORS_FOUND)
+add_subdirectory(freetype-gl-glxosd)

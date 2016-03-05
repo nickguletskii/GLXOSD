@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Nick Guletskii
+ * Copyright (C) 2016 Nick Guletskii
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -7,29 +7,12 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-#ifndef COLOUR_HPP_
-#define COLOUR_HPP_
+#include <GL/glew.h>
 #include <GL/gl.h>
-struct ColourRGBA {
-	GLubyte r;
-	GLubyte g;
-	GLubyte b;
-	GLubyte a;
-
-	ColourRGBA() :
-			r(0), g(0), b(0), a(0) {
-
-	}
-
-	ColourRGBA(GLubyte r, GLubyte g, GLubyte b, GLubyte a) :
-			r(r), g(g), b(b), a(a) {
-	}
-
-	ColourRGBA(GLubyte r, GLubyte g, GLubyte b) :
-			r(r), g(g), b(b), a(255) {
-	}
-};
-ColourRGBA operator+(ColourRGBA left, ColourRGBA right);
-ColourRGBA operator*(ColourRGBA left, ColourRGBA right);
+#include <execinfo.h>
+#include <stdio.h>
+#include <stdlib.h>
+#ifndef __GL_DYNAMIC_LOADER_H__
+#define __GL_DYNAMIC_LOADER_H__
+void glinject_dynamic_gl_initialise(const char* libGL_path);
 #endif
