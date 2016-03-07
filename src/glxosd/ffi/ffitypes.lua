@@ -18,35 +18,42 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]
+require("ffi/freetype-gl")
 
-check_gl_error = function ()
-	local flag = false
-	while true do
-		local err = gl.glGetError()
-		if (err == GL_NO_ERROR) then
-			if flag then
-				error("An OpenGL error occurred!")
-			end
-			return
-		end
+ffi_types = {}
 
-		local map = {}
-		map[GL_INVALID_OPERATION] = "INVALID_OPERATION"
-		map[GL_INVALID_ENUM] = "INVALID_ENUM"
-		map[GL_INVALID_VALUE] = "INVALID_VALUE"
-		map[GL_OUT_OF_MEMORY] = "OUT_OF_MEMORY"
-		map[GL_INVALID_FRAMEBUFFER_OPERATION] = "INVALID_FRAMEBUFFER_OPERATION"
-
-		io.stderr:write("OpenGL error: " .. map[err] .. "\n")
-		io.stderr:write(debug.traceback() .. "\n")
-
-		flag = true
-	end
+local types = {
+	"FcResult",
+	"GLboolean",
+	"GLchar",
+	"GLfloat",
+	"GLint",
+	"GLuint",
+	"markup_t",
+	"mat4",
+	"vec2",
+	"vec4",
+	"vertex_t",
+	"timespec",
+	"int",
+	"double"
+}
+for k, v in ipairs(types) do
+	ffi_types[v] = ffi.typeof(v)
+	ffi_types[v .. "_ptr"] = ffi.typeof(v .. "*")
+	ffi_types[v .. "_ref"] = ffi.typeof(v .. "[1]")
+	ffi_types[v .. "_arr"] = ffi.typeof(v .. "[?]")
 end
-skip_gl_error = function ()
-	while true do
-		if (gl.glGetError() == GL_NO_ERROR) then
-			return
-		end
-	end
+
+ffi_types["char_arr"] = ffi.typeof("char[?]")
+ffi_types["const_char_ptr"] = ffi.typeof("const char *")
+ffi_types["const_char_ptr_ref"] = ffi.typeof("const char *[1]")
+ffi_types["const_int_ref"] = ffi.typeof("const int[1]")
+ffi_types["FcChar8_ptr_ref"] = ffi.typeof("FcChar8 *[1]")
+ffi_types["const_FcChar8_ptr"] = ffi.typeof("FcChar8 *")
+ffi_types["char_array_from_string"] =function (str)
+	local out = ffi_types.char_arr(#str+1);
+	ffi.copy(out, ffi.cast(ffi_types.const_char_ptr, str), #str)
+	out[#str] = 0
+	return out
 end

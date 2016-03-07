@@ -18,10 +18,12 @@
 #include <stdbool.h>
 #include <lua.h>
 #include <lualib.h>
+#include <luajit.h>
 #include <lauxlib.h>
 
 void init_gl_frame_hooks();
-void handle_key_event(XEvent* event);
+void handle_key_event(XKeyEvent* event);
+void handle_configure_notify_event(XEvent* event);
 
 static bool initialised = false;
 static lua_State *L;
@@ -57,6 +59,9 @@ DEFINE_REAL_SYMBOL(glXGetProcAddress, __GLXextFuncPtr, (const GLubyte*));
 			ret returnVal = glinject_real_##name param2;\
 			if (event->type == KeyPress) {\
 				handle_key_event(event);\
+			}\
+			if (event->type == ConfigureNotify) {\
+				handle_configure_notify_event(event);\
 			}\
 			return returnVal;\
 		}
@@ -100,10 +105,83 @@ void* get_function_override(const char* name) {
 	return NULL ;
 }
 
+void pushx11keymodifiers(lua_State* L, XKeyEvent *event) {
+	lua_createtable(L, 0, 4);
+	lua_pushliteral(L, "shift");
+	lua_pushboolean(L, (event->state & ShiftMask) != 0);
+	lua_rawset(L, -3);
+
+	lua_pushliteral(L, "caps");
+	lua_pushboolean(L, (event->state & LockMask) != 0);
+	lua_rawset(L, -3);
+
+	lua_pushliteral(L, "control");
+	lua_pushboolean(L, (event->state & ControlMask) != 0);
+	lua_rawset(L, -3);
+
+	lua_pushliteral(L, "alt");
+	lua_pushboolean(L, (event->state & Mod1Mask) != 0);
+	lua_rawset(L, -3);
+}
+
 /*
  * Handlers
  */
+Bool check_if_event(Display *dpy, XEvent* event, GLXDrawable *ctx) {
+	if (event->type == ConfigureNotify) {
+		lua_getglobal(L, "should_consume_configure_notify_event"); /* function to be called */
+		if (!lua_isfunction(L, -1)) {
+			fprintf(stderr,
+					"should_consume_configure_notify_event is not a function!\n");
+			return False;
+		}
+		lua_pushlightuserdata(L, dpy);
+		lua_pushnumber(L, *ctx);
+		if (lua_pcall(L, 2, 1, 0) != 0) {
+			fprintf(stderr, "error running function: %s\n",
+					lua_tostring(L, -1));
+		}
+		if (!lua_isboolean(L, -1)) {
+			fprintf(stderr,
+					"should_consume_configure_notify_event must return a boolean\n");
+		}
+		Bool res = lua_toboolean(L, -1);
+		lua_pop(L, 1);
+		return res;
+	}
+	if (event->type == KeyPress) {
+		lua_getglobal(L, "should_consume_key_press_event"); /* function to be called */
+		if (!lua_isfunction(L, -1)) {
+			fprintf(stderr,
+					"should_consume_key_press_event is not a function!\n");
+			return False;
+		}
+		lua_pushlightuserdata(L, dpy);
+		lua_pushnumber(L, *ctx);
+
+		KeySym ks = XLookupKeysym(event, 0);
+
+		lua_pushstring(L, XKeysymToString(ks));
+		pushx11keymodifiers(L, event);
+		if (lua_pcall(L, 4, 1, 0) != 0) {
+			fprintf(stderr, "error running function: %s\n",
+					lua_tostring(L, -1));
+		}
+		if (!lua_isboolean(L, -1)) {
+			fprintf(stderr,
+					"should_consume_key_press_event must return a boolean\n");
+		}
+		Bool res = lua_toboolean(L, -1);
+		lua_pop(L, 1);
+		return res;
+	}
+	return False;
+}
+
 void handle_buffer_swap(Display* dpy, GLXDrawable ctx) {
+	XEvent event;
+	XCheckIfEvent(dpy, &event, check_if_event, &ctx);
+
 	lua_getglobal(L, "handle_buffer_swap"); /* function to be called */
 	if (!lua_isfunction(L, -1)) {
 		fprintf(stderr, "handle_buffer_swap is not a function!\n");
@@ -115,22 +193,39 @@ void handle_buffer_swap(Display* dpy, GLXDrawable ctx) {
 		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
 	}
 
-//	for (std::map<int, gl_frame_handler>::iterator i = handlers->begin();
-//			i != handlers->end(); i++) {
-//		XEvent event;
-//		XCheckIfEvent(dpy, &event, i->second.event_filter, NULL);
-//		i->second.handle_buffer_swap(dpy, ctx);
-//	}
 }
+
 void handle_context_destruction(Display* dpy, GLXContext ctx) {
 //	for (std::map<int, gl_frame_handler>::iterator i = handlers->begin();
 //			i != handlers->end(); i++)
 //		i->second.handle_context_destruction(dpy, ctx);
 }
-void handle_key_event(XEvent* event) {
-//	for (std::map<int, gl_frame_handler>::iterator i = handlers->begin();
-//			i != handlers->end(); i++)
-//		i->second.handle_keyboard_event(&event->xkey);
+
+void handle_key_event(XKeyEvent* event) {
+	KeySym ks = XLookupKeysym(event, 0);
+
+	lua_getglobal(L, "key_press_event"); /* function to be called */
+	if (!lua_isfunction(L, -1)) {
+		fprintf(stderr, "key_press is not a function!\n");
+		return;
+	}
+	lua_pushstring(L, XKeysymToString(ks));
+	pushx11keymodifiers(L, event);
+
+	if (lua_pcall(L, 2, 0, 0) != 0) {
+		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
+	}
+}
+void handle_configure_notify_event(XEvent* event) {
+	lua_getglobal(L, "configure_notify_event"); /* function to be called */
+	if (!lua_isfunction(L, -1)) {
+		fprintf(stderr, "configure_notify_event is not a function!\n");
+		return;
+	}
+	lua_pushlightuserdata(L, event);
+	if (lua_pcall(L, 1, 0, 0) != 0) {
+		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
+	}
 }
 
 static void assertSymbolLoaded(void* symbol, const char* name) {
@@ -227,8 +322,8 @@ void init_gl_frame_hooks() {
 		exit(-1);
 	}
 
-	void    *handle = dlopen("libGL.so.1", RTLD_LOCAL | RTLD_LAZY);
-	void    *handle2 = dlopen("libX11.so", RTLD_LOCAL | RTLD_LAZY);
+	void *handle = dlopen("libGL.so.1", RTLD_LOCAL | RTLD_LAZY);
+	void *handle2 = dlopen("libX11.so", RTLD_LOCAL | RTLD_LAZY);
 	LOAD_SYMBOL_USING_DLSYM(handle, glXDestroyContext);
 	LOAD_SYMBOL_USING_DLSYM(handle, glXGetProcAddressARB);
 	LOAD_SYMBOL_USING_DLSYM(handle, glXGetProcAddress);
@@ -267,8 +362,6 @@ void glinject_construct() {
 		fprintf(stderr, "%s\n", lua_tostring(L, -1));
 		exit(-1);
 	}
-	lua_getglobal(L, "testVar");
-	fprintf(stdout, "TEST: %s\n", lua_tostring(L, -1));
 }
 void glinject_destruct() {
 	lua_close(L);

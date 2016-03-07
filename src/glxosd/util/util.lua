@@ -18,37 +18,21 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]
-require("ffi/freetype-gl")
 
-ffi_types = {}
-
-local types = {
-	"FcResult",
-	"GLboolean",
-	"GLchar",
-	"GLfloat",
-	"GLint",
-	"GLuint",
-	"markup_t",
-	"mat4",
-	"vec2",
-	"vec4",
-	"vertex_t"
-}
-for k, v in ipairs(types) do
-	ffi_types[v] = ffi.typeof(v)
-	ffi_types[v .. "_ptr"] = ffi.typeof(v .. "*")
-	ffi_types[v .. "_ref"] = ffi.typeof(v .. "[1]")
-	ffi_types[v .. "_arr"] = ffi.typeof(v .. "[?]")
+function log_error(str)
+	io.stderr:write(str.."\n")
+	io.stderr:write(debug.traceback().."\n")
 end
 
-ffi_types["const_char_ptr_ref"] = ffi.typeof("const char *[1]")
-ffi_types["const_int_ref"] = ffi.typeof("const int[1]")
-ffi_types["FcChar8_ptr_ref"] = ffi.typeof("FcChar8 *[1]")
-ffi_types["const_FcChar8_ptr"] = ffi.typeof("FcChar8 *")
-ffi_types["char_array_from_string"] =function (str)
-	local out = ffi.new("char[?]", #str+1);
-	ffi.copy(out,str)
-	out[#str] = 0
-	return out
+function table.insert_all(tbl, ...)
+	for i=1,select('#',...) do
+		local add = select(i,...)
+		table.insert(tbl, add)
+	end
+end
+
+function check_class(tbl, name)
+	assert(type(tbl) == "table", "A "..name.." was required, but got a "..type(tbl))
+	assert(tbl.__class_name, "The provided table is not a "..name)
+	assert(tbl.__class_name==name, "The provided table is a ".. tbl.__class_name.. ", not a "..name)
 end

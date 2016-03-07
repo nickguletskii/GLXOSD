@@ -31,30 +31,12 @@ for k, v in ipairs( packagePaths) do
 end
 package.path = packagePathsCombined ..package.path
 
-local ffi = require("ffi")
-
--- GLXOSD's dynamic GL loader
-ffi.cdef[[
-void glinject_dynamic_gl_initialise(const char* libGL_path);
-]]
-
---Load third part library bindings
-require("ffi/fontconfig")
-require("ffi/gltypes")
-require("gl")
-require("glext")
-require("ffi/glx")
-require("ffi/freetype-gl")
-require("ffi/ffi_types")
+require("util/util")
+require("Bootstrap")
+require("ffi/init")
 
 -- Load OpenGL error handling functions into global scope
-require("rendering/gl_error")
-
---Dynamically load third party libraries
-_G["gl"] = ffi.load( "libGL.so.1", false)
-_G["glew"] = ffi.load( "libGLEW.so", false)
-_G["freetype_gl"] = ffi.load("libglxosd-freetype-gl",false);
-_G["fc"] = ffi.load("libfontconfig",false);
+require("rendering/glerror")
 
 --[[
 	The resource resolver is used to look for additional resources such as
@@ -64,61 +46,95 @@ resource_resolver = function(resource)
 	return glxosdPackageRoot .. "/" .. resource;
 end
 
---Load the required OpenGL functions so that freetype-gl can do its job.
-freetype_gl.glinject_dynamic_gl_initialise("libGL.so.1");
-
 --[[
 	do_when_gl_state_is_normal executes the passed function while the OpenGL
 	state is in a "normal" state and then reverts everything to the state
 	that was set before GLXOSD was called.
 ]]
-local do_when_gl_state_is_normal = require("rendering/normalise_gl_state")
+local normalise = require("rendering/normalise_gl_state")
 
-local text_renderer = require("rendering/text_renderer")
+local Context = require("Context")
 
-function query_drawable(display, drawable, attribute)
-	local res = ffi_types.GLint_ref();
-	gl.glXQueryDrawable(display, drawable,attribute, res);
-	return res[0];
-end
 
-function get_font(name)
-	local fontConfig = fc.FcInitLoadConfigAndFonts();
-	local pattern = fc.FcNameParse(ffi.cast(ffi_types.const_FcChar8_ptr, name));
-	fc.FcConfigSubstitute(fontConfig, pattern, fc.FcMatchPattern);
-	fc.FcDefaultSubstitute(pattern);
-	local result = ffi_types.FcResult_ref();
-	local fontFile;
-	local font = fc.FcFontMatch(fontConfig, pattern, result);
-	if (font) then
-		local file = ffi_types.FcChar8_ptr_ref();
-		if (fc.FcPatternGetString(font, FC_FILE, 0, file) == fc.FcResultMatch) then
-			fontFile = ffi.string(file[0]);
+local contexts = setmetatable({},
+	{
+		__index=function(self, p)
+			if(rawget(self, p.drawable) == nil) then
+				local context = Context.new()
+
+				local glx_info = {
+					width_ref = ffi_types.GLint_ref();
+					height_ref = ffi_types.GLint_ref();
+				}
+				function glx_info:update()
+					gl.glXQueryDrawable(p.display, p.drawable,GLX_WIDTH, self.width_ref);
+					gl.glXQueryDrawable(p.display, p.drawable,GLX_HEIGHT, self.height_ref);
+				end
+				function glx_info:width()
+					if self.width_ref[0] == 0 then
+						glx_info:update()
+					end
+					if self.width_ref[0] == 0 then
+						return 1
+					end
+					return self.width_ref[0];
+				end
+				function glx_info:height()
+					if self.height_ref[0] == 0 then
+						glx_info:update()
+					end
+					if self.height_ref[0] == 0 then
+						return 1
+					end
+					return self.height_ref[0];
+				end
+				context.glx_info = glx_info;
+
+				rawset(self, p.drawable, context)
+			end
+			return rawget(self, p.drawable);
 		end
-		fc.FcPatternDestroy(font);
-	end
-	fc.FcPatternDestroy(pattern);
-	fc.FcConfigDestroy(fontConfig);
-	fc.FcFini();
-	return fontFile;
-end
+	});
 
-local renderer = nil;
 function handle_buffer_swap(display, drawable)
-	local width = query_drawable(display, drawable, GLX_WIDTH);
-	local height = query_drawable(display, drawable, GLX_HEIGHT);
+	local context = contexts[{display=display,drawable=drawable}]
+	context:begin_frame()
+
+	local width = context.glx_info:width();
+	local height = context.glx_info:height();
 
 	local viewport = ffi_types.GLint_arr(4);
 	gl.glGetIntegerv(GL_VIEWPORT, viewport);
 
-	check_gl_error();
-	do_when_gl_state_is_normal(function()
-		if(renderer == nil) then
-			renderer = text_renderer.new(get_font("Ubuntu:style=Bold"), 32);
-		end
-		renderer.setText("hello world: "..width.." "..height.."\nThe quick brown fox jumps over the lazy dog");
-		renderer.render(width, height);
-	end)
+	normalise.do_when_gl_state_is_normal(function()
+		context:render(width, height);
+	end, context)
 
 	gl.glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+	context:end_frame()
+end
+function should_consume_configure_notify_event(display, drawable)
+	for _, context in pairs(contexts) do
+		context.glx_info:update()
+	end
+	return false
+end
+function should_consume_key_press_event(display, drawable, key, modifiers)
+	for _, context in pairs(contexts) do
+		if context:has_keyboard_combo(key, modifiers) then
+			return true
+		end
+	end
+	return false
+end
+
+function key_press_event(key, modifiers)
+	for _, context in pairs(contexts) do
+		context:handle_key_combo(key, modifiers)
+	end
+end
+function configure_notify_event(event)
+	for _, context in pairs(contexts) do
+		context.glx_info:update()
+	end
 end

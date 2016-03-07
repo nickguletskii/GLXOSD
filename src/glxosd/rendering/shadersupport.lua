@@ -24,8 +24,7 @@ local function shader_error(handle, msg)
 	gl.glGetShaderiv(handle, GL_INFO_LOG_LENGTH, infoLogLength)
 	local infoLog = ffi_types.GLchar_arr(infoLogLength[0]+1)
 	gl.glGetShaderInfoLog(handle, infoLogLength[0], nil, infoLog)
-	io.stderr:write(ffi.string(infoLog, infoLogLength[0]))
-	io.stderr:write(debug.traceback() .. "\n")
+	log_error(ffi.string(infoLog, infoLogLength[0]))
 	error(msg)
 end
 

@@ -28,46 +28,58 @@ function new_attrib_state_holder(enableFunc, disableFunc, getFunc)
 			if storage[pname] == nil then
 				storage[pname] = getFunc(pname)
 			end
-			if param == GL_TRUE then
+			if param == GL_TRUE and storage[pname] == GL_FALSE then
 				enableFunc(pname)
 			end
-			if param == GL_FALSE then
+			if param == GL_FALSE and storage[pname] == GL_TRUE then
 				disableFunc(pname)
 			end
 		end,
 		reset_all = function ()
 			for k, v in pairs(storage) do
-				if v == GL_TRUE then
-					enableFunc(k)
-				else
-					disableFunc(k)
+				local current = getFunc(k)
+				if(current ~= v) then
+					if v == GL_TRUE then
+						enableFunc(k)
+					else
+						disableFunc(k)
+					end
 				end
 			end
 		end
 	}
 end
+local program = ffi_types.GLint_ref()
+local front_face = ffi_types.GLint_ref()
+local blend_color = ffi_types.GLfloat_arr(4)
+local colour_mask = ffi_types.GLboolean_arr(4)
+local blend_src = ffi_types.GLint_ref()
+local blend_dst = ffi_types.GLint_ref()
+local pixel_unpack_buffer_binding = ffi_types.GLint_ref()
+local arra_buffer_binding = ffi_types.GLint_ref()
+local active_texture = ffi_types.GLint_ref()
+local vertex_array_binding = ffi_types.GLint_ref()
+local element_array_binding = ffi_types.GLint_ref()
+local draw_framebuffer_binding = ffi_types.GLint_ref()
+local read_framebuffer_binding = ffi_types.GLint_ref()
+local gl_polygon_mode = ffi_types.GLint_ref()
+local unpack_swap_buffers = ffi_types.GLint_ref()
+local unpack_lsb_first = ffi_types.GLint_ref()
+local unpack_row_length = ffi_types.GLint_ref()
+local unpack_image_height = ffi_types.GLint_ref()
+local unpack_skip_rows = ffi_types.GLint_ref()
+local unpack_skip_pixels = ffi_types.GLint_ref()
+local unpack_skip_images = ffi_types.GLint_ref()
+local unpack_alignment = ffi_types.GLint_ref()
+local texture_binding_2d = ffi_types.GLint_ref()
+local sampler_binding = ffi_types.GLint_ref()
 function normalise(when_normalised)
 
 	-- BEGIN MEMORISE AND SET MISC
-	local program = ffi_types.GLint_ref()
-
 	gl.glGetIntegerv(GL_CURRENT_PROGRAM, program)
-
-	local front_face = ffi_types.GLint_ref()
-
 	gl.glGetIntegerv(GL_FRONT_FACE, front_face)
-
-	local blend_color = ffi_types.GLfloat_arr(4)
-
 	gl.glGetFloatv(GL_BLEND_COLOR, blend_color)
-
-	local colour_mask = ffi_types.GLboolean_arr(4)
-
 	gl.glGetBooleanv(GL_COLOR_WRITEMASK, colour_mask)
-
-	local blend_src = ffi_types.GLint_ref()
-	local blend_dst = ffi_types.GLint_ref()
-
 	gl.glGetIntegerv(GL_BLEND_SRC, blend_src)
 	gl.glGetIntegerv(GL_BLEND_DST, blend_dst)
 	-- END MEMORISE AND SET MISC
@@ -98,16 +110,6 @@ function normalise(when_normalised)
 	-- END MEMORISE AND SET ATTRIB
 
 	-- BEGIN MEMORISE BUFFER STATE
-	local pixel_unpack_buffer_binding = ffi_types.GLint_ref()
-	local arra_buffer_binding = ffi_types.GLint_ref()
-	local active_texture = ffi_types.GLint_ref()
-	local vertex_array_binding = ffi_types.GLint_ref()
-	local element_array_binding = ffi_types.GLint_ref()
-	local draw_framebuffer_binding = ffi_types.GLint_ref()
-	local read_framebuffer_binding = ffi_types.GLint_ref()
-	local gl_polygon_mode = ffi_types.GLint_ref()
-
-
 	gl.glGetIntegerv(GL_PIXEL_UNPACK_BUFFER_BINDING, pixel_unpack_buffer_binding)
 	gl.glGetIntegerv(GL_ARRAY_BUFFER_BINDING, arra_buffer_binding)
 	gl.glGetIntegerv(GL_ACTIVE_TEXTURE, active_texture)
@@ -119,14 +121,6 @@ function normalise(when_normalised)
 	-- END MEMORISE BUFFER STATE
 
 	-- BEGIN MEMORISE UNPACK STATES
-	local unpack_swap_buffers = ffi_types.GLint_ref()
-	local unpack_lsb_first = ffi_types.GLint_ref()
-	local unpack_row_length = ffi_types.GLint_ref()
-	local unpack_image_height = ffi_types.GLint_ref()
-	local unpack_skip_rows = ffi_types.GLint_ref()
-	local unpack_skip_pixels = ffi_types.GLint_ref()
-	local unpack_skip_images = ffi_types.GLint_ref()
-	local unpack_alignment = ffi_types.GLint_ref()
 	gl.glGetIntegerv(GL_UNPACK_SWAP_BYTES, unpack_swap_buffers)
 	gl.glGetIntegerv(GL_UNPACK_LSB_FIRST, unpack_lsb_first)
 	gl.glGetIntegerv(GL_UNPACK_ROW_LENGTH, unpack_row_length)
@@ -138,8 +132,6 @@ function normalise(when_normalised)
 	-- END MEMORISE UNPACK STATES
 
 	-- BEGIN MEMORISE GL_TEXTURE_0
-	local texture_binding_2d = ffi_types.GLint_ref()
-	local sampler_binding = ffi_types.GLint_ref()
 	gl.glActiveTexture(GL_TEXTURE0)
 	gl.glGetIntegerv(GL_SAMPLER_BINDING, sampler_binding)
 	gl.glGetIntegerv(GL_TEXTURE_BINDING_2D, texture_binding_2d)
@@ -174,8 +166,7 @@ function normalise(when_normalised)
 	-- END NORMALISE
 
 	local status, err = xpcall(when_normalised, function(x)
-		io.stderr:write("Coudln't run renderer function. OpenGL state will be restored.\n")
-		io.stderr:write(debug.traceback(x) .. "\n")
+		log_error("Coudln't run renderer function. OpenGL state will be restored.")
 		return x;
 	end)
 
@@ -221,11 +212,13 @@ function normalise(when_normalised)
 	gl.glFrontFace(front_face[0])
 	gl.glUseProgram(program[0])
 	-- END RESET MISC
-	
+
 	if not status then
 		error(err)
 	end
 end
 
 
-return normalise
+return {
+	do_when_gl_state_is_normal = normalise
+}
