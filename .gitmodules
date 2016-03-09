@@ -1,0 +1,6 @@
+[submodule "src/LJIT2Khronos"]
+	path = src/LJIT2Khronos
+	url = https://github.com/Wiladams/LJIT2Khronos.git
+[submodule "src/freetype-gl-glxosd/freetype-gl"]
+	path = src/freetype-gl-glxosd/freetype-gl
+	url = https://github.com/rougier/freetype-gl.git
