@@ -145,9 +145,6 @@ function TextRenderer:print_text(pen, text)
 			self.config.outline.color,
 			self.config.outline.thickness,
 			font)
-		print("lol:")
-		print(cur[0].size)
-		print(cur[0].font[0].size)
 		freetype_gl.text_buffer_printf( self.buffer1, pen1,
 			cur, ffi_types.char_array_from_string(markup_element.text), nil)
 		freetype_gl.text_buffer_align( self.buffer1, pen1, freetype_gl.ALIGN_LEFT )
@@ -210,7 +207,7 @@ function TextRenderer:init(config)
 	self.font_cache = setmetatable({},
 		{
 			__index=function(self, font_request)
-				local key = table.concat(font_request, ",")
+				local key = font_request.font_family.."#"..font_request.font_size
 				if(rawget(self, key) == nil) then
 					local font_file = ffi_types.char_array_from_string(FontUtil.get_font(font_request.font_family))
 
