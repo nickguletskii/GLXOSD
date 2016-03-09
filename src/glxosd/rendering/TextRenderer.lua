@@ -75,33 +75,36 @@ local TextRenderer = {
 
 TextRenderer.__index = TextRenderer;
 
-function TextRenderer:build_outline_markup(normal, type, color, thickness)
+function TextRenderer:build_outline_markup(normal, type, color, thickness, font)
 	local outline = ffi_types.markup_t_ref(normal)
 
 	if type~="none" then
 		outline[0].outline=1
 		outline[0].foreground_color = ffi_types.vec4(self.config.outline.color)
 	end
-	outline[0].font = self.font2
+	outline[0].font = font.outline
 	return outline
 end
 
 function TextRenderer:print_text(pen, text)
 	local pen1 = ffi_types.vec2(pen)
 	local pen2 = ffi_types.vec2(pen)
-	
+
 	local char_count = 0
 	for _, markup_element in ipairs(text) do
 		char_count = char_count + #(markup_element.text)
 	end
-	
+
 	if char_count == 0 then
 		table.insert(text, MarkupElement.new({text="No data available!\n"}))
 	end
-	
+
 	for _, markup_element in ipairs(text) do
 		markup_element:check()
 		local cur = ffi_types.markup_t_ref(self.normal)
+		if markup_element.font_size then
+			cur[0].size = markup_element.font_size
+		end
 		if markup_element.gamma then
 			cur[0].gamma = markup_element.gamma
 		end
@@ -129,9 +132,22 @@ function TextRenderer:print_text(pen, text)
 		if markup_element.strikethrough and markup_element.strikethrough.color then
 			cur[0].strikethrough_color = markup_element.strikethrough.color
 		end
+		local font_family = markup_element.font or self.config.font
+		local font_size = markup_element.font_size or self.config.font_size
+		local font = self.font_cache[{
+			font_family=font_family,
+			font_size=font_size
+		}]
+		cur[0].font = font.main
 		local cur_outline= self:build_outline_markup(cur,
+			self.config.outline.type,
 			cur[0].outline_color or
-			self.config.outline.color)
+			self.config.outline.color,
+			self.config.outline.thickness,
+			font)
+		print("lol:")
+		print(cur[0].size)
+		print(cur[0].font[0].size)
 		freetype_gl.text_buffer_printf( self.buffer1, pen1,
 			cur, ffi_types.char_array_from_string(markup_element.text), nil)
 		freetype_gl.text_buffer_align( self.buffer1, pen1, freetype_gl.ALIGN_LEFT )
@@ -175,11 +191,44 @@ function TextRenderer:render (width, height)
 
 	freetype_gl.text_buffer_render(self.buffer1 )
 	freetype_gl.text_buffer_render(self.buffer2 )
-
 end
+
+function TextRenderer:setup_matrices()
+	self.model = ffi_types.mat4_ref()
+	self.view = ffi_types.mat4_ref()
+	self.projection = ffi_types.mat4_ref()
+	freetype_gl.mat4_set_identity(self.projection)
+	freetype_gl.mat4_set_identity(self.model)
+	freetype_gl.mat4_set_identity(self.view)
+end
+
 
 function TextRenderer:init(config)
 	self.config = config
+
+	local s = self
+	self.font_cache = setmetatable({},
+		{
+			__index=function(self, font_request)
+				local key = table.concat(font_request, ",")
+				if(rawget(self, key) == nil) then
+					local font_file = ffi_types.char_array_from_string(FontUtil.get_font(font_request.font_family))
+
+					local new = {
+						main = freetype_gl.texture_font_new_from_file(s.buffer1[0].manager[0].atlas, font_request.font_size, font_file),
+						outline =freetype_gl.texture_font_new_from_file(s.buffer2[0].manager[0].atlas, font_request.font_size, font_file),
+					}
+
+					new.outline[0].outline_type = OUTLINE_TYPES[s.config.outline.type]
+					new.outline[0].outline_thickness = s.config.outline.thickness
+
+					rawset(self, key, new)
+				end
+				return rawget(self, key);
+			end
+		})
+
+	self:setup_matrices()
 
 	self.shader = shader_support.create_shader_program(vertex_shader, fragment_shader)
 
@@ -188,23 +237,10 @@ function TextRenderer:init(config)
 	self.buffer2 = freetype_gl.text_buffer_new_with_program(lcd_filter_mode, self.shader)
 	self.buffer1 = freetype_gl.text_buffer_new_with_program(lcd_filter_mode, self.shader)
 
-
-	self.font_file = FontUtil.get_font(config.font)
-	self.fontFileC1 = ffi_types.char_array_from_string(self.font_file)
-	self.fontFileC2 = ffi_types.char_array_from_string(self.font_file)
-
-	self.font2  = freetype_gl.texture_font_new_from_file(self.buffer2[0].manager[0].atlas, config.font_size, self.fontFileC2)
-	self.font1  = freetype_gl.texture_font_new_from_file(self.buffer1[0].manager[0].atlas, config.font_size, self.fontFileC1)
-	self.font2[0].outline_type = OUTLINE_TYPES[config.outline.type]
-	self.font2[0].outline_thickness = config.outline.thickness
-
-	self.model = ffi_types.mat4_ref()
-	self.view = ffi_types.mat4_ref()
-	self.projection = ffi_types.mat4_ref()
-	freetype_gl.mat4_set_identity(self.projection)
-	freetype_gl.mat4_set_identity(self.model)
-	freetype_gl.mat4_set_identity(self.view)
-
+	self.default_fonts = self.font_cache[{
+		font_family=config.font,
+		font_size=config.font_size
+	}]
 
 	local normal =  ffi_types.markup_t_ref()
 	normal[0].family = fontFileC
@@ -221,7 +257,7 @@ function TextRenderer:init(config)
 	normal[0].strikethrough =  config.strikethrough.enabled and 1 or 0
 	normal[0].strikethrough_color = config.strikethrough.color
 	normal[0].outline = 0
-	normal[0].font = self.font1
+	normal[0].font = self.default_fonts.main
 
 	self.normal = normal
 
@@ -231,7 +267,7 @@ function TextRenderer.new(config)
 	ConfigurationManager.check_schema(config,
 		CONFIG_SCHEMA, false, "[text renderer configuration]")
 
-	local self ={}
+	local self = {}
 	setmetatable(self, TextRenderer)
 
 	self:init(config)

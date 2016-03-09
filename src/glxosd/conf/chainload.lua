@@ -1,1 +1,1 @@
-return {"/etc/glxosd/", "~/", glxosdPackageRoot.."/glxosd/conf/"}
+return { glxosdPackageRoot.."/glxosd/conf/", "~/", "/etc/glxosd/"}

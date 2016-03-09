@@ -23,7 +23,8 @@ return function(self, el)
 	end
 
 	return {
-		el.new({text="FPS: "}),
+		el.new({text="FPS: ",
+			font_size=16}),
 		el.new({
 			text=string.format("%.2f",fps),
 			color=fps_color
