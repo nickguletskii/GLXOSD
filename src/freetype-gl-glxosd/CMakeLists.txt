@@ -1,3 +1,4 @@
+include(GNUInstallDirs)
 
 SET(freetype-gl_USE_VAO TRUE)
 SET(freetype-gl_BUILD_DEMOS FALSE)
@@ -28,3 +29,6 @@ set_target_properties(freetype-gl-shared PROPERTIES LIBRARY_OUTPUT_NAME glxosd-f
 set_target_properties(freetype-gl-shared PROPERTIES VERSION ${FREETYPE-GL_VERSION_STRING}
         SOVERSION ${FREETYPE-GL_VERSION_MAJOR})
 set_target_properties(freetype-gl-shared PROPERTIES LINKER_LANGUAGE C)
+INSTALL(TARGETS freetype-gl-shared
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/glxosd
+)

@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 project (glxosd)
+include(GNUInstallDirs)
 
 ##### Parameters #####
 SET(ATTEMPT_NVIDIA_LINK TRUE CACHE BOOL "If set to true, GLXOSD will link to the NVIDIA driver to display the GPU's temperature.")
@@ -11,7 +12,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
 
-add_definitions(-DLUA_SOURCECODE_PATH="${CMAKE_SOURCE_DIR}/src/")
+add_definitions(-DLUA_SOURCECODE_PATH="${CMAKE_INSTALL_FULL_DATAROOTDIR}/glxosd/")
 ##### Compiler #####
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=c11")
 SET(CMAKE_C_LINK_EXECUTABLE  "${CMAKE_C_LINK_EXECUTABLE}")
@@ -97,8 +98,11 @@ install(FILES "fonts/CPMono_v07/CPMono_v07_Bold.ttf"  DESTINATION /usr/share/fon
 install(SCRIPT "${CMAKE_SOURCE_DIR}/TriggerFontConfig.cmake")
 
 ##### Instal config #####
-install(FILES conf/glxosd.conf DESTINATION /etc)
+install(FILES conf/glxosd.conf DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/)
 
+##### Install src #####
+INSTALL(DIRECTORY src/glxosd DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/)
+INSTALL(DIRECTORY src/LJIT2Khronos DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/)
 ##### Create launcher #####
 message(INFO "BUILDING LAUNCHER!")
 add_custom_target(glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh
@@ -106,7 +110,8 @@ add_custom_target(glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh
 --installation-prefix ${CMAKE_INSTALL_PREFIX}
 --installation-suffix-32 ${INSTALLATION_SUFFIX_32}
 --installation-suffix-64 ${INSTALLATION_SUFFIX_64}
+--cmake-install-full-datarootdir ${CMAKE_INSTALL_FULL_DATAROOTDIR}
 COMMENT "Creating the startup script...")
-#add_dependencies(glxosd glxosdlauncher)
-#install(PROGRAMS glxosd DESTINATION bin)
+add_dependencies(glinject glxosdlauncher)
+install(PROGRAMS glxosd DESTINATION bin)
 

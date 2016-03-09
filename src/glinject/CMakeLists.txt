@@ -1,3 +1,4 @@
+include(GNUInstallDirs)
 set(GLINJECT_VERSION_MAJOR 2)
 set(GLINJECT_VERSION_MINOR 2)
 set(GLINJECT_VERSION_PATCH 1)
@@ -9,5 +10,5 @@ set_target_properties(glinject PROPERTIES LIBRARY_OUTPUT_NAME glxosd-glinject)
 set_target_properties(glinject PROPERTIES VERSION ${GLINJECT_VERSION_STRING}
                                           SOVERSION ${GLINJECT_VERSION_MAJOR})
 INSTALL(TARGETS glinject
-  LIBRARY DESTINATION lib/${CMAKE_LIBRARY_ARCHITECTURE}/glxosd
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/glxosd
 )
