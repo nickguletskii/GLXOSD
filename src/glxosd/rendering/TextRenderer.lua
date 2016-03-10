@@ -169,7 +169,7 @@ end
 
 function TextRenderer:render (width, height)
 	freetype_gl.mat4_set_translation(self.model, 0, height - self.bounds.y, 0)
-	gl.glViewport(0, 0, width, height)
+	gl.glViewport(0, 0, ffi.cast(ffi_types.GLsizei, width), ffi.cast(ffi_types.GLsizei, height))
 
 	gl.glEnable(GL_BLEND)
 	gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)

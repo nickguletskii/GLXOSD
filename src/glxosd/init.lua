@@ -63,8 +63,8 @@ local contexts = setmetatable({},
 				local context = Context.new()
 
 				local glx_info = {
-					width_ref = ffi_types.GLint_ref();
-					height_ref = ffi_types.GLint_ref();
+					width_ref = ffi_types.GLuint_ref();
+					height_ref = ffi_types.GLuint_ref();
 				}
 				function glx_info:update()
 					gl.glXQueryDrawable(p.display, p.drawable,GLX_WIDTH, self.width_ref);
@@ -110,7 +110,7 @@ function handle_buffer_swap(display, drawable)
 		context:render(width, height);
 	end, context)
 
-	gl.glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+	gl.glViewport(ffi.cast(ffi_types.GLint,viewport[0]),ffi.cast(ffi_types.GLint,viewport[1]),ffi.cast(ffi_types.GLuint,viewport[2]),ffi.cast(ffi_types.GLuint,viewport[3]));
 	context:end_frame()
 end
 function should_consume_configure_notify_event(display, drawable)

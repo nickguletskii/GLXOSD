@@ -323,7 +323,7 @@ void init_gl_frame_hooks() {
 	}
 
 	void *handle = dlopen("libGL.so.1", RTLD_LOCAL | RTLD_LAZY);
-	void *handle2 = dlopen("libX11.so", RTLD_LOCAL | RTLD_LAZY);
+	void *handle2 = dlopen("libX11.so.6", RTLD_LOCAL | RTLD_LAZY);
 	LOAD_SYMBOL_USING_DLSYM(handle, glXDestroyContext);
 	LOAD_SYMBOL_USING_DLSYM(handle, glXGetProcAddressARB);
 	LOAD_SYMBOL_USING_DLSYM(handle, glXGetProcAddress);

@@ -29,6 +29,8 @@ local types = {
 	"GLfloat",
 	"GLint",
 	"GLuint",
+	"GLsizei",
+	"GLenum",
 	"markup_t",
 	"mat4",
 	"vec2",
