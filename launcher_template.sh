@@ -49,7 +49,7 @@ GLXOSD_LIBRARY_PATH_I386="{{GLXOSD_LIBRARY_PATH_I386}}"
 GLXOSD_LIBRARY_PATH_AMD64="{{GLXOSD_LIBRARY_PATH_AMD64}}"
 
 export LD_LIBRARY_PATH="${STEAM_OVERLAY_LIB_PATHS}:${GLXOSD_LIBRARY_PATH_I386}:${GLXOSD_LIBRARY_PATH_AMD64}:${LD_LIBRARY_PATH}"
-export LD_PRELOAD="${GLXOSD_PRELOAD}:${STEAM_OVERLAY_LIBS}:libglxosd-elfhacks.so:libglxosd-glinject.so:libglxosd-freetype-gl.so:libluajit-5.1.so:${LD_PRELOAD}"
+export LD_PRELOAD="${GLXOSD_PRELOAD}:${STEAM_OVERLAY_LIBS}:libglxosd-elfhacks.so:libglxosd-glinject.so:libglxosd-freetype-gl.so:libluajit-5.1.so.2:${LD_PRELOAD}"
 export GLINJECT_BOOTSTRAP_SCRIPT="{{GLXOSD_SHARED_PATH}}/glxosd/init.lua"
 
 export GLINJECT_CONSTRUCTORS="constructGLXOSD"

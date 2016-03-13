@@ -103,6 +103,7 @@ install(FILES conf/glxosd.conf DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/)
 ##### Install src #####
 INSTALL(DIRECTORY src/glxosd DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/)
 INSTALL(DIRECTORY src/LJIT2Khronos DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/)
+INSTALL(DIRECTORY src/freetype-gl-glxosd DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/)
 ##### Create launcher #####
 message(INFO "BUILDING LAUNCHER!")
 add_custom_target(glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh
