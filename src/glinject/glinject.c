@@ -26,7 +26,7 @@ void handle_key_event(XKeyEvent* event);
 void handle_configure_notify_event(XEvent* event);
 
 static bool initialised = false;
-static lua_State *L;
+static lua_State *L = 0;
 
 typedef Bool (*XIfEvent_predicate_type)(Display* display, XEvent* event,
 		XPointer pointer);
@@ -52,19 +52,9 @@ DEFINE_REAL_SYMBOL(glXGetProcAddressARB, __GLXextFuncPtr, (const GLubyte*));
 
 DEFINE_REAL_SYMBOL(glXGetProcAddress, __GLXextFuncPtr, (const GLubyte*));
 
-#define DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(name, ret, param, param2)\
+#define DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(name, ret, param)\
 		DEFINE_REAL_SYMBOL(name, ret, param);\
-		extern ret name param {\
-			init_gl_frame_hooks();\
-			ret returnVal = glinject_real_##name param2;\
-			if (event->type == KeyPress) {\
-				handle_key_event(event);\
-			}\
-			if (event->type == ConfigureNotify) {\
-				handle_configure_notify_event(event);\
-			}\
-			return returnVal;\
-		}
+		ret name param
 
 #define LOAD_SYMBOL_USING_DLSYM(lib, x)\
 	glinject_real_##x = (glinject_##x##_type) \
@@ -75,9 +65,53 @@ DEFINE_REAL_SYMBOL(glXGetProcAddress, __GLXextFuncPtr, (const GLubyte*));
 	glinject_real_##x = (glinject_##x##_type) \
 	glinject_real_glXGetProcAddress((const GLubyte*)#x);
 
-#include "overrides.h"
+void handle_event(XEvent* event) {
+	if (event->type == KeyPress) {
+		handle_key_event(event);
+	}
 
-#undef DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL
+	if (event->type == ConfigureNotify) {
+		handle_configure_notify_event(event);
+	}
+}
+
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL
+(XCheckIfEvent, Bool, (Display* display, XEvent* event, XIfEvent_predicate_type predicate, XPointer arg)) {
+	Bool return_val = glinject_real_XCheckIfEvent(display, event, predicate,
+			arg);
+	if (return_val) {
+		handle_event(event);
+	}
+	return return_val;
+}
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XIfEvent, int,
+		(Display* display, XEvent* event, XIfEvent_predicate_type predicate, XPointer pointer)) {
+	int return_val = glinject_real_XIfEvent(display, event, predicate, pointer);
+	handle_event(event);
+	return return_val;
+}
+
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XMaskEvent, int,
+		(Display* display, long mask, XEvent* event)) {
+	int return_val = glinject_real_XMaskEvent(display, mask, event);
+	handle_event(event);
+	return return_val;
+}
+
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XNextEvent, int,
+		(Display* display, XEvent* event)) {
+	int return_val = glinject_real_XNextEvent(display, event);
+	handle_event(event);
+	return return_val;
+}
+
+DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XWindowEvent, int,
+		(Display* display, Window window, long mask, XEvent* event)) {
+	int return_val = glinject_real_XWindowEvent(display, window, mask, event);
+	handle_event(event);
+	return return_val;
+}
+
 
 /*
  * Initialisation of the overriden functions list
@@ -127,7 +161,7 @@ void pushx11keymodifiers(lua_State* L, XKeyEvent *event) {
 /*
  * Handlers
  */
-Bool check_if_event(Display *dpy, XEvent* event, GLXDrawable *ctx) {
+Bool check_if_event(XEvent* event) {
 	if (event->type == ConfigureNotify) {
 		lua_getglobal(L, "should_consume_configure_notify_event"); /* function to be called */
 		if (!lua_isfunction(L, -1)) {
@@ -135,9 +169,8 @@ Bool check_if_event(Display *dpy, XEvent* event, GLXDrawable *ctx) {
 					"should_consume_configure_notify_event is not a function!\n");
 			return False;
 		}
-		lua_pushlightuserdata(L, dpy);
-		lua_pushnumber(L, *ctx);
-		if (lua_pcall(L, 2, 1, 0) != 0) {
+		pushx11keymodifiers(L, event);
+		if (lua_pcall(L, 1, 1, 0) != 0) {
 			fprintf(stderr, "error running function: %s\n",
 					lua_tostring(L, -1));
 		}
@@ -156,14 +189,12 @@ Bool check_if_event(Display *dpy, XEvent* event, GLXDrawable *ctx) {
 					"should_consume_key_press_event is not a function!\n");
 			return False;
 		}
-		lua_pushlightuserdata(L, dpy);
-		lua_pushnumber(L, *ctx);
 
 		KeySym ks = XLookupKeysym(event, 0);
 
 		lua_pushstring(L, XKeysymToString(ks));
 		pushx11keymodifiers(L, event);
-		if (lua_pcall(L, 4, 1, 0) != 0) {
+		if (lua_pcall(L, 2, 1, 0) != 0) {
 			fprintf(stderr, "error running function: %s\n",
 					lua_tostring(L, -1));
 		}
@@ -180,7 +211,7 @@ Bool check_if_event(Display *dpy, XEvent* event, GLXDrawable *ctx) {
 
 void handle_buffer_swap(Display* dpy, GLXDrawable ctx) {
 	XEvent event;
-	XCheckIfEvent(dpy, &event, check_if_event, &ctx);
+	XCheckIfEvent(dpy, &event, check_if_event, NULL);
 
 	lua_getglobal(L, "handle_buffer_swap"); /* function to be called */
 	if (!lua_isfunction(L, -1)) {

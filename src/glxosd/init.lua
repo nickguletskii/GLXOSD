@@ -113,13 +113,13 @@ function handle_buffer_swap(display, drawable)
 	gl.glViewport(ffi.cast(ffi_types.GLint,viewport[0]),ffi.cast(ffi_types.GLint,viewport[1]),ffi.cast(ffi_types.GLuint,viewport[2]),ffi.cast(ffi_types.GLuint,viewport[3]));
 	context:end_frame()
 end
-function should_consume_configure_notify_event(display, drawable)
+function should_consume_configure_notify_event()
 	for _, context in pairs(contexts) do
 		context.glx_info:update()
 	end
 	return false
 end
-function should_consume_key_press_event(display, drawable, key, modifiers)
+function should_consume_key_press_event(key, modifiers)
 	for _, context in pairs(contexts) do
 		if context:has_keyboard_combo(key, modifiers) then
 			return true
