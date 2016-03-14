@@ -74,7 +74,7 @@ local function features(chip)
 		end
 		local name = ffi.string(feature[0].name)
 		local label_s = sens.sensors_get_label(chip,feature[0])
-		if label_s ~= nil and ffi.C.strlen(label_s)>0 then
+		if label_s ~= nil then
 			local label = ffi.string(label_s);
 			ffi.C.free(label_s)
 			features[name] = {
