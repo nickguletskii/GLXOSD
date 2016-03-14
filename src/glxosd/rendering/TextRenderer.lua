@@ -261,12 +261,12 @@ function TextRenderer:init(config)
 end
 
 function TextRenderer:destroy()
-	freetype_gl.texture_buffer_delete(self.buffer1)
-	freetype_gl.texture_buffer_delete(self.buffer2)
 	for k, v in pairs(self.font_cache) do
 		freetype_gl.texture_font_delete(v.main)
 		freetype_gl.texture_font_delete(v.outline)
 	end
+	freetype_gl.text_buffer_delete(self.buffer1)
+	freetype_gl.text_buffer_delete(self.buffer2)
 end
 
 function TextRenderer.new(config)

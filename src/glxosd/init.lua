@@ -59,16 +59,19 @@ local Context = require("Context")
 local contexts = setmetatable({},
 	{
 		__index=function(self, p)
-			if(rawget(self, p.drawable) == nil) then
+			if(rawget(self, p.context_id) == nil) then
 				local context = Context.new()
 
 				local glx_info = {
-					width_ref = ffi_types.GLuint_ref();
-					height_ref = ffi_types.GLuint_ref();
+					width_ref = ffi_types.GLuint_ref(),
+					height_ref = ffi_types.GLuint_ref(),
+					drawable = p.drawable,
+					display = p.display,
+					context_id = p.context_id
 				}
 				function glx_info:update()
-					gl.glXQueryDrawable(p.display, p.drawable,GLX_WIDTH, self.width_ref);
-					gl.glXQueryDrawable(p.display, p.drawable,GLX_HEIGHT, self.height_ref);
+					gl.glXQueryDrawable(self.display, self.drawable,GLX_WIDTH, self.width_ref);
+					gl.glXQueryDrawable(self.display, self.drawable,GLX_HEIGHT, self.height_ref);
 				end
 				function glx_info:width()
 					if self.width_ref[0] == 0 then
@@ -94,14 +97,17 @@ local contexts = setmetatable({},
 				end
 				context.glx_info = glx_info;
 
-				rawset(self, p.drawable, context)
+				rawset(self, p.context_id, context)
 			end
-			return rawget(self, p.drawable);
+			return rawget(self, p.context_id);
+		end,
+		__newindex=function(self, p, v)
+			rawset(self, p.context_id, v)
 		end
 	});
 
-function handle_buffer_swap(display, drawable)
-	local context = contexts[{display=display,drawable=drawable}]
+function handle_buffer_swap(display, context_id, drawable)
+	local context = contexts[{display=display,context_id=context_id, drawable=drawable}]
 	context:begin_frame()
 
 	local width = context.glx_info:width();
@@ -118,10 +124,11 @@ function handle_buffer_swap(display, drawable)
 	context:end_frame()
 end
 
-function handle_context_destruction(display, drawable)
-	contexts[{display=display,drawable=drawable}]:destroy()
+function handle_context_destruction(display, context_id)
+	contexts[{display=display,context_id=context_id}]:destroy()
 
-	contexts[{display=display,drawable=drawable}] = nil
+	contexts[{display=display,context_id=context_id}] = nil
+	collectgarbage()
 end
 
 function should_consume_configure_notify_event()

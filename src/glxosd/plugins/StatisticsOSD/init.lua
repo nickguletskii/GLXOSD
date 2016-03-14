@@ -95,7 +95,7 @@ function StatisticsOSD:handle_key_combo(key, modifiers)
 	end
 end
 function StatisticsOSD:destroy()
-	self.text_render:destroy()
+	self.text_renderer:destroy()
 end
 function StatisticsOSD.new(config)
 	local self ={}

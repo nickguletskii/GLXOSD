@@ -75,30 +75,6 @@ void handle_event(XEvent* event) {
 	}
 
 }
-DEFINE_AND_OVERLOAD(glXDestroyPixmap, void, (Display *dpy, GLXPixmap pixmap)) {
-	init_gl_frame_hooks();
-	handle_context_destruction(dpy, pixmap);
-	glinject_real_glXDestroyPixmap(dpy, pixmap);
-}
-
-DEFINE_AND_OVERLOAD( glXDestroyWindow,void,(Display *dpy, GLXWindow win) ) {
-	init_gl_frame_hooks();
-	handle_context_destruction(dpy, win);
-	glinject_real_glXDestroyWindow(dpy, win);
-}
-
-DEFINE_AND_OVERLOAD( glXDestroyGLXPixmap,void,(Display *dpy, GLXPixmap pix)) {
-	init_gl_frame_hooks();
-	handle_context_destruction(dpy, pix);
-	glinject_real_glXDestroyGLXPixmap(dpy, pix);
-}
-
-DEFINE_AND_OVERLOAD( glXDestroyPbuffer,void,(Display *dpy, GLXPbuffer pbuf)) {
-	init_gl_frame_hooks();
-	handle_context_destruction(dpy, pbuf);
-	glinject_real_glXDestroyPbuffer(dpy, pbuf);
-}
-
 DEFINE_AND_OVERLOAD( glXDestroyContext,void,(Display *dpy, GLXContext ctx) ) {
 	init_gl_frame_hooks();
 	handle_context_destruction(dpy, ctx);
@@ -238,7 +214,7 @@ Bool check_if_event(XEvent* event) {
 	return False;
 }
 
-void handle_buffer_swap(Display* dpy, GLXDrawable ctx) {
+void handle_buffer_swap(Display* dpy, GLXDrawable drawable) {
 	XEvent event;
 	XCheckIfEvent(dpy, &event, check_if_event, NULL);
 
@@ -248,23 +224,30 @@ void handle_buffer_swap(Display* dpy, GLXDrawable ctx) {
 		fprintf(stderr, "handle_buffer_swap is not a function!\n");
 		return;
 	}
+	int context_id;
+	GLXContext context = glXGetCurrentContext();
+	glXQueryContext(dpy, context, GLX_FBCONFIG_ID, &context_id);
 	lua_pushlightuserdata(L, dpy);
-	lua_pushnumber(L, ctx);
-	if (lua_pcall(L, 2, 0, 0) != 0) {
+	lua_pushnumber(L, context_id);
+	lua_pushnumber(L, drawable);
+	if (lua_pcall(L, 3, 0, 0) != 0) {
 		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
 	}
 	pthread_mutex_unlock(&glinject_mutex);
 }
 
-void handle_context_destruction(Display* dpy, GLXDrawable ctx) {
+void handle_context_destruction(Display* dpy, GLXContext context) {
+
 	pthread_mutex_lock(&glinject_mutex);
 	lua_getglobal(L, "handle_context_destruction"); /* function to be called */
 	if (!lua_isfunction(L, -1)) {
 		fprintf(stderr, "handle_context_destruction is not a function!\n");
 		return;
 	}
+	int context_id;
+	glXQueryContext(dpy, context, GLX_FBCONFIG_ID, &context_id);
 	lua_pushlightuserdata(L, dpy);
-	lua_pushnumber(L, ctx);
+	lua_pushnumber(L, context_id);
 	if (lua_pcall(L, 2, 0, 0) != 0) {
 		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
 	}
