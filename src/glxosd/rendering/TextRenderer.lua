@@ -260,6 +260,15 @@ function TextRenderer:init(config)
 
 end
 
+function TextRenderer:destroy()
+	freetype_gl.texture_buffer_delete(self.buffer1)
+	freetype_gl.texture_buffer_delete(self.buffer2)
+	for k, v in pairs(self.font_cache) do
+		freetype_gl.texture_font_delete(v.main)
+		freetype_gl.texture_font_delete(v.outline)
+	end
+end
+
 function TextRenderer.new(config)
 	ConfigurationManager.check_schema(config,
 		CONFIG_SCHEMA, false, "[text renderer configuration]")

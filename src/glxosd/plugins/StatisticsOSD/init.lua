@@ -94,6 +94,9 @@ function StatisticsOSD:handle_key_combo(key, modifiers)
 		self.rendering_enabled = not self.rendering_enabled
 	end
 end
+function StatisticsOSD:destroy()
+	self.text_render:destroy()
+end
 function StatisticsOSD.new(config)
 	local self ={}
 	setmetatable(self, StatisticsOSD)

@@ -24,6 +24,7 @@ local ffi = require("ffi")
 -- GLXOSD's dynamic GL loader
 ffi.cdef[[
 void glinject_dynamic_gl_initialise(const char* libGL_path);
+void free(void *ptr);
 ]]
 
 --Load third part library bindings

@@ -66,6 +66,12 @@ function Context:handle_key_combo(key, modifiers)
 	end)
 end
 
+function Context:destroy()
+	self:each_plugin(function(plugin)
+		plugin:destroy()
+	end)
+end
+
 function Context.new()
 	local self ={}
 	setmetatable(self, Context)

@@ -88,6 +88,10 @@ local contexts = setmetatable({},
 					end
 					return self.height_ref[0];
 				end
+				function glx_info:invalidate()
+					self.width_ref[0] = 0
+					self.height_ref[0] = 0
+				end
 				context.glx_info = glx_info;
 
 				rawset(self, p.drawable, context)
@@ -113,9 +117,16 @@ function handle_buffer_swap(display, drawable)
 	gl.glViewport(ffi.cast(ffi_types.GLint,viewport[0]),ffi.cast(ffi_types.GLint,viewport[1]),ffi.cast(ffi_types.GLuint,viewport[2]),ffi.cast(ffi_types.GLuint,viewport[3]));
 	context:end_frame()
 end
+
+function handle_context_destruction(display, drawable)
+	contexts[{display=display,drawable=drawable}]:destroy()
+
+	contexts[{display=display,drawable=drawable}] = nil
+end
+
 function should_consume_configure_notify_event()
 	for _, context in pairs(contexts) do
-		context.glx_info:update()
+		context.glx_info:invalidate()
 	end
 	return false
 end
@@ -135,6 +146,6 @@ function key_press_event(key, modifiers)
 end
 function configure_notify_event(event)
 	for _, context in pairs(contexts) do
-		context.glx_info:update()
+		context.glx_info:invalidate()
 	end
 end

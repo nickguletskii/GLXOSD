@@ -73,10 +73,15 @@ local function features(chip)
 			break
 		end
 		local name = ffi.string(feature[0].name)
-		features[name] = {
-			label =ffi.string(sens.sensors_get_label(chip,feature[0])),
-			subfeatures = subfeatures(chip, feature)
-		}
+		local label_s = sens.sensors_get_label(chip,feature[0])
+		if label_s ~= nil and ffi.C.strlen(label_s)>0 then
+			local label = ffi.string(label_s);
+			ffi.C.free(label_s)
+			features[name] = {
+				label = label,
+				subfeatures = subfeatures(chip, feature)
+			}
+		end
 	end
 	return features
 end

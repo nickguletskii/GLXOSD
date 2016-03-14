@@ -20,6 +20,9 @@
 #include <lualib.h>
 #include <luajit.h>
 #include <lauxlib.h>
+#include <pthread.h>
+
+pthread_mutex_t glinject_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void init_gl_frame_hooks();
 void handle_key_event(XKeyEvent* event);
@@ -44,15 +47,11 @@ DEFINE_REAL_SYMBOL(dlsym, void*, (const void *, const char *));
 
 DEFINE_REAL_SYMBOL(dlvsym, void*, (const void *, const char *, const char *));
 
-DEFINE_REAL_SYMBOL(glXDestroyContext, void, (Display *, GLXContext));
-
-DEFINE_REAL_SYMBOL(glXSwapBuffers, void, (Display*, GLXDrawable));
-
 DEFINE_REAL_SYMBOL(glXGetProcAddressARB, __GLXextFuncPtr, (const GLubyte*));
 
 DEFINE_REAL_SYMBOL(glXGetProcAddress, __GLXextFuncPtr, (const GLubyte*));
 
-#define DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(name, ret, param)\
+#define DEFINE_AND_OVERLOAD(name, ret, param)\
 		DEFINE_REAL_SYMBOL(name, ret, param);\
 		ret name param
 
@@ -66,16 +65,52 @@ DEFINE_REAL_SYMBOL(glXGetProcAddress, __GLXextFuncPtr, (const GLubyte*));
 	glinject_real_glXGetProcAddress((const GLubyte*)#x);
 
 void handle_event(XEvent* event) {
+	if (event == NULL)
+		return;
+
 	if (event->type == KeyPress) {
+		pthread_mutex_lock(&glinject_mutex);
 		handle_key_event(event);
+		pthread_mutex_unlock(&glinject_mutex);
 	}
 
-	if (event->type == ConfigureNotify) {
-		handle_configure_notify_event(event);
-	}
+}
+DEFINE_AND_OVERLOAD(glXDestroyPixmap, void, (Display *dpy, GLXPixmap pixmap)) {
+	init_gl_frame_hooks();
+	handle_context_destruction(dpy, pixmap);
+	glinject_real_glXDestroyPixmap(dpy, pixmap);
 }
 
-DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL
+DEFINE_AND_OVERLOAD( glXDestroyWindow,void,(Display *dpy, GLXWindow win) ) {
+	init_gl_frame_hooks();
+	handle_context_destruction(dpy, win);
+	glinject_real_glXDestroyWindow(dpy, win);
+}
+
+DEFINE_AND_OVERLOAD( glXDestroyGLXPixmap,void,(Display *dpy, GLXPixmap pix)) {
+	init_gl_frame_hooks();
+	handle_context_destruction(dpy, pix);
+	glinject_real_glXDestroyGLXPixmap(dpy, pix);
+}
+
+DEFINE_AND_OVERLOAD( glXDestroyPbuffer,void,(Display *dpy, GLXPbuffer pbuf)) {
+	init_gl_frame_hooks();
+	handle_context_destruction(dpy, pbuf);
+	glinject_real_glXDestroyPbuffer(dpy, pbuf);
+}
+
+DEFINE_AND_OVERLOAD( glXDestroyContext,void,(Display *dpy, GLXContext ctx) ) {
+	init_gl_frame_hooks();
+	handle_context_destruction(dpy, ctx);
+	glinject_real_glXDestroyContext(dpy, ctx);
+}
+DEFINE_AND_OVERLOAD( glXSwapBuffers, void,(Display* dpy, GLXDrawable ctx) ) {
+	init_gl_frame_hooks();
+	handle_buffer_swap(dpy, ctx);
+	glinject_real_glXSwapBuffers(dpy, ctx);
+}
+
+DEFINE_AND_OVERLOAD
 (XCheckIfEvent, Bool, (Display* display, XEvent* event, XIfEvent_predicate_type predicate, XPointer arg)) {
 	Bool return_val = glinject_real_XCheckIfEvent(display, event, predicate,
 			arg);
@@ -84,34 +119,33 @@ DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL
 	}
 	return return_val;
 }
-DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XIfEvent, int,
+DEFINE_AND_OVERLOAD(XIfEvent, int,
 		(Display* display, XEvent* event, XIfEvent_predicate_type predicate, XPointer pointer)) {
 	int return_val = glinject_real_XIfEvent(display, event, predicate, pointer);
 	handle_event(event);
 	return return_val;
 }
 
-DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XMaskEvent, int,
+DEFINE_AND_OVERLOAD(XMaskEvent, int,
 		(Display* display, long mask, XEvent* event)) {
 	int return_val = glinject_real_XMaskEvent(display, mask, event);
 	handle_event(event);
 	return return_val;
 }
 
-DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XNextEvent, int,
+DEFINE_AND_OVERLOAD(XNextEvent, int,
 		(Display* display, XEvent* event)) {
 	int return_val = glinject_real_XNextEvent(display, event);
 	handle_event(event);
 	return return_val;
 }
 
-DEFINE_AND_OVERLOAD_X11_EVENT_PROCESSING_SYMBOL(XWindowEvent, int,
+DEFINE_AND_OVERLOAD(XWindowEvent, int,
 		(Display* display, Window window, long mask, XEvent* event)) {
 	int return_val = glinject_real_XWindowEvent(display, window, mask, event);
 	handle_event(event);
 	return return_val;
 }
-
 
 /*
  * Initialisation of the overriden functions list
@@ -141,27 +175,21 @@ void* get_function_override(const char* name) {
 
 void pushx11keymodifiers(lua_State* L, XKeyEvent *event) {
 	lua_createtable(L, 0, 4);
-	lua_pushliteral(L, "shift");
 	lua_pushboolean(L, (event->state & ShiftMask) != 0);
-	lua_rawset(L, -3);
-
-	lua_pushliteral(L, "caps");
+	lua_setfield(L, -2, "shift");
 	lua_pushboolean(L, (event->state & LockMask) != 0);
-	lua_rawset(L, -3);
-
-	lua_pushliteral(L, "control");
+	lua_setfield(L, -2, "caps");
 	lua_pushboolean(L, (event->state & ControlMask) != 0);
-	lua_rawset(L, -3);
-
-	lua_pushliteral(L, "alt");
+	lua_setfield(L, -2, "control");
 	lua_pushboolean(L, (event->state & Mod1Mask) != 0);
-	lua_rawset(L, -3);
+	lua_setfield(L, -2, "alt");
 }
 
 /*
  * Handlers
  */
 Bool check_if_event(XEvent* event) {
+	pthread_mutex_lock(&glinject_mutex);
 	if (event->type == ConfigureNotify) {
 		lua_getglobal(L, "should_consume_configure_notify_event"); /* function to be called */
 		if (!lua_isfunction(L, -1)) {
@@ -206,6 +234,7 @@ Bool check_if_event(XEvent* event) {
 		lua_pop(L, 1);
 		return res;
 	}
+	pthread_mutex_unlock(&glinject_mutex);
 	return False;
 }
 
@@ -213,6 +242,7 @@ void handle_buffer_swap(Display* dpy, GLXDrawable ctx) {
 	XEvent event;
 	XCheckIfEvent(dpy, &event, check_if_event, NULL);
 
+	pthread_mutex_lock(&glinject_mutex);
 	lua_getglobal(L, "handle_buffer_swap"); /* function to be called */
 	if (!lua_isfunction(L, -1)) {
 		fprintf(stderr, "handle_buffer_swap is not a function!\n");
@@ -223,13 +253,22 @@ void handle_buffer_swap(Display* dpy, GLXDrawable ctx) {
 	if (lua_pcall(L, 2, 0, 0) != 0) {
 		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
 	}
-
+	pthread_mutex_unlock(&glinject_mutex);
 }
 
-void handle_context_destruction(Display* dpy, GLXContext ctx) {
-//	for (std::map<int, gl_frame_handler>::iterator i = handlers->begin();
-//			i != handlers->end(); i++)
-//		i->second.handle_context_destruction(dpy, ctx);
+void handle_context_destruction(Display* dpy, GLXDrawable ctx) {
+	pthread_mutex_lock(&glinject_mutex);
+	lua_getglobal(L, "handle_context_destruction"); /* function to be called */
+	if (!lua_isfunction(L, -1)) {
+		fprintf(stderr, "handle_context_destruction is not a function!\n");
+		return;
+	}
+	lua_pushlightuserdata(L, dpy);
+	lua_pushnumber(L, ctx);
+	if (lua_pcall(L, 2, 0, 0) != 0) {
+		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
+	}
+	pthread_mutex_unlock(&glinject_mutex);
 }
 
 void handle_key_event(XKeyEvent* event) {
@@ -253,8 +292,8 @@ void handle_configure_notify_event(XEvent* event) {
 		fprintf(stderr, "configure_notify_event is not a function!\n");
 		return;
 	}
-	lua_pushlightuserdata(L, event);
-	if (lua_pcall(L, 1, 0, 0) != 0) {
+	// lua_pushlightuserdata(L, event);
+	if (lua_pcall(L, 0, 0, 0) != 0) {
 		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
 	}
 }
@@ -269,17 +308,6 @@ static void assertSymbolLoaded(void* symbol, const char* name) {
 /*
  * Function overrides
  */
-
-void glXDestroyContext(Display *dpy, GLXContext ctx) {
-	init_gl_frame_hooks();
-	handle_context_destruction(dpy, ctx);
-	glinject_real_glXDestroyContext(dpy, ctx);
-}
-void glXSwapBuffers(Display* dpy, GLXDrawable ctx) {
-	init_gl_frame_hooks();
-	handle_buffer_swap(dpy, ctx);
-	glinject_real_glXSwapBuffers(dpy, ctx);
-}
 __GLXextFuncPtr glXGetProcAddressARB(const GLubyte *name) {
 	init_gl_frame_hooks();
 	void* overriddenFunction = get_function_override((const char *) name);
