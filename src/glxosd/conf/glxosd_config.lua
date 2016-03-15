@@ -77,9 +77,25 @@ local STATISTICS_OSD_CONFIG = {
 GLXOSD_CONFIG = {
 	plugins = {
 		{
-			path = "plugins/StatisticsOSD/init",
+			path = "plugins/StatisticsOSD/StatisticsOSD",
 			enabled = true,
 			config = STATISTICS_OSD_CONFIG
+		},
+		{
+			path = "plugins/TimeRecorder/TimeRecorder",
+			enabled = true,
+			config = {
+				benchmark_output_directory="/home/nick/benchmarks",
+				start_benchmark_key={
+					main_key="F5",
+					modifiers={"shift"}
+				},
+				end_benchmark_key={
+					main_key="F6",
+					modifiers={"shift"}
+				},
+				enable_minimise_overhead_mode_during_benchmark=true
+			}
 		}
 	}
 }

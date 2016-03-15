@@ -110,17 +110,20 @@ function handle_buffer_swap(display, context_id, drawable)
 	local context = contexts[{display=display,context_id=context_id, drawable=drawable}]
 	context:begin_frame()
 
-	local width = context.glx_info:width();
-	local height = context.glx_info:height();
+	if context:should_render() then
+		local width = context.glx_info:width();
+		local height = context.glx_info:height();
 
-	local viewport = ffi_types.GLint_arr(4);
-	gl.glGetIntegerv(GL_VIEWPORT, viewport);
+		local viewport = ffi_types.GLint_arr(4);
+		gl.glGetIntegerv(GL_VIEWPORT, viewport);
 
-	normalise.do_when_gl_state_is_normal(function()
-		context:render(width, height);
-	end, context)
+		normalise.do_when_gl_state_is_normal(function()
+			context:render(width, height);
+		end, context)
 
-	gl.glViewport(ffi.cast(ffi_types.GLint,viewport[0]),ffi.cast(ffi_types.GLint,viewport[1]),ffi.cast(ffi_types.GLuint,viewport[2]),ffi.cast(ffi_types.GLuint,viewport[3]));
+		gl.glViewport(ffi.cast(ffi_types.GLint,viewport[0]),ffi.cast(ffi_types.GLint,viewport[1]),ffi.cast(ffi_types.GLuint,viewport[2]),ffi.cast(ffi_types.GLuint,viewport[3]));
+	end
+	
 	context:end_frame()
 end
 

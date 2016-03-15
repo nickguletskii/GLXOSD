@@ -72,11 +72,27 @@ function Context:destroy()
 	end)
 end
 
+function Context:should_render()
+	if self.shared_state.minimise_overhead_mode() then
+		return false
+	end
+	local should_render = false
+	self:each_plugin(function(plugin)
+		if plugin:should_render() then
+			should_render = true
+		end
+	end)
+	return should_render
+end
+
 function Context.new()
 	local self ={}
 	setmetatable(self, Context)
 
 	self.plugins = {}
+	self.shared_state = {}
+
+	self.shared_state.minimise_overhead_mode = setmetatable({}, only_one_enough_voter_metatable)
 
 	assert(GLXOSD_CONFIG.plugins, "The GLXOSD config must specify a list of plugins.")
 
@@ -85,7 +101,7 @@ function Context.new()
 			table.insert(
 				self.plugins,
 				require(plugin.path)
-					.new(plugin.config, self))
+					.new(plugin.config, self.shared_state))
 		end
 	end
 	return self

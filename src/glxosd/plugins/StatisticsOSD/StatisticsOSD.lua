@@ -25,6 +25,10 @@ local StatisticsOSD = {
 	}
 StatisticsOSD.__index = StatisticsOSD;
 
+function StatisticsOSD:should_render()
+	return self.rendering_enabled
+end
+
 function StatisticsOSD:each_data_provider(func)
 	for i, x in ipairs(self.data_providers) do
 		if x~=nil then
@@ -54,36 +58,18 @@ function StatisticsOSD:end_frame()
 	end)
 end
 function StatisticsOSD:render(width, height)
-	if self.rendering_enabled then
-		if self.rebuild_text then
-			local text = {}
-			self:each_data_provider(function(data_provider)
-				local tbl = data_provider:get_text()
-				for _,v in ipairs(tbl) do
-					table.insert(text, v)
-				end
-			end)
-			self.text_renderer:set_text(text)
-			self.rebuild_text = false
-		end
-		self.text_renderer:render(width, height)
+	if self.rebuild_text then
+		local text = {}
+		self:each_data_provider(function(data_provider)
+			local tbl = data_provider:get_text()
+			for _,v in ipairs(tbl) do
+				table.insert(text, v)
+			end
+		end)
+		self.text_renderer:set_text(text)
+		self.rebuild_text = false
 	end
-end
-
-local function check_key_combo(key_combo, key, modifiers)
-	local modifier_set={}
-	for _, modifier in pairs(key_combo.modifiers) do
-		modifier_set[modifier] = true
-		if not modifiers[modifier] then
-			return false
-		end
-	end
-	for modifier, val in pairs(modifiers) do
-		if val and not modifier_set[modifier] then
-			return false
-		end
-	end
-	return key_combo.main_key == key
+	self.text_renderer:render(width, height)
 end
 
 function StatisticsOSD:has_keyboard_combo(key, modifiers)
@@ -97,11 +83,12 @@ end
 function StatisticsOSD:destroy()
 	self.text_renderer:destroy()
 end
-function StatisticsOSD.new(config)
+function StatisticsOSD.new(config, shared_state)
 	local self ={}
 	setmetatable(self, StatisticsOSD)
 
 	self.config = config
+	self.shared_state = shared_state
 
 	self.text_renderer = TextRenderer.new(
 		config

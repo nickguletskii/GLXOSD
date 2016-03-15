@@ -51,6 +51,11 @@ DEFINE_REAL_SYMBOL(glXGetProcAddressARB, __GLXextFuncPtr, (const GLubyte*));
 
 DEFINE_REAL_SYMBOL(glXGetProcAddress, __GLXextFuncPtr, (const GLubyte*));
 
+DEFINE_REAL_SYMBOL(glXQueryContext, int,
+		( Display *dpy, GLXContext ctx, int attribute, int *value ));
+
+DEFINE_REAL_SYMBOL(glXGetCurrentContext, GLXContext, ())
+
 #define DEFINE_AND_OVERLOAD(name, ret, param)\
 		DEFINE_REAL_SYMBOL(name, ret, param);\
 		ret name param
@@ -225,8 +230,8 @@ void handle_buffer_swap(Display* dpy, GLXDrawable drawable) {
 		return;
 	}
 	int context_id;
-	GLXContext context = glXGetCurrentContext();
-	glXQueryContext(dpy, context, GLX_FBCONFIG_ID, &context_id);
+	GLXContext context = glinject_real_glXGetCurrentContext();
+	glinject_real_glXQueryContext(dpy, context, GLX_FBCONFIG_ID, &context_id);
 	lua_pushlightuserdata(L, dpy);
 	lua_pushnumber(L, context_id);
 	lua_pushnumber(L, drawable);
@@ -245,7 +250,7 @@ void handle_context_destruction(Display* dpy, GLXContext context) {
 		return;
 	}
 	int context_id;
-	glXQueryContext(dpy, context, GLX_FBCONFIG_ID, &context_id);
+	glinject_real_glXQueryContext(dpy, context, GLX_FBCONFIG_ID, &context_id);
 	lua_pushlightuserdata(L, dpy);
 	lua_pushnumber(L, context_id);
 	if (lua_pcall(L, 2, 0, 0) != 0) {
@@ -370,6 +375,8 @@ void init_gl_frame_hooks() {
 	LOAD_SYMBOL_USING_DLSYM(handle, glXGetProcAddressARB);
 	LOAD_SYMBOL_USING_DLSYM(handle, glXGetProcAddress);
 	LOAD_SYMBOL_USING_DLSYM(handle, glXSwapBuffers);
+	LOAD_SYMBOL_USING_DLSYM(handle, glXQueryContext);
+	LOAD_SYMBOL_USING_DLSYM(handle, glXGetCurrentContext);
 	LOAD_SYMBOL_USING_DLSYM(handle2, XIfEvent);
 	LOAD_SYMBOL_USING_DLSYM(handle2, XCheckIfEvent);
 	LOAD_SYMBOL_USING_DLSYM(handle2, XMaskEvent);

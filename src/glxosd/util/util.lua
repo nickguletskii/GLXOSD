@@ -36,3 +36,30 @@ function check_class(tbl, name)
 	assert(tbl.__class_name, "The provided table is not a "..name)
 	assert(tbl.__class_name==name, "The provided table is a ".. tbl.__class_name.. ", not a "..name)
 end
+
+function check_key_combo(key_combo, key, modifiers)
+	local modifier_set={}
+	for _, modifier in pairs(key_combo.modifiers) do
+		modifier_set[modifier] = true
+		if not modifiers[modifier] then
+			return false
+		end
+	end
+	for modifier, val in pairs(modifiers) do
+		if val and not modifier_set[modifier] then
+			return false
+		end
+	end
+	return key_combo.main_key == key
+end
+
+only_one_enough_voter_metatable = {
+	__call = function(self)
+		for _, v in pairs(self) do
+			if v then
+				return true
+			end
+		end
+		return false
+	end
+}
