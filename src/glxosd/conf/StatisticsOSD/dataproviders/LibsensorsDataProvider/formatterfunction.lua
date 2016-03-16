@@ -1,5 +1,13 @@
+local formattingutil = require("util/formattingutil")
+
 return function(self, chips, el)
-	local res = {}
+	local offset = self.config.header.enabled and 1 or 0
+	local header  =
+		formattingutil.create_osd_section_header("Sensors", self, el)
+	local res = {
+		header,
+		header and el.newline,
+	}
 	local chip_views = {}
 	for kchip, chip in pairs(chips) do
 		if self.config.chip_filter_function(self, chip) then
@@ -55,6 +63,7 @@ return function(self, chips, el)
 
 	for _, chip in pairs(chip_views) do
 		table.insert_all(res,
+			el.indent(offset),
 			el.new({text = chip.name}),
 			el.newline
 		)
@@ -78,7 +87,8 @@ return function(self, chips, el)
 			}
 			local temperature_color = color_map[heat_status]
 			table.insert_all(res,
-				el.new({text = " " .. feature.label..": "}),
+				el.indent(offset+1),
+				el.new({text = feature.label..": "}),
 				el.new({
 					text=tostring(feature.current_temperature),
 					color=temperature_color

@@ -112,6 +112,7 @@ function LibsensorsDataProvider:get_text()
 	local status, res = pcall(function()
 		local tbl = self.config.formatter_function(self, chips(), MarkupElement)
 		assert(tbl and type(tbl) == "table", "The Libsensors data provider formatter function must return a table of elements!")
+		tbl = remove_nils_from_array(tbl);
 		for _,v in ipairs(tbl) do
 			check_class(v, "MarkupElement")
 		end

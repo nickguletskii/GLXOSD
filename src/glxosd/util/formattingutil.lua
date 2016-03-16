@@ -18,50 +18,20 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]
-
-local MarkupElement = {
-	}
-MarkupElement.__index = MarkupElement;
-MarkupElement.__class_name = "MarkupElement"
-local SCHEMA = {
-	outline_color="color",
-	gamma="number",
-	lcd_filter_enabled="boolean",
-	underline={
-		enabled="boolean",
-		color="color"
-	},
-	overline={
-		enabled="boolean",
-		color="color"
-	},
-	strikethrough={
-		enabled="boolean",
-		color="color"
-	},
-	color="color",
-	background_color="color",
-	text="string"
-}
-
-function MarkupElement:check()
-	ConfigurationManager.check_schema(self,SCHEMA,true, "MarkupElement")
-end
-
-function MarkupElement.new(data)
-	local self ={}
-	if data then
-        for k, v in pairs(data) do
-            self[k] = v
-        end
+return {
+	create_osd_section_header = function (name,self,el)
+		if not self.config.header.enabled then
+			return nil
+		end
+		return el.new({
+			text=name,
+			color=self.config.header.color,
+			font_size = self.config.header.font_size,
+			underline = {
+				enabled = self.config.header.underline.enabled,
+				color = self.config.header.underline.color
+			}
+		})
 	end
-	setmetatable(self, MarkupElement)
-	return self
-end
 
-MarkupElement.newline = MarkupElement.new({text="\n"})
-MarkupElement.indent = function(level)
-	return MarkupElement.new({text=string.rep("  ", level)})
-end
-
-return MarkupElement
+}

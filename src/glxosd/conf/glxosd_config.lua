@@ -1,20 +1,33 @@
+local MASTER_OPACITY = 1
+
 local COLORS_CONFIG = {
-	DEFAULT = {r=1,g=0,b=1,a=1},
-	OUTLINE = {r=0,g=0,b=0,a=1},
-	BAD_VALUE = {r=1,g=0,b=0,a=1},
-	WARNING_VALUE = {r=1,g=1,b=0,a=1},
-	GOOD_VALUE = {r=0,g=1,b=0,a=1},
-	NONE = {r=0,g=0,b=0,a=0}
+	DEFAULT = {r=1,g=0,b=1,a=1 * MASTER_OPACITY},
+	OUTLINE = {r=0,g=0,b=0,a=1 * MASTER_OPACITY},
+	BAD_VALUE = {r=1,g=0,b=0,a=1 * MASTER_OPACITY},
+	WARNING_VALUE = {r=1,g=1,b=0,a=1 * MASTER_OPACITY},
+	GOOD_VALUE = {r=0,g=1,b=0,a=1 * MASTER_OPACITY},
+	NONE = {r=0,g=0,b=0,a=0 * MASTER_OPACITY}
 }
+
+local DEFAULT_HEADER_CONFIG = {
+	enabled=true,
+	color=COLORS_CONFIG.DEFAULT,
+	font_size=20,
+	underline={
+		enabled = true,
+		color=COLORS_CONFIG.DEFAULT
+	}
+}
+
 local STATISTICS_OSD_CONFIG = {
 	refresh_time = 1000,
 	align_to_h = "left",
 	align_to_v = "top",
-	font = "Ubuntu",
-	font_size = 32,
+	font = "Ubuntu:Bold",
+	font_size = 16,
 	outline={
-		type="inside",
-		thickness=1,
+		type="outer",
+		thickness=0.5,
 		color=COLORS_CONFIG.OUTLINE
 	},
 	gamma=2,
@@ -47,8 +60,14 @@ local STATISTICS_OSD_CONFIG = {
 				max_overhead_percentage = 1.5,
 				acceptable_value_color=COLORS_CONFIG.GOOD_VALUE,
 				unacceptable_value_color=COLORS_CONFIG.BAD_VALUE,
+				data_order = {
+					"FPS",
+					"AFD",
+					"OSDATSPF"
+				},
 				formatter_function = ConfigurationManager
-					.config_file("StatisticsOSD/dataproviders/FrameDataProvider/formatterfunction.lua")
+					.config_file("StatisticsOSD/dataproviders/FrameDataProvider/formatterfunction.lua"),
+				header=DEFAULT_HEADER_CONFIG
 			}
 		},
 		{
@@ -68,7 +87,8 @@ local STATISTICS_OSD_CONFIG = {
 				warning_temperature_color=COLORS_CONFIG.WARNING_VALUE,
 				overheating_temperature_color=COLORS_CONFIG.BAD_VALUE,
 				formatter_function = ConfigurationManager
-					.config_file("StatisticsOSD/dataproviders/LibsensorsDataProvider/formatterfunction.lua")
+					.config_file("StatisticsOSD/dataproviders/LibsensorsDataProvider/formatterfunction.lua"),
+				header=DEFAULT_HEADER_CONFIG
 			}
 		}
 	}

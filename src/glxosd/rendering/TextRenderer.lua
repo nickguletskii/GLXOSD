@@ -87,6 +87,7 @@ function TextRenderer:build_outline_markup(normal, type, color, thickness, font)
 end
 
 function TextRenderer:print_text(pen, text)
+
 	local pen1 = ffi_types.vec2(pen)
 	local pen2 = ffi_types.vec2(pen)
 
@@ -120,8 +121,8 @@ function TextRenderer:print_text(pen, text)
 		if markup_element.underline and  markup_element.underline.color then
 			cur[0].underline_color = markup_element.underline.color
 		end
-		if markup_element.underline and markup_element.underline.enabled then
-			cur[0].underline = markup_element.underline.enabled and 1 or 0
+		if markup_element.overline and markup_element.overline.enabled then
+			cur[0].overline = markup_element.overline.enabled and 1 or 0
 		end
 		if markup_element.overline and markup_element.overline.color then
 			cur[0].overline_color = markup_element.overline.color

@@ -78,6 +78,11 @@ void handle_event(XEvent* event) {
 		handle_key_event(event);
 		pthread_mutex_unlock(&glinject_mutex);
 	}
+	if (event->type == ConfigureNotify) {
+		pthread_mutex_lock(&glinject_mutex);
+		handle_configure_notify_event(event);
+		pthread_mutex_unlock(&glinject_mutex);
+	}
 
 }
 DEFINE_AND_OVERLOAD( glXDestroyContext,void,(Display *dpy, GLXContext ctx) ) {

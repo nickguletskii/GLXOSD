@@ -87,13 +87,18 @@ function FrameDataProvider:get_previous_glxosd_overhead_in_timespan_ms()
 	return ns_to_ms(self.previous_timespan_stats.glxosd_overhead_in_timespan)
 end
 
-function FrameDataProvider:get_previous_glxosd_overhead_percent()
+function FrameDataProvider:get_previous_glxosd_overhead_per_frame_ms()
 	if not self.previous_timespan_stats then
 		return nil
 	end
-	return 100.0 *
-		tonumber(self.previous_timespan_stats.glxosd_overhead_in_timespan)
-		/ tonumber(self.previous_timespan_stats.timespan_length)
+	return
+		ns_to_ms(self.previous_timespan_stats.glxosd_overhead_in_timespan)
+		/ self.previous_timespan_stats.frames_in_timespan_count
+end
+
+function FrameDataProvider:get_average_frame_duration_ms()
+	return ns_to_ms(self.previous_timespan_stats.timespan_length)
+			/self.previous_timespan_stats.frames_in_timespan_count
 end
 
 function FrameDataProvider:get_previous_fps()
@@ -109,6 +114,7 @@ function FrameDataProvider:get_text()
 	local status, res = pcall(function()
 		local tbl = self.config.formatter_function(self, MarkupElement)
 		assert(tbl and type(tbl) == "table", "The frame data provider formatter function must return a table of elements!")
+		tbl = remove_nils_from_array(tbl);
 		for _,v in ipairs(tbl) do
 			check_class(v, "MarkupElement")
 		end

@@ -51,8 +51,11 @@ ffi_types["char_arr"] = ffi.typeof("char[?]")
 ffi_types["const_char_ptr"] = ffi.typeof("const char *")
 ffi_types["const_char_ptr_ref"] = ffi.typeof("const char *[1]")
 ffi_types["const_int_ref"] = ffi.typeof("const int[1]")
+ffi_types["unsigned_int_ref"] = ffi.typeof("unsigned int[1]")
 ffi_types["FcChar8_ptr_ref"] = ffi.typeof("FcChar8 *[1]")
 ffi_types["const_FcChar8_ptr"] = ffi.typeof("FcChar8 *")
+ffi_types["unsigned_long_long_ref"] = ffi.typeof("unsigned long long[1]")
+
 ffi_types["char_array_from_string"] =function (str)
 	local out = ffi_types.char_arr(#str+1);
 	ffi.copy(out, ffi.cast(ffi_types.const_char_ptr, str), #str)

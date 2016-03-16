@@ -63,3 +63,13 @@ only_one_enough_voter_metatable = {
 		return false
 	end
 }
+
+remove_nils_from_array = function(arr)
+	local tmp = {}
+	for i=1,table.getn(arr) do
+		if arr[i] then
+			table.insert(tmp, arr[i])
+		end
+	end
+	return tmp
+end
