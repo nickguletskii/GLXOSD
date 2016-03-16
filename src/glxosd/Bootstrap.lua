@@ -19,6 +19,20 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]
 
+-- Paths in which to look for modules, relative to glxosdPackageRoot.
+local packagePaths = {"/LJIT2Khronos/?.lua",
+	"/LJIT2Khronos/Win32/?.lua",
+	"/glxosd/?.lua"};
+
+-- Build package.path from packagePaths.
+local packagePathsCombined = ""
+for k, v in ipairs( packagePaths) do
+	packagePathsCombined = packagePathsCombined .. glxosdPackageRoot .. v .. ";"
+end
+package.path = packagePathsCombined ..package.path
+
+require("util/util")
+
 require("ConfigurationManager")
 config_roots = ConfigurationManager.config_file("chainload.lua")
 GLXOSD_CONFIG = ConfigurationManager.config_file("glxosd_config.lua")

@@ -1,3 +1,5 @@
+ConfigurationManager.config_file("paths.lua")
+
 local MASTER_OPACITY = 1
 
 local COLORS_CONFIG = {

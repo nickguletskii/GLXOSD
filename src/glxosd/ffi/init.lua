@@ -37,10 +37,10 @@ require("ffi/freetype-gl")
 require("ffi/clock")
 require("ffi/ffitypes")
 --Dynamically load third party libraries
-_G["gl"] = ffi.load( "libGL.so.1", false)
-_G["glew"] = ffi.load( "libGLEW.so.1.10", false)
-_G["freetype_gl"] = ffi.load("libglxosd-freetype-gl",false);
-_G["fc"] = ffi.load("libfontconfig.so.1",false);
+_G["gl"] = ffi.load(CURRENT_PATH_CONFIG.libGL, false)
+_G["glew"] = ffi.load(CURRENT_PATH_CONFIG.libGLEW, false)
+_G["freetype_gl"] = ffi.load(CURRENT_PATH_CONFIG.libfreetype_gl,false);
+_G["fc"] = ffi.load(CURRENT_PATH_CONFIG.libfontconfig,false);
 
 --Load the required OpenGL functions so that freetype-gl can do its job.
-freetype_gl.glinject_dynamic_gl_initialise("libGL.so.1");
+freetype_gl.glinject_dynamic_gl_initialise(CURRENT_PATH_CONFIG.libGL);

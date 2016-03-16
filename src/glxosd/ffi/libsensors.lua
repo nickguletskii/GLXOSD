@@ -30,7 +30,7 @@ the Library"
 
 local ffi = require("ffi")
 
-local status, sens = pcall(function() return ffi.load("libsensors.so.4") end)
+local status, sens = pcall(function() return ffi.load(CURRENT_PATH_CONFIG.libsensors) end)
 if not status then
 	return nil
 end

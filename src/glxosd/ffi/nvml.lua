@@ -14,7 +14,7 @@ copies or substantial portions of the Software.
 
 local ffi = require("ffi")
 
-local status, nvml = pcall(function() return ffi.load("/usr/lib/nvidia-352/libnvidia-ml.so.1") end)
+local status, nvml = pcall(function() return ffi.load(CURRENT_PATH_CONFIG.libnvidia_ml) end)
 if not status then
 	return nil
 end
