@@ -89,27 +89,27 @@ local STATISTICS_OSD_CONFIG = {
 				formatter_function = ConfigurationManager
 					.config_file("StatisticsOSD/dataproviders/LibsensorsDataProvider/formatterfunction.lua"),
 				header=DEFAULT_HEADER_CONFIG
-			},
-			{
-				path = "plugins/StatisticsOSD/dataproviders/NVMLDataProvider",
-				enabled = true,
-				config = {
-					default_temperature_color=COLORS_CONFIG.DEFAULT,
-					normal_temperature_color=COLORS_CONFIG.GOOD_VALUE,
-					slowdown_temperature_color=COLORS_CONFIG.WARNING_VALUE,
-					shutdown_temperature_color=COLORS_CONFIG.BAD_VALUE,
-					data_order = {
-						"temperature",
-						"gpu_utilisation",
-						"memory_utilisation",
-						"graphics_clock",
-						"memory_clock",
-						"sm_clock",
-					},
-					formatter_function = ConfigurationManager
-						.config_file("StatisticsOSD/dataproviders/NVMLDataProvider/formatterfunction.lua"),
-					header=DEFAULT_HEADER_CONFIG
-				}
+			}
+		},
+		{
+			path = "plugins/StatisticsOSD/dataproviders/NVMLDataProvider",
+			enabled = true,
+			config = {
+				default_temperature_color=COLORS_CONFIG.DEFAULT,
+				normal_temperature_color=COLORS_CONFIG.GOOD_VALUE,
+				slowdown_temperature_color=COLORS_CONFIG.WARNING_VALUE,
+				shutdown_temperature_color=COLORS_CONFIG.BAD_VALUE,
+				data_order = {
+					"temperature",
+					"gpu_utilisation",
+					"memory_utilisation",
+					"graphics_clock",
+					"memory_clock",
+					"sm_clock",
+				},
+				formatter_function = ConfigurationManager
+					.config_file("StatisticsOSD/dataproviders/NVMLDataProvider/formatterfunction.lua"),
+				header=DEFAULT_HEADER_CONFIG
 			}
 		}
 	}
