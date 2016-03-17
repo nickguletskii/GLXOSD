@@ -78,8 +78,7 @@ add_subdirectory(src)
 
 ##### Install config #####
 install(DIRECTORY src/glxosd/conf/
-        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/glxosd/)
-
+        DESTINATION /etc/glxosd/)
 ##### Create launcher #####
 message(INFO "BUILDING LAUNCHER!")
 add_custom_target(glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh

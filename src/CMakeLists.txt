@@ -18,3 +18,7 @@ add_subdirectory(freetype-gl-glxosd)
 INSTALL(DIRECTORY glxosd
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/
         PATTERN "conf/*" EXCLUDE)
+
+INSTALL(DIRECTORY freetype-gl-glxosd/freetype-gl/shaders
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/freetype-gl-glxosd/freetype-gl/
+        )
