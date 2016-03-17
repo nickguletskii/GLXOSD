@@ -37,9 +37,9 @@ end
 	that was set before GLXOSD was called.
 ]]
 local normalise = require("rendering/normalise_gl_state")
+local ffi = require("ffi")
 
 local Context = require("Context")
-
 
 local contexts = setmetatable({},
 	{

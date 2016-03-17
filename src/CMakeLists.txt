@@ -18,5 +18,3 @@ add_subdirectory(freetype-gl-glxosd)
 INSTALL(DIRECTORY glxosd
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/
         PATTERN "conf/*" EXCLUDE)
-INSTALL(FILES src/LJIT2Khronos/gl.lua src/LJIT2Khronos/glext.lua
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/LJIT2Khronos/)

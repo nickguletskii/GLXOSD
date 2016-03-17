@@ -30,8 +30,8 @@ void free(void *ptr);
 --Load third part library bindings
 require("ffi/fontconfig")
 require("ffi/gltypes")
-require("gl")
-require("glext")
+require("ffi/gl")
+require("ffi/glext")
 require("ffi/glx")
 require("ffi/freetype-gl")
 require("ffi/clock")
