@@ -19,7 +19,7 @@ local function get_kernel_architecture()
 	if architecture == "x86_64" then
 		return "x64"
 	elseif architecture:find("i[3-9]86") then
-		return "x32"
+		return "x86"
 	else
 		error("Unknown system architecture! GLXOSD is not supported.")
 	end

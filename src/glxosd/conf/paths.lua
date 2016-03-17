@@ -23,7 +23,7 @@ PATH_CONFIG = {
 			libsensors = "libsensors.so.4",
 			libnvidia_ml = "/usr/lib/nvidia-"..NVIDIA_DRIVER_VERSION.."/libnvidia-ml.so.1"
 		},
-		x32 = {
+		x86 = {
 			libGL = "libGL.so.1",
 			libGLEW = "libGLEW.so.1.10",
 			libX11 = "libX11.so.6",
@@ -33,8 +33,8 @@ PATH_CONFIG = {
 			libnvidia_ml = "/usr/lib32/nvidia-"..NVIDIA_DRIVER_VERSION.."/libnvidia-ml.so.1"
 		}
 	},
-	x32 = {
-		x32 = {
+	x86 = {
+		x86 = {
 			libGL = "libGL.so.1",
 			libGLEW = "libGLEW.so.1.10",
 			libX11 = "libX11.so.6",
