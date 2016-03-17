@@ -78,8 +78,7 @@ add_subdirectory(src)
 
 ##### Install config #####
 install(DIRECTORY src/glxosd/conf/
-        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/glxosd/)
-
+        DESTINATION /etc/glxosd/)
 ##### Create launcher #####
 message(INFO "BUILDING LAUNCHER!")
 add_custom_target(glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh
@@ -88,6 +87,7 @@ add_custom_target(glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh
 --installation-suffix-32 "${INSTALLATION_SUFFIX_32}"
 --installation-suffix-64 "${INSTALLATION_SUFFIX_64}"
 --cmake-install-full-datarootdir ${CMAKE_INSTALL_FULL_DATAROOTDIR}
+BYPRODUCTS "${PROJECT_BINARY_DIR}/glxosd"
 COMMENT "Creating the startup script...")
 add_dependencies(glinject glxosdlauncher)
-install(PROGRAMS glxosd DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES "${PROJECT_BINARY_DIR}/glxosd" DESTINATION ${CMAKE_INSTALL_BINDIR})
