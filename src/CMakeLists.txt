@@ -12,6 +12,11 @@ SET(freetype-gl_BUILD_MAKEFONT FALSE)
 ##### Descend into components #####
 add_subdirectory(elfhacks)
 add_subdirectory(glinject)
-
-
 add_subdirectory(freetype-gl-glxosd)
+
+##### Install scripts #####
+INSTALL(DIRECTORY glxosd
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/
+        PATTERN "conf/*" EXCLUDE)
+INSTALL(FILES src/LJIT2Khronos/gl.lua src/LJIT2Khronos/glext.lua
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/LJIT2Khronos/)

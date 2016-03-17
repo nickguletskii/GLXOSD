@@ -3,9 +3,14 @@ project (glxosd)
 include(GNUInstallDirs)
 
 ##### Parameters #####
-SET(ATTEMPT_NVIDIA_LINK TRUE CACHE BOOL "If set to true, GLXOSD will link to the NVIDIA driver to display the GPU's temperature.")
-SET(INSTALLATION_SUFFIX_32 "/lib/i386-linux-gnu/" CACHE STRING "The part of the path to the installation directory for 32 bit libraries that comes after the prefix.")
-SET(INSTALLATION_SUFFIX_64 "/lib/x86_64-linux-gnu/" CACHE STRING "The part of the path to the installation directory for 64 bit libraries that comes after the prefix.")
+if (EXISTS "/etc/debian_version")
+    SET(INSTALLATION_SUFFIX_32 "/lib/i386-linux-gnu/")
+    SET(INSTALLATION_SUFFIX_64 "/lib/x86_64-linux-gnu/")
+else()
+    SET(INSTALLATION_SUFFIX_32 "/lib/i386-linux-gnu/")
+    SET(INSTALLATION_SUFFIX_64 "/lib/x86_64-linux-gnu/")
+endif()
+
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -56,16 +61,6 @@ include_directories(${X11_INCLUDE_DIRS})
 if(NOT X11_FOUND)
     message(ERROR " X11 not found!")
 endif(NOT X11_FOUND)
-#Find Sensors
-find_package(Sensors)
-include_directories(${SENSORS_INCLUDE_DIRS})
-if(NOT SENSORS_FOUND)
-	message(ERROR " libsensors not found!")
-	SET(SENSORS_LIBRARIES "")
-else(NOT SENSORS_FOUND)
-	message(INFO " libsensors found!")
-	add_definitions( -DFOUND_SENSORS )
-endif(NOT SENSORS_FOUND)
 #Find luajit
 find_package(LuaJIT)
 include_directories(${LUAJIT_INCLUDE_DIR})
@@ -76,43 +71,23 @@ else(NOT LUAJIT_FOUND)
 	message(INFO " luajit found!")
 	add_definitions( -DFOUND_LUAJIT )
 endif(NOT LUAJIT_FOUND)
-#Find NVCTRL if no additional flag is set
-if(ATTEMPT_NVIDIA_LINK)
-	find_package(NVCTRL)
-	include_directories(${NVCTRL_INCLUDE_DIRS})
-	if(NOT NVCTRL_FOUND)
-	message(INFO " NVCTRL not found!")
-	SET(NVCTRL_LIBRARIES "")
-	else(NOT NVCTRL_FOUND)
-	message(INFO " NVCTRL found!")
-		add_definitions( -DFOUND_NVCTRL )
-	endif(NOT NVCTRL_FOUND)
-endif(ATTEMPT_NVIDIA_LINK)
 ##### Link to local libraries #####
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 ##### Add subdirectories #####
 add_subdirectory(src)
 
-##### Install fonts #####
-install(FILES "fonts/CPMono_v07/CPMono_v07_Bold.ttf"  DESTINATION /usr/share/fonts/truetype/CPMono_v07)
-install(SCRIPT "${CMAKE_SOURCE_DIR}/TriggerFontConfig.cmake")
+##### Install config #####
+install(DIRECTORY src/glxosd/conf/
+        DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/glxosd/)
 
-##### Instal config #####
-install(FILES conf/glxosd.conf DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/)
-
-##### Install src #####
-INSTALL(DIRECTORY src/glxosd DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/)
-INSTALL(DIRECTORY src/LJIT2Khronos DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/)
-INSTALL(DIRECTORY src/freetype-gl-glxosd DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/glxosd/)
 ##### Create launcher #####
 message(INFO "BUILDING LAUNCHER!")
 add_custom_target(glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh
---target-file ${PROJECT_SOURCE_DIR}/glxosd
---installation-prefix ${CMAKE_INSTALL_PREFIX}
---installation-suffix-32 ${INSTALLATION_SUFFIX_32}
---installation-suffix-64 ${INSTALLATION_SUFFIX_64}
+--target-file "${PROJECT_BINARY_DIR}/glxosd"
+--installation-prefix "${CMAKE_INSTALL_PREFIX}"
+--installation-suffix-32 "${INSTALLATION_SUFFIX_32}"
+--installation-suffix-64 "${INSTALLATION_SUFFIX_64}"
 --cmake-install-full-datarootdir ${CMAKE_INSTALL_FULL_DATAROOTDIR}
 COMMENT "Creating the startup script...")
 add_dependencies(glinject glxosdlauncher)
-install(PROGRAMS glxosd DESTINATION bin)
-
+install(PROGRAMS glxosd DESTINATION ${CMAKE_INSTALL_BINDIR})
