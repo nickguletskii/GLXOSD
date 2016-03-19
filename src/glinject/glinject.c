@@ -11,6 +11,7 @@
 #include "glinject.h"
 #include "glx_events.h"
 #include "x_events.h"
+#include "luajit_dynamic.h"
 #include "elfhacks.hpp"
 #include <dlfcn.h>
 #include <GL/gl.h>
@@ -18,10 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <lua.h>
-#include <lualib.h>
-#include <luajit.h>
-#include <lauxlib.h>
 #include <pthread.h>
 
 // Mutex used for synchronising Lua API calls.
@@ -35,6 +32,27 @@ static lua_State *L = 0;
  * Event handling
  * ============================================================================
  */
+
+/*
+ * Pushes a table of modifiers onto the Lua stack.
+ * {
+ * 	shift=true,
+ * 	caps=true,
+ * 	control=true,
+ * 	alt=true
+ * }
+ */
+void glinject_lua_pushkeyeventmodifiers(lua_State* L, XKeyEvent *event) {
+	lua_createtable(L, 0, 4);
+	lua_pushboolean(L, (event->state & ShiftMask) != 0);
+	lua_setfield(L, -2, "shift");
+	lua_pushboolean(L, (event->state & LockMask) != 0);
+	lua_setfield(L, -2, "caps");
+	lua_pushboolean(L, (event->state & ControlMask) != 0);
+	lua_setfield(L, -2, "control");
+	lua_pushboolean(L, (event->state & Mod1Mask) != 0);
+	lua_setfield(L, -2, "alt");
+}
 
 /*
  * Handles X11 keyboard events.
@@ -120,27 +138,6 @@ Bool glinject_check_if_event(XEvent* event) {
 	}
 	pthread_mutex_unlock(&glinject_mutex);
 	return False;
-}
-
-/*
- * Pushes a table of modifiers onto the Lua stack.
- * {
- * 	shift=true,
- * 	caps=true,
- * 	control=true,
- * 	alt=true
- * }
- */
-void glinject_lua_pushkeyeventmodifiers(lua_State* L, XKeyEvent *event) {
-	lua_createtable(L, 0, 4);
-	lua_pushboolean(L, (event->state & ShiftMask) != 0);
-	lua_setfield(L, -2, "shift");
-	lua_pushboolean(L, (event->state & LockMask) != 0);
-	lua_setfield(L, -2, "caps");
-	lua_pushboolean(L, (event->state & ControlMask) != 0);
-	lua_setfield(L, -2, "control");
-	lua_pushboolean(L, (event->state & Mod1Mask) != 0);
-	lua_setfield(L, -2, "alt");
 }
 
 /*
@@ -396,6 +393,16 @@ char* glinject_join_path(const char* path, const char* suffix) {
  * This method is called at library initialisation.
  */
 void glinject_construct() {
+
+	// Link core methods.
+	glinject_init();
+
+	// Link luajit.
+	const char* luajit_library_path = getenv("GLXOSD_LUAJIT_LIBRARY_PATH");
+	if (luajit_library_path == NULL)
+		luajit_library_path = "libluajit-5.1.so.2";
+	glinject_load_luajit_symbols(luajit_library_path);
+
 	// Create Lua state
 	L = luaL_newstate();
 	if (!L) {
@@ -418,9 +425,6 @@ void glinject_construct() {
 	char* bootstrap_path = glinject_join_path(path, bootstrap_suffix);
 	char* main_suffix = "/glxosd/Main.lua";
 	char* main_path = glinject_join_path(path, main_suffix);
-
-	// Link core methods.
-	glinject_init();
 
 	// Run the bootstrap script.
 	glinject_run_file(bootstrap_path);

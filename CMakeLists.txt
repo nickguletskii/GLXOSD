@@ -61,16 +61,6 @@ include_directories(${X11_INCLUDE_DIRS})
 if(NOT X11_FOUND)
     message(ERROR " X11 not found!")
 endif(NOT X11_FOUND)
-#Find luajit
-find_package(LuaJIT)
-include_directories(${LUAJIT_INCLUDE_DIR})
-if(NOT LUAJIT_FOUND)
-	message(ERROR " LuaJIT not found!")
-	SET(LUAJIT_LIBRARIES "")
-else(NOT LUAJIT_FOUND)
-	message(INFO " luajit found!")
-	add_definitions( -DFOUND_LUAJIT )
-endif(NOT LUAJIT_FOUND)
 ##### Link to local libraries #####
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 ##### Add subdirectories #####
