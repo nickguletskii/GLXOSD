@@ -87,23 +87,6 @@ typedef double lua_Number;
 
 typedef ptrdiff_t lua_Integer;
 
-#define lua_close glinject_real_lua_close
-#define lua_createtable glinject_real_lua_createtable
-#define lua_isstring glinject_real_lua_isstring
-#define lua_pcall glinject_real_lua_pcall
-#define lua_pushboolean glinject_real_lua_pushboolean
-#define lua_pushlightuserdata glinject_real_lua_pushlightuserdata
-#define lua_pushnumber glinject_real_lua_pushnumber
-#define lua_pushstring glinject_real_lua_pushstring
-#define lua_setfield glinject_real_lua_setfield
-#define lua_settop glinject_real_lua_settop
-#define lua_toboolean glinject_real_lua_toboolean
-#define lua_tolstring glinject_real_lua_tolstring
-#define luaL_loadfile glinject_real_luaL_loadfile
-#define luaL_newstate glinject_real_luaL_newstate
-#define luaL_openlibs glinject_real_luaL_openlibs
-#define lua_getfield glinject_real_lua_getfield
-#define lua_type glinject_real_lua_type
 /*
  * ============================================================================
  * END FRAGMENT FROM LUA.H
