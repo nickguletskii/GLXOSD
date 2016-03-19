@@ -92,6 +92,10 @@ local contexts = setmetatable({},
 	});
 
 function handle_buffer_swap(display, context_id, drawable)
+	if glxosd_configuration_error then
+		return;
+	end
+
 	local context = contexts[{display=display,context_id=context_id, drawable=drawable}]
 	context:begin_frame()
 
@@ -113,6 +117,9 @@ function handle_buffer_swap(display, context_id, drawable)
 end
 
 function handle_context_destruction(display, context_id)
+	if glxosd_configuration_error then
+		return;
+	end
 	contexts[{display=display,context_id=context_id}]:destroy()
 
 	contexts[{display=display,context_id=context_id}] = nil
@@ -120,12 +127,18 @@ function handle_context_destruction(display, context_id)
 end
 
 function should_consume_configure_notify_event()
+	if glxosd_configuration_error then
+		return;
+	end
 	for _, context in pairs(contexts) do
 		context.glx_info:invalidate()
 	end
 	return false
 end
 function should_consume_key_press_event(key, modifiers)
+	if glxosd_configuration_error then
+		return;
+	end
 	for _, context in pairs(contexts) do
 		if context:has_keyboard_combo(key, modifiers) then
 			return true
@@ -135,11 +148,17 @@ function should_consume_key_press_event(key, modifiers)
 end
 
 function key_press_event(key, modifiers)
+	if glxosd_configuration_error then
+		return;
+	end
 	for _, context in pairs(contexts) do
 		context:handle_key_combo(key, modifiers)
 	end
 end
 function configure_notify_event(event)
+	if glxosd_configuration_error then
+		return;
+	end
 	for _, context in pairs(contexts) do
 		context.glx_info:invalidate()
 	end

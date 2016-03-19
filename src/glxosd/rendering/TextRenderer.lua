@@ -42,40 +42,79 @@ local OUTLINE_TYPES = {
 	inside = 3
 }
 
-local CONFIG_SCHEMA = {
-	font="string",
-	font_size="number",
-	outline={
-		type=function(value)
-			return OUTLINE_TYPES[value]
-		end,
-		thickness=function(value)
-			return type(value)=="number" and value>=0
-		end,
-		color="color"
-	},
-	gamma="number",
-	lcd_filter_enabled="boolean",
-	underline={
-		enabled="boolean",
-		color="color"
-	},
-	overline={
-		enabled="boolean",
-		color="color"
-	},
-	strikethrough={
-		enabled="boolean",
-		color="color"
-	},
-	color="color",
-	background_color="color"
+local ALIGNMENT_MAP = {
+	left= freetype_gl.ALIGN_LEFT,
+	center= freetype_gl.ALIGN_CENTER,
+	centre= freetype_gl.ALIGN_CENTER,
+	right= freetype_gl.ALIGN_RIGHT
 }
 
 local TextRenderer = {
 	}
 
 TextRenderer.__index = TextRenderer;
+
+TextRenderer.CONFIG_SCHEMA = {
+	refresh_time = ConfigurationManager.validator(function(value)
+			return type(value)=="number" and value>=0
+		end, "refresh_time should be a non-negative number"),
+
+	align_to_h = ConfigurationManager.validator(function(value)
+		return value=="left" or value=="right_absolute" or value=="right"
+	end, "align_to_h should be set to one of the following values: left, right, right_absolute"),
+
+	align_to_v = ConfigurationManager.validator(function(value)
+		return value=="top" or value=="bottom_absolute" or value=="bottom"
+	end, "align_to_v should be set to one of the following values: top, bottom, bottom_absolute"),
+
+	offset_x = "number",
+	
+	offset_y = "number",
+	
+	font="string",
+
+	font_size="number",
+
+	outline={
+		type=ConfigurationManager.validator(function(value)
+			return OUTLINE_TYPES[value]
+		end, "outline type should be set to one of the following values: none, outer, inner, inside"),
+
+		thickness=ConfigurationManager.validator(function(value)
+			return type(value)=="number" and value>=0
+		end, "outline thickness should be a non-negative number"),
+	
+		color="color"
+	},
+	
+	gamma="number",
+	
+	lcd_filter_enabled="boolean",
+	
+	underline={
+		enabled="boolean",
+		
+		color="color"
+	},
+	
+	overline={
+		enabled="boolean",
+		
+		color="color"
+	},
+	
+	strikethrough={
+		enabled="boolean",
+	
+		color="color"
+	},
+	
+	color="color",
+	
+	background_color="color",
+	
+	toggle_key_combo="key_combo"
+}
 
 function TextRenderer:build_outline_markup(normal, type, color, thickness, font)
 	local outline = ffi_types.markup_t_ref(normal)
@@ -150,11 +189,11 @@ function TextRenderer:print_text(pen, text)
 			font)
 		freetype_gl.text_buffer_printf( self.buffer1, pen1,
 			cur, ffi_types.char_array_from_string(markup_element.text), nil)
-		freetype_gl.text_buffer_align( self.buffer1, pen1, freetype_gl.ALIGN_LEFT )
 		freetype_gl.text_buffer_printf( self.buffer2, pen2,
 			cur_outline, ffi_types.char_array_from_string(markup_element.text), nil)
-		freetype_gl.text_buffer_align( self.buffer2, pen2, freetype_gl.ALIGN_LEFT )
 	end
+	freetype_gl.text_buffer_align( self.buffer1, pen1, self.text_alignment)
+	freetype_gl.text_buffer_align( self.buffer2, pen2, self.text_alignment )
 	local bounds = freetype_gl.text_buffer_get_bounds(self.buffer1, pen1)
 	return bounds
 end
@@ -171,7 +210,23 @@ function TextRenderer:set_text (text)
 end
 
 function TextRenderer:render (width, height)
-	freetype_gl.mat4_set_translation(self.model, 0, height - self.bounds.y, 0)
+	local x = 0
+	if self.config.align_to_h == "left" then
+		x = self.config.offset_x;
+	elseif self.config.align_to_h == "right" then
+		x = width + self.config.offset_x - self.bounds.width;
+	else
+		x = width + self.config.offset_x;
+	end
+	local y = 0
+	if self.config.align_to_v == "top" then
+		y = height - self.bounds.y - self.config.offset_y;
+	elseif self.config.align_to_v == "bottom" then
+		y = -self.config.offset_y + self.bounds.height;
+	else
+		y = -self.config.offset_y;
+	end
+	freetype_gl.mat4_set_translation(self.model, x, y, 0)
 	gl.glViewport(0, 0, ffi.cast(ffi_types.GLsizei, width), ffi.cast(ffi_types.GLsizei, height))
 
 	gl.glEnable(GL_BLEND)
@@ -261,6 +316,7 @@ function TextRenderer:init(config)
 
 	self.normal = normal
 
+	self.text_alignment = ALIGNMENT_MAP[self.config.text_alignment]
 end
 
 function TextRenderer:destroy()
@@ -273,8 +329,6 @@ function TextRenderer:destroy()
 end
 
 function TextRenderer.new(config)
-	ConfigurationManager.check_schema(config,
-		CONFIG_SCHEMA, false, "[text renderer configuration]")
 
 	local self = {}
 	setmetatable(self, TextRenderer)

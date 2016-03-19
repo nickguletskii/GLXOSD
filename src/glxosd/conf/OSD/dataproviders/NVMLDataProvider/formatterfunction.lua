@@ -14,17 +14,32 @@ copies or substantial portions of the Software.
 
 local formattingutil = require("util/formattingutil")
 
+--[[
+	A table that maps the data_order setting to the functions that write to the OSD.
+]]
 local DATA_WRITERS = {
-	temperature = function(self, offset, dev, res, el)
+	temperature = function(self, offset, dev, osd_document, el)
+		-- Determine if the temperature is normal or if the graphics card is overheating.
 		local heat_status = "unknown"
 		if dev.temperature_thresholds then
-			if dev.temperature_thresholds.slowdown or dev.temperature_thresholds.shutdown then
+			if
+				dev.temperature_thresholds.slowdown
+				or dev.temperature_thresholds.shutdown
+			then
 				heat_status="normal"
 			end
-			if dev.temperature_thresholds.slowdown and dev.temperature >= dev.temperature_thresholds.slowdown then
+
+			if
+				dev.temperature_thresholds.slowdown
+				and dev.temperature >= dev.temperature_thresholds.slowdown
+			then
 				heat_status = "slowdown"
 			end
-			if dev.temperature_thresholds.shutdown and dev.temperature >= dev.temperature_thresholds.shutdown then
+
+			if
+				dev.temperature_thresholds.shutdown
+				and dev.temperature >= dev.temperature_thresholds.shutdown
+			then
 				heat_status = "shutdown"
 			end
 		end
@@ -35,30 +50,40 @@ local DATA_WRITERS = {
 			slowdown = self.config.slowdown_temperature_color,
 			shutdown = self.config.shutdown_temperature_color
 		}
-		local temperature_color = color_map[heat_status]
-		table.insert_all(res,
+
+		-- Write the temperature to the OSD.
+		table.insert_all(osd_document,
 			el.indent(offset+1),
 			el.new({text = "Temperature: "}),
 			el.new({
-				text=tostring(dev.temperature).."°",
-				color=temperature_color
+				text=string.format("%d°",dev.temperature),
+				color=color_map[heat_status]
 			})
 		)
-		if dev.temperature_thresholds.slowdown and dev.temperature >= dev.temperature_thresholds.slowdown then
-			table.insert_all(res,
+
+		-- Show a warning in the OSD if the graphics card is being throttled.
+		if
+			dev.temperature_thresholds.slowdown
+			and dev.temperature >= dev.temperature_thresholds.slowdown
+		then
+			table.insert_all(osd_document,
 				el.new({
 					text = "(thrtl)",
 					color=self.config.slowdown_temperature_color
 				})
 			)
 		end
-		table.insert_all(res,
+
+		table.insert_all(osd_document,
 			el.newline
 		)
 	end,
-	graphics_clock = function(self, offset, dev, res, el)
-		if dev.clocks and dev.clocks.graphics then
-			table.insert_all(res,
+	graphics_clock = function(self, offset, dev, osd_document, el)
+		if
+			dev.clocks
+			and dev.clocks.graphics
+		then
+			table.insert_all(osd_document,
 				el.indent(offset+1),
 				el.new({
 					text = string.format("Graphics clock: %d",dev.clocks.graphics)
@@ -67,9 +92,12 @@ local DATA_WRITERS = {
 			)
 		end
 	end,
-	sm_clock = function(self, offset, dev, res, el)
-		if dev.clocks and dev.clocks.sm then
-			table.insert_all(res,
+	sm_clock = function(self, offset, dev, osd_document, el)
+		if
+			dev.clocks
+			and dev.clocks.sm
+		then
+			table.insert_all(osd_document,
 				el.indent(offset+1),
 				el.new({
 					text = string.format("SM clock: %d", dev.clocks.sm)
@@ -78,9 +106,9 @@ local DATA_WRITERS = {
 			)
 		end
 	end,
-	memory_clock = function(self, offset, dev, res, el)
+	memory_clock = function(self, offset, dev, osd_document, el)
 		if dev.clocks and dev.clocks.memory then
-			table.insert_all(res,
+			table.insert_all(osd_document,
 				el.indent(offset+1),
 				el.new({
 					text = string.format("Memory clock: %d", dev.clocks.memory)
@@ -89,9 +117,9 @@ local DATA_WRITERS = {
 			)
 		end
 	end,
-	gpu_utilisation = function(self, offset, dev, res, el)
+	gpu_utilisation = function(self, offset, dev, osd_document, el)
 		if dev.utilisation then
-			table.insert_all(res,
+			table.insert_all(osd_document,
 				el.indent(offset+1),
 				el.new({
 					text = string.format("GPU utilisation: %d%%", dev.utilisation.gpu)
@@ -100,9 +128,9 @@ local DATA_WRITERS = {
 			)
 		end
 	end,
-	memory_utilisation = function(self, offset, dev, res, el)
+	memory_utilisation = function(self, offset, dev, osd_document, el)
 		if dev.utilisation then
-			table.insert_all(res,
+			table.insert_all(osd_document,
 				el.indent(offset+1),
 				el.new({
 					text = string.format("Memory utilisation: %d%%", dev.utilisation.memory)
@@ -114,22 +142,29 @@ local DATA_WRITERS = {
 }
 
 return function(self, devices, el)
-	local offset = self.config.header.enabled and 1 or 0
+	-- If the header isn't enabled, don't add any indentation in each line.
+	local offset = self.config.header_style.enabled and 1 or 0
+	
 	local header  =
 		formattingutil.create_osd_section_header("GPUs", self, el)
-	local res = {
+	
+	local osd_document = {
 		header,
 		header and el.newline,
 	}
+	
 	for _, dev in pairs(devices) do
-		table.insert_all(res,
+		-- Write device name
+		table.insert_all(osd_document,
 			el.indent(offset),
 			el.new({text = dev.name}),
 			el.newline
 		)
+		
+		-- Write device data
 		for _, data_name in ipairs(self.config.data_order) do
-			DATA_WRITERS[data_name](self, offset, dev, res, el)
+			DATA_WRITERS[data_name](self, offset, dev, osd_document, el)
 		end
 	end
-	return res
+	return osd_document
 end

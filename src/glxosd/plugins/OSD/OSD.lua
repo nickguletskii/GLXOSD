@@ -21,15 +21,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 local TextRenderer = require("rendering/TextRenderer")
 local FontUtil = require("util/fontutil")
-local StatisticsOSD = {
+local OSD = {
 	}
-StatisticsOSD.__index = StatisticsOSD;
+OSD.__index = OSD;
 
-function StatisticsOSD:should_render()
+function OSD:should_render()
 	return self.rendering_enabled
 end
 
-function StatisticsOSD:each_data_provider(func)
+function OSD:each_data_provider(func)
 	for i, x in ipairs(self.data_providers) do
 		if x~=nil then
 			local status, err = pcall(function() func(x) end)
@@ -40,7 +40,7 @@ function StatisticsOSD:each_data_provider(func)
 	end
 end
 
-function StatisticsOSD:begin_frame()
+function OSD:begin_frame()
 	local current_time =  get_monotonic_time_nanoseconds();
 	if(self.last_text_reset <=  current_time - self.config.refresh_time* 1000000) then
 		self.rebuild_text = true
@@ -52,12 +52,12 @@ function StatisticsOSD:begin_frame()
 	end)
 end
 
-function StatisticsOSD:end_frame()
+function OSD:end_frame()
 	self:each_data_provider(function(data_provider)
 		data_provider:end_frame()
 	end)
 end
-function StatisticsOSD:render(width, height)
+function OSD:render(width, height)
 	if self.rebuild_text then
 		local text = {}
 		self:each_data_provider(function(data_provider)
@@ -72,21 +72,24 @@ function StatisticsOSD:render(width, height)
 	self.text_renderer:render(width, height)
 end
 
-function StatisticsOSD:has_keyboard_combo(key, modifiers)
+function OSD:has_keyboard_combo(key, modifiers)
 	return check_key_combo(self.config.toggle_key_combo, key, modifiers)
 end
-function StatisticsOSD:handle_key_combo(key, modifiers)
+function OSD:handle_key_combo(key, modifiers)
 	if check_key_combo(self.config.toggle_key_combo, key, modifiers) then
 		self.rendering_enabled = not self.rendering_enabled
 	end
 end
-function StatisticsOSD:destroy()
+function OSD:destroy()
 	self.text_renderer:destroy()
 end
-function StatisticsOSD.new(config, shared_state)
+function OSD.new(config, shared_state)
+	ConfigurationManager.check_schema(config,
+		TextRenderer.CONFIG_SCHEMA, false, "OSD plugin configuration")
+		
 	local self ={}
-	setmetatable(self, StatisticsOSD)
-
+	setmetatable(self, OSD)
+		
 	self.config = config
 	self.shared_state = shared_state
 
@@ -112,4 +115,4 @@ function StatisticsOSD.new(config, shared_state)
 	return self
 end
 
-return StatisticsOSD;
+return OSD;

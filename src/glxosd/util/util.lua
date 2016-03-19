@@ -38,6 +38,9 @@ function check_class(tbl, name)
 end
 
 function check_key_combo(key_combo, key, modifiers)
+	if not key_combo then
+		return false
+	end
 	local modifier_set={}
 	for _, modifier in pairs(key_combo.modifiers) do
 		modifier_set[modifier] = true

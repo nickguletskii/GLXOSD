@@ -21,7 +21,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 local ffi = require("ffi")
 local sens = require("ffi/libsensors")
-local DummyStatistics = require("plugins/StatisticsOSD/dataproviders/DummyDataProvider")
+local DummyStatistics = require("plugins/OSD/dataproviders/DummyDataProvider")
 local MarkupElement = require("rendering/MarkupElement")
 if sens == nil then
 	return DummyStatistics

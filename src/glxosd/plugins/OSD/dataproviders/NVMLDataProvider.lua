@@ -21,7 +21,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 local ffi = require("ffi")
 local nvml = require("ffi/nvml")
-local DummyStatistics = require("plugins/StatisticsOSD/dataproviders/DummyDataProvider")
+local DummyStatistics = require("plugins/OSD/dataproviders/DummyDataProvider")
 local MarkupElement = require("rendering/MarkupElement")
 if nvml == nil then
 	return DummyStatistics

@@ -1,14 +1,22 @@
 local formattingutil = require("util/formattingutil")
 
 return function(self, chips, el)
-	local offset = self.config.header.enabled and 1 or 0
+	-- If the header isn't enabled, don't add any indentation in each line.
+	local offset = self.config.header_style.enabled and 1 or 0
+
 	local header  =
 		formattingutil.create_osd_section_header("Sensors", self, el)
-	local res = {
+	local osd_document = {
 		header,
 		header and el.newline,
 	}
+
 	local chip_views = {}
+
+	--[[
+		Filter out unwanted chips and features, skipping chips and features that
+		do not have temperature information.
+	]]
 	for kchip, chip in pairs(chips) do
 		if self.config.chip_filter_function(self, chip) then
 			local chip_temperature_found = false
@@ -38,6 +46,7 @@ return function(self, chips, el)
 				end
 			end
 
+			-- Sort the features by label and id.
 			table.sort(feature_views, function(l, r)
 				if l.label == r.label then
 					return l.id < r.id
@@ -54,6 +63,8 @@ return function(self, chips, el)
 			end
 		end
 	end
+
+	-- Sort the chips by name and id.
 	table.sort(chip_views, function(l, r)
 		if l.name == r.name then
 			return l.id < r.id
@@ -62,19 +73,29 @@ return function(self, chips, el)
 	end)
 
 	for _, chip in pairs(chip_views) do
-		table.insert_all(res,
+		-- Write the chip's name to the OSD.
+		table.insert_all(osd_document,
 			el.indent(offset),
 			el.new({text = chip.name}),
 			el.newline
 		)
 		for _, feature in pairs(chip.features) do
+			-- Determine if the temperature is normal or if the chip is overheating.
+
 			local heat_status = "unknown"
 			if feature.current_max_temperature then
 				heat_status = "good"
-				if feature.current_temperature >= feature.current_max_temperature -self.config.max_temperature_warning_threshold then
+				if
+					feature.current_temperature
+					>= feature.current_max_temperature
+					- self.config.max_temperature_warning_threshold
+				then
 					heat_status = "warning"
 				end
-				if feature.current_temperature >= feature.current_max_temperature then
+				if
+					feature.current_temperature
+					>= feature.current_max_temperature
+				then
 					heat_status = "overheating"
 				end
 			end
@@ -86,16 +107,16 @@ return function(self, chips, el)
 				overhearing = self.config.overheating_temperature_color
 			}
 			local temperature_color = color_map[heat_status]
-			table.insert_all(res,
+			table.insert_all(osd_document,
 				el.indent(offset+1),
 				el.new({text = feature.label..": "}),
 				el.new({
-					text=tostring(feature.current_temperature),
+					text=string.format("%d°",feature.current_temperature),
 					color=temperature_color
 				}),
 				el.newline
 			)
 		end
 	end
-	return res
+	return osd_document
 end

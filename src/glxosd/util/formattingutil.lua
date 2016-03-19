@@ -20,16 +20,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]
 return {
 	create_osd_section_header = function (name,self,el)
-		if not self.config.header.enabled then
+		if not self.config.header_style.enabled then
 			return nil
 		end
 		return el.new({
 			text=name,
-			color=self.config.header.color,
-			font_size = self.config.header.font_size,
+			color=self.config.header_style.color,
+			font_size = self.config.header_style.font_size,
 			underline = {
-				enabled = self.config.header.underline.enabled,
-				color = self.config.header.underline.color
+				enabled = self.config.header_style.underline.enabled,
+				color = self.config.header_style.underline.color
 			}
 		})
 	end
