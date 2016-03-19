@@ -394,6 +394,7 @@ char* glinject_join_path(const char* path, const char* suffix) {
  */
 void glinject_construct() {
 
+	pthread_mutex_lock(&glinject_mutex);
 	// Link core methods.
 	glinject_init();
 
@@ -438,6 +439,8 @@ void glinject_construct() {
 
 	free(bootstrap_path);
 	free(main_path);
+	pthread_mutex_unlock(&glinject_mutex);
+
 }
 
 /*
