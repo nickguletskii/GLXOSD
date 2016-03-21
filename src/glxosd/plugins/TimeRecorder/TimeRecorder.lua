@@ -58,6 +58,8 @@ function TimeRecorder:start_benchmark()
 	self.file_name = self.config.benchmark_output_directory.."/glxosd_benchmark_"..os.date().."_"..benchmark_id..".csv"
 	benchmark_id = benchmark_id + 1
 	self.file = io.open(self.file_name, "w")
+	self.file:write("# GLXOSD frame log version (3.0)\n")
+	self.file:flush()
 	if self.file then
 		self.started = true
 		if self.config.enable_minimise_overhead_mode_during_benchmark then
@@ -78,8 +80,7 @@ end
 function TimeRecorder:handle_key_combo(key, modifiers)
 	if not self.started and check_key_combo(self.config.start_benchmark_key, key, modifiers) then
 		self:start_benchmark()
-	end
-	if self.started and check_key_combo(self.config.end_benchmark_key, key, modifiers) then
+	elseif self.started and check_key_combo(self.config.end_benchmark_key, key, modifiers) then
 		self:end_benchmark()
 	end
 end

@@ -418,7 +418,7 @@ TIME_RECORDER_CONFIG = {
 		--[[
             The name of the main key.
         ]]
-		main_key = "F5",
+		main_key = "F9",
 
 		--[[
             The list of modifier keys.
@@ -435,7 +435,7 @@ TIME_RECORDER_CONFIG = {
 		--[[
             The name of the main key.
         ]]
-		main_key = "F6",
+		main_key = "F9",
 
 		--[[
             The list of modifier keys.
