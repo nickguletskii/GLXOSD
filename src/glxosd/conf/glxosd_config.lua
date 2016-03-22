@@ -136,7 +136,7 @@ local OSD_CONFIG = {
 	--[[
 		Value used for gamma correction.
 	]]
-	gamma = 2,
+	gamma = 1,
 
 	--[[
 		LCD filtering may improve the appearance of the text.
