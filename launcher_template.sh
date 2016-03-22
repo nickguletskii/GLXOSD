@@ -12,7 +12,6 @@ function showHelp() {
 OPTIND=1
 
 INJECT_STEAM_OVERLAY=false
-GLXOSD_PRELOAD=""
 STEAM_PATH=~/.local/share/Steam
 
 while : ; do
