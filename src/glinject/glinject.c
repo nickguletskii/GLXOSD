@@ -465,5 +465,4 @@ void glinject_construct() {
  * Destruction
  */
 void glinject_destruct() {
-	lua_close(L);
 }
