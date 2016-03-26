@@ -18,9 +18,14 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]
-
-local config_roots = {
-	(os.getenv ("XDG_CONFIG_HOME") or (os.getenv ("HOME").."/.config/")).."/glxosd/",
+local homePath = (os.getenv ("XDG_CONFIG_HOME") or (os.getenv ("HOME").."/.config/")).."/glxosd/";
+local customPath = os.getenv ("GLXOSD_ADDITIONAL_CONFIG_LOCATION");
+if not customPath or #customPath == 0 then
+	customPath = homePath;
+end
+glxosd_config_roots = {
+	customPath,
+	homePath,
 	"/etc/glxosd/",
 	glxosdPackageRoot.."/glxosd/conf/"
 }
@@ -32,7 +37,7 @@ function ConfigurationManager.file_exists(name)
 end
 
 function ConfigurationManager.config_file(name)
-	for k,v in pairs(config_roots) do
+	for k,v in pairs(glxosd_config_roots) do
 		if ConfigurationManager.file_exists(v .. name) then
 			local loaded_chunk = assert(loadfile(v..name))
 			return loaded_chunk()

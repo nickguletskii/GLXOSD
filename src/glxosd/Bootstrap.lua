@@ -32,5 +32,5 @@ package.path = packagePathsCombined ..package.path
 require("util/util")
 
 require("ConfigurationManager")
-config_roots = ConfigurationManager.config_file("chainload.lua")
+glxosd_config_roots = ConfigurationManager.config_file("chainload.lua")
 GLXOSD_CONFIG = ConfigurationManager.config_file("glxosd_config.lua")
