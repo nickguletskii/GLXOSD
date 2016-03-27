@@ -23,7 +23,7 @@ local ffi = require("ffi")
 local nvml = require("ffi/nvml")
 local DummyStatistics = require("plugins/OSD/dataproviders/DummyDataProvider")
 local MarkupElement = require("rendering/MarkupElement")
-if nvml == nil then
+if not nvml then
 	return DummyStatistics
 end
 nvml.nvmlInit()

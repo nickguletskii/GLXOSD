@@ -23,7 +23,7 @@ local ffi = require("ffi")
 local sens = require("ffi/libsensors")
 local DummyStatistics = require("plugins/OSD/dataproviders/DummyDataProvider")
 local MarkupElement = require("rendering/MarkupElement")
-if sens == nil then
+if not sens then
 	return DummyStatistics
 end
 

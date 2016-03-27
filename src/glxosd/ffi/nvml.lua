@@ -16,7 +16,7 @@ local ffi = require("ffi")
 
 local status, nvml = pcall(function() return ffi.load(CURRENT_PATH_CONFIG.libnvidia_ml) end)
 if not status then
-	return nil
+	return false
 end
 
 
