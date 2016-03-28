@@ -1,3 +1,0 @@
-glxosd-libs-i386: postinst-has-useless-call-to-ldconfig
-glxosd-libs-i386: postrm-has-useless-call-to-ldconfig
-glxosd-libs-i386: improbable-bug-number-in-closes 2

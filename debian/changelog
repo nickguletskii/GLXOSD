@@ -1,3 +1,37 @@
+glxosd (3.0.1-1) wily; urgency=low
+
+  * Update README.
+  * Update dependencies.
+
+ -- Nick Guletskii <nick@nickguletskii.com>  Sun, 27 Mar 2016 21:40:43 +0300
+
+glxosd (3.0.0-1) wily; urgency=low
+
+  * Version 3 initial release.
+
+ -- Nick Guletskii <nick@nickguletskii.com>  Sun, 27 Mar 2016 21:01:08 +0300
+
+glxosd (2.5.0) trusty; urgency=medium
+
+  * Add locking to osdHandleBufferSwap.
+  * Don't render in the first frame.
+  * Ensure correct glPixelStore settings for texture upload.
+  * Fix reset of GL_TEXTURE_BINDING_2D.
+  * Fix broken vsync toggle, don't parse strings every frame.
+  * Use the GLX drawable dimensions instead of GL_VIEWPORT.
+  * Add ability to toggle VSync.
+  * Fix GL_INVALID_ENUM errors.
+
+ -- Nick Guletskii <nick@nickguletskii.com>  Tue, 15 Sep 2015 21:53:00 +0300
+
+glxosd (2.4.0) trusty; urgency=medium
+
+  * Fix textures coming out as black in some OpenGL applications.
+  * Fix segfaults caused by empty configuration values.
+  * Add the ability to deffer frame log persistence to disk.
+
+ -- Nick Guletskii <nick@nickguletskii.com>  Wed, 02 Sep 2015 12:14:00 +0300
+
 glxosd (2.3.3) trusty; urgency=medium
 
   * Allow Boost Format arguments to be unused.
@@ -50,7 +84,7 @@ glxosd (2.1.1) trusty; urgency=medium
   * Migrate to OpenGL 3 (adds support for OpenGL core profile). This also means
     that this project no longer requires FTGL. Also, the text looks better now.
   * Use std::chrono instead of sys/time.h
-  * Add support for configuring GLXOSD by specifying the path to the 
+  * Add support for configuring GLXOSD by specifying the path to the
     configuration file
 
  -- Nick Guletskii <nickguletskii200@gmail.com>  Sun, 29 Jun 2014 15:30:53 +0300

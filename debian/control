@@ -1,93 +1,88 @@
 Source: glxosd
+Priority: optional
+Maintainer: Nick Guletskii <nick@nickguletskii.com>
+Build-Depends: debhelper (>= 9), cmake, libgl1-mesa-dev, libglu1-mesa-dev, mesa-common-dev,libfreetype6-dev,libglew-dev,libluajit-5.1-dev,libglfw3-dev,libfontconfig1-dev
+Standards-Version: 3.9.6
 Section: utils
-Priority: extra
-Maintainer: Nick Guletskii <nickguletskii200@gmail.com>
-Build-Depends: debhelper (>= 9.0.0), cdbs, cmake, mesa-common-dev, libgl1-mesa-dev, nvidia-common, nvidia-current-dev, nvidia-settings, libglu1-mesa-dev, libfontconfig1-dev, libfreetype6-dev, libsensors4-dev, libboost-dev
-Standards-Version: 3.9.3
-Homepage: https://github.com/nickguletskii/GLXOSD
+Homepage: https://glxosd.nickguletskii.com/
 Vcs-Git: https://github.com/nickguletskii/GLXOSD
-Vcs-Browser: https://github.com/nickguletskii/GLXOSD.git
+Vcs-Browser: https://github.com/nickguletskii/GLXOSD
 
 Package: glxosd
 Multi-arch: foreign
 Architecture: any
-Depends: ${misc:Depends}, bash (>= 4.0), glxosd-libs-amd64 [amd64], glxosd-libs-i386 [i386], glxosd-libs-i386 [amd64]
-Suggests: glxosd-libs-nvidia-support-amd64 [amd64], glxosd-libs-nvidia-support-i386 [i386], glxosd-libs-nvidia-support-i386 [amd64]
+Depends: ${misc:Depends}, bash (>= 4.0), glxosd-libs-amd64 [amd64], glxosd-libs-i386(>= 3.0.1) [i386], glxosd-libs-i386(>= 3.0.1) [amd64]
 Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
- GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired
- from RivaTuner OSD on Windows. It can display the number of frames per second,
- the temperature of CPUs and the temperature of NVIDIA GPUs.
+ GLXOSD is an extensible on-screen display (OSD)/overlay for OpenGL applications
+ running on Linux with X11 which aims to provide similar functionality to MSI
+ Afterburner/RivaTuner OSD. It can show FPS, frame timings, temperatures and
+ more in OpenGL games and applications. It can also be used to benchmark games,
+ much like voglperf.
  This package provides the launcher.
 
 Package: glxosd-libs-amd64
 Architecture: amd64
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, libc6 (>= 2.14), libfontconfig1 (>= 2.8.0), libfreetype6 (>= 2.2.1), libgcc1 (>= 1:4.1.1), libglu1-mesa | libglu1, libstdc++6 (>= 4.4.0), glxosd-data
+Depends: ${misc:Depends}, libc6 (>= 2.14), libfontconfig1 (>= 2.8.0), libfreetype6 (>= 2.2.1), libgcc1 (>= 1:4.1.1), libglu1-mesa | libglu1, glxosd-data(>= 3.0.1)
 Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
- GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired
- from RivaTuner OSD on Windows. It can display the number of frames per second,
- the temperature of CPUs and the temperature of NVIDIA GPUs.
- This package provides the injectable libraries for the amd64 architecture.
+ GLXOSD is an extensible on-screen display (OSD)/overlay for OpenGL applications
+ running on Linux with X11 which aims to provide similar functionality to MSI
+ Afterburner/RivaTuner OSD. It can show FPS, frame timings, temperatures and
+ more in OpenGL games and applications. It can also be used to benchmark games,
+ much like voglperf.
+ This package provides the injectable libraries for the i386 architecture.
 
 Package: glxosd-libs-i386
 Multi-arch: foreign
 Architecture: i386
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, libc6 (>= 2.14), libfontconfig1 (>= 2.8.0), libfreetype6 (>= 2.2.1), libgcc1 (>= 1:4.1.1), libglu1-mesa | libglu1, libstdc++6 (>= 4.4.0), glxosd-data
+Depends: ${misc:Depends}, libc6 (>= 2.14), libfontconfig1 (>= 2.8.0), libfreetype6 (>= 2.2.1), libgcc1 (>= 1:4.1.1), libglu1-mesa | libglu1, glxosd-data(>= 3.0.1)
 Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
- GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired
- from RivaTuner OSD on Windows. It can display the number of frames per second,
- the temperature of CPUs and the temperature of NVIDIA GPUs.
- This package provides the injectable libraries for the i386 architecture.
-
-Package: glxosd-libs-libsensors-support-amd64
-Architecture: amd64
-Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, glxosd-libs-amd64, libc6 (>= 2.14), libgcc1 (>= 1:4.1.1), libstdc++6 (>= 4.4.0), libsensors4 (>= 1:3.0.0)
-Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
- GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired
- from RivaTuner OSD on Windows. It can display the number of frames per second,
- the temperature of CPUs and the temperature of NVIDIA GPUs.
- This package provides standard sensor support for the amd64 architecture.
-
-Package: glxosd-libs-libsensors-support-i386
-Multi-arch: foreign
-Architecture: i386
-Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, glxosd-libs-i386, libc6 (>= 2.14), libgcc1 (>= 1:4.1.1), libstdc++6 (>= 4.4.0), libsensors4 (>= 1:3.0.0)
-Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
- GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired
- from RivaTuner OSD on Windows. It can display the number of frames per second,
- the temperature of CPUs and the temperature of NVIDIA GPUs.
- This package provides standard sensor support for the i386 architecture.
-
-Package: glxosd-libs-nvidia-support-amd64
-Architecture: amd64
-Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, glxosd-libs-amd64, libc6 (>= 2.14), libgcc1 (>= 1:4.1.1), libstdc++6 (>= 4.4.0), libx11-6 (>= 2:1.4.99.1), libxext6
-Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
- GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired
- from RivaTuner OSD on Windows. It can display the number of frames per second,
- the temperature of CPUs and the temperature of NVIDIA GPUs.
- This package provides NVIDIA sensor support for the amd64 architecture.
-
-Package: glxosd-libs-nvidia-support-i386
-Multi-arch: foreign
-Architecture: i386
-Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, glxosd-libs-i386, libc6 (>= 2.14), libgcc1 (>= 1:4.1.1), libstdc++6 (>= 4.4.0), libx11-6 (>= 2:1.4.99.1), libxext6
-Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
- GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired
- from RivaTuner OSD on Windows. It can display the number of frames per second,
- the temperature of CPUs and the temperature of NVIDIA GPUs.
- This package provides NVIDIA sensor support for the i386 architecture.
+ GLXOSD is an extensible on-screen display (OSD)/overlay for OpenGL applications
+ running on Linux with X11 which aims to provide similar functionality to MSI
+ Afterburner/RivaTuner OSD. It can show FPS, frame timings, temperatures and
+ more in OpenGL games and applications. It can also be used to benchmark games,
+ much like voglperf.
+ This package provides the injectable libraries for the amd64 architecture.
 
 Package: glxosd-data
 Multi-arch: foreign
 Architecture: all
 Depends: libfontconfig1, libfreetype6
 Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
- GLXOSD is a basic OSD that works by intercepting glXSwapBuffers calls, inspired
- from RivaTuner OSD on Windows. It can display the number of frames per second,
- the temperature of CPUs and the temperature of NVIDIA GPUs.
- This package provides fonts and other data.
+ GLXOSD is an extensible on-screen display (OSD)/overlay for OpenGL applications
+ running on Linux with X11 which aims to provide similar functionality to MSI
+ Afterburner/RivaTuner OSD. It can show FPS, frame timings, temperatures and
+ more in OpenGL games and applications. It can also be used to benchmark games,
+ much like voglperf.
+ This package provides the scripts and other shared data.
+
+Package: glxosd-libs-libsensors-support-amd64
+Architecture: amd64
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, glxosd-libs-amd64
+Description: transitional dummy package
+ This is a transitional dummy package. It can safely be removed.
+
+Package: glxosd-libs-libsensors-support-i386
+Multi-arch: foreign
+Architecture: i386
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, glxosd-libs-i386
+Description: transitional dummy package
+ This is a transitional dummy package. It can safely be removed.
+
+Package: glxosd-libs-nvidia-support-amd64
+Architecture: amd64
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, glxosd-libs-amd64
+Description: transitional dummy package
+ This is a transitional dummy package. It can safely be removed.
+
+Package: glxosd-libs-nvidia-support-i386
+Multi-arch: foreign
+Architecture: i386
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, glxosd-libs-i386
+Description: transitional dummy package
+ This is a transitional dummy package. It can safely be removed.
