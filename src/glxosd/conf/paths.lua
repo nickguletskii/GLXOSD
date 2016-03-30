@@ -10,7 +10,7 @@ local function get_nvidia_driver_version()
 	return res
 end
 
-local NVIDIA_DRIVER_VERSION = get_nvidia_driver_version()
+local NVIDIA_DRIVER_VERSION = get_nvidia_driver_version() or "unknown"
 
 PATH_CONFIG = {
 	x64 = {

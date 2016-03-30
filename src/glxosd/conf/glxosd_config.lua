@@ -409,7 +409,7 @@ TIME_RECORDER_CONFIG = {
 	--[[
         The directory to write the time logs to.
     ]]
-	benchmark_output_directory = os.getenv("HOME").."/benchmarks",
+	benchmark_output_directory = "/tmp/",
 
 	--[[
         The key combination to toggle the OSD visibility. Set to nil to disable.
