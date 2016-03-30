@@ -20,6 +20,10 @@ while : ; do
 		[ -n "${INSTALL_SUFFIX_64}" ]
 			INSTALL_SUFFIX_64="$2"
 			shift 2 ;;
+		--cmake-install-full-datarootdir)
+		[ -n "${CMAKE_INSTALL_FULL_DATAROOTDIR}" ]
+			CMAKE_INSTALL_FULL_DATAROOTDIR="$2"
+			shift 2 ;;
 		*)
 			break ;;
 	esac
@@ -30,5 +34,6 @@ function escape {
 OUTPUT="${TEMPLATE}";
 OUTPUT=$(echo "${OUTPUT}" | sed "s/{{GLXOSD_LIBRARY_PATH_I386}}/"$(escape ${INSTALL_PREFIX-"/usr/"})"\/"$(escape ${INSTALL_SUFFIX_32-"/lib/i386-linux-gnu/"})"\/glxosd\//g");
 OUTPUT=$(echo "${OUTPUT}" | sed "s/{{GLXOSD_LIBRARY_PATH_AMD64}}/"$(escape ${INSTALL_PREFIX-"/usr/"})"\/"$(escape ${INSTALL_SUFFIX_64-"/lib/x86_64-linux-gnu/"})"\/glxosd\//g");
+OUTPUT=$(echo "${OUTPUT}" | sed "s/{{GLXOSD_SHARED_PATH}}/"$(escape ${CMAKE_INSTALL_FULL_DATAROOTDIR})"\/glxosd\//g");
 echo "${OUTPUT}" > "${TARGET_FILE}"
 chmod +x "${TARGET_FILE}"
