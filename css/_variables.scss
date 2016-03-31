@@ -1,0 +1,17 @@
+
+$container-max-widths: (
+  sm: 576px,
+  md: 720px,
+  lg: 780px,
+  xl: 840px) !default;
+$gray-dark: #373a3c;
+$gray: #55595c;
+$gray-light: #818a91;
+$gray-lighter: #eceeef;
+$gray-lightest: #f7f7f9;
+$brand-primary: #031926;
+$brand-success: #77aca2;
+$brand-info: #468189;
+$brand-warning: #f0ad4e;
+$brand-danger: #d9534f;
+$link-color: $brand-info;

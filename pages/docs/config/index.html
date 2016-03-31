@@ -1,0 +1,876 @@
+---
+title: Configuration
+jade: true
+toc: true
+---
+h2#introduction Introduction
+p.
+    Since GLXOSD v3, most of configuration is done through a set of Lua scripts that give almost complete control over how the OSD looks and what information is shown in it. Because you are given the complete Lua language to play with, you may define common constants, dynamically determine values, etc...
+
+h2#paths Paths
+p.
+    By default, GLXOSD looks for configuration scripts in the following directories (in that particular order):
+ul
+    li
+        <code>$XDG_CONFIG_HOME/glxosd/</code> (if <code>$XDG_CONFIG_HOME</code> isn't set, the default value of <code>~/.config/glxosd/</code> will be used instead)
+    li
+        <code>/etc/glxosd/</code>
+    li
+        <code>$GLXOSD_SCRIPTS_ROOT/glxosd/conf/</code> (this is usually <code>/usr/share/glxosd/glxosd/conf/</code>)
+
+p.
+    You can modify the path by modifying the content of <code>chainload.lua</code> which can be located in one of the directories mentioned above.
+
+h2#common-config-table-types Common configuration table types
+h3#colors Colors
+p.
+    Colors are represented by a table with 4 keys: <code>r</code>, <code>g</code>, <code>b</code> and <code>a</code>, which stand for red, green blue and alpha respectively. The values must be numbers between 0 and 1.
+
+p. Examples:
+ul
+    li <code>{r=1, g=0, b=0, a=1}</code> is red.
+    li <code>{r=0, g=1, b=0, a=1}</code> is green.
+    li <code>{r=0, g=1, b=1, a=1}</code> is cyan.
+    li <code>{r=0, g=0, b=0.5, a=0.5}</code> is half-opaque navy.
+
+h3#key-combos Key combinations
+p.
+    Key combinations are represented by a table with 2 keys:
+ul
+    li <code>main_key</code> &ndash; the main key of the key combination. For example, for the combination <kbd><kbd>Shift</kbd> + <kbd>F10</kbd></kbd> the main key is <kbd>F10</kbd>. The names for the keys should be as defined in <code>X11/keysymdef.h</code>.
+    li <code>modifiers</code> &ndash; a list of modifier keys that have to be pressed when the main key is pressed. Possible elements include: <code>shift</code>, <code>alt</code>, <code>control</code>, <code>caps</code>.
+p.
+    Examples:
+ul
+    li
+        p.
+            <kbd><kbd>Shift</kbd> + <kbd>F10</kbd></kbd>
+
+        pre.
+            {
+                main_key = "F10",
+                modifiers = {"shift"}
+            }
+    li
+        p.
+            <kbd><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>K</kbd></kbd>
+
+        pre.
+            {
+                main_key = "k",
+                modifiers = {"control", "alt"}
+            }
+h3#common-markup Common markup options
+p.
+    Individual pieces of text can be customised using the following configuration:
+table.table
+    thead.thead-inverse
+        tr
+            th Key
+            th Value type
+            th Value
+    tbody
+        tr
+            th.row
+                <code>font_size</code>
+            td.
+                number (positive)
+            td.
+                The text size.
+        tr
+            th.row
+                <code>color</code>
+            td.
+                table (<a href="#colors">color</a>)
+            td
+                p.
+                    The color of the text.
+        tr
+            th.row
+                <code>background_color</code>
+            td.
+                table (<a href="#colors">color</a>)
+            td
+                p.
+                    The background color of each symbol.
+        tr
+            th.row
+                <code>gamma</code>
+            td.
+                number (positive)
+            td
+                p.
+                    Value used for gamma correction.
+        tr
+            th.row
+                <code>underline</code>
+                <code>overline</code>
+                <code>strikethrough</code>
+            td.
+                boolean
+            td
+                p.
+                    A table describing the style of an underline/overline/strikethrough.
+                table.table
+                    thead.thead-inverse
+                        tr
+                            th Key
+                            th Value type
+                            th Value
+                    tbody
+                        tr
+                            th.row
+                                <code>enabled</code>
+                            td.
+                                boolean
+                            td
+                                p.
+                                    Set to false to disable the underline/overline/strikethrough
+                        tr
+                            th.row
+                                <code>color</code>
+                            td.
+                                table (<a href="#colors">color</a>)
+                            td
+                                p.
+                                    The color of the underline/overline/strikethrough
+
+h2#config-files Config files
+h3#config-files-glxosd_config_lua glxosd_config.lua
+p.
+    This is the main configuration file. Once it executes, the following global variables should be set:
+ul
+    li.
+        <code>GLXOSD_CONFIG</code> &ndash; the main configuration table.
+    li.
+        <code>CURRENT_PATH_CONFIG</code> &ndash; the table that maps library names to their paths. Please see <code>paths.lua</code> for an example.
+h3#config-files-paths_lua paths.lua
+
+p.
+    The default <code>glxosd_config.lua</code> runs a file called <code>paths.lua</code> first. Its purpose is to help the dynamic linker locate the required shared libraries.
+
+p.
+    The default <code>paths.lua</code> contains logic to locate <code>libnvidia-ml</code> on Ubuntu-based systems.
+
+h3#config-files-arch_lua arch.lua
+
+p.
+    GLXOSD ships with <code>arch.lua</code>, which is a script that determines the architecture of the host system, as opposed to the architecture of the current application. This is useful for determining paths in multiarch systems.
+
+h3#config-files-chainload_lua chainload.lua
+
+p.
+    <code>chainload.lua</code> is a script that must return the list of configuration paths where to look for further configuration scripts. This essentially allows you to specify custom locations for configuration scripts.
+
+h2#globals Configuration globals
+h3#globals-GLXOSD_CONFIG GLXOSD_CONFIG
+p.
+    GLXOSD_CONFIG is a global table which contains the following keys:
+ul
+    li
+        p.
+            <code>plugin</code> &ndash; the value should be a list of tables, where each table contains  the following keys:
+        ul
+            li <code>path</code> &ndash; the path to the plugin's main file.
+            li <code>enabled</code> &ndash; set to false to disable the plugin and set to true to enable the plugin.
+            li <code>config</code> &ndash; the configuration table for the plugin.
+h3#globals-CURRENT_PATH_CONFIG CURRENT_PATH_CONFIG
+p.
+    CURRENT_PATH_CONFIG must contain paths or names to shared libraries to be used by the dynamic linker. It must contain the following data:
+
+table.table
+    thead.thead-inverse
+        tr
+            th Name
+            th Default
+            th Description
+    tbody
+        tr
+            th.row
+                <code>libGL</code>
+            td
+                <code>libGL.so.1</code>
+            td
+                p.
+                    The path to libGL (the OpenGL shared library)
+        tr
+            th.row
+                <code>libGLEW</code>
+            td
+                <code>libGLEW.so.1.10</code>
+            td
+                p.
+                    The path to libGLEW (the OpenGL Extension Wrangler)
+        tr
+            th.row
+                <code>libX11</code>
+            td
+                <code>libX11.so.6</code>
+            td
+                p.
+                    The path to libX11
+        tr
+            th.row
+                <code>libfreetype_gl</code>
+            td
+                <code>libglxosd-freetype-gl.so.1</code>
+            td
+                p.
+                    The path to freetype-gl.
+
+        tr
+            th.row
+                <code>libfontconfig</code>
+            td
+                <code>libfontconfig.so.1</code>
+            td
+                p.
+                    The path to fontconfig
+        tr
+            th.row
+                <code>libsensors</code>
+            td
+                <code>libsensors.so.4</code>
+            td
+                p.
+                    The path to libsensors
+        tr
+            th.row
+                <code>libnvidia_ml</code>
+            td.
+                Determined programatically
+            td
+                p.
+                    The path to libnvidia-ml (the shared library that contains NVML)
+
+
+h2#plugins Plugins
+h3#plugins-OSD OSD
+p.
+    The path for the OSD plugin is <code>plugins/OSD/OSD</code>.
+p.
+    Configuration options (<a href="#common-markup">common markup options</a> also apply!):
+table.table
+    thead.thead-inverse
+        tr
+            th Key
+            th Value type
+            th Value
+    tbody
+        tr
+            th.row
+                <code>refresh_time</code>
+            td.
+                number (positive)
+            td.
+                The time in milliseconds between OSD redraws. This is done to lower the overhead because reuploading the text to the GPU every frame is expensive.
+        tr
+            th.row
+                <code>align_to_h</code>
+                <code>align_to_v</code>
+            td.
+                string (enumeration)
+            td
+                p.
+                    The alignment of the OSD's bounding box in respect to the view.
+                p.
+                    Acceptable values for align_to_h:
+                ul
+                    li <code>left</code> &ndash; aligns the left side of the OSD to the left side of the view
+                    li <code>right</code> &ndash; aligns the right side of the OSD to the right side of the view
+                    li <code>right_absolute</code> &ndash; aligns the left side of the OSD to the right side of the view.
+
+                p.
+                    Acceptable values for align_to_v:
+                ul
+                    li <code>top</code> &ndash; aligns the top side of the OSD to the top side of the view
+                    li <code>bottom</code> &ndash; aligns the bottom side of the OSD to the bottom side of the view
+                    li <code>bottom_absolute</code> &ndash; aligns the top side of the OSD to the bottom side of the view
+        tr
+            th.row
+                <code>offset_x</code>
+                <code>offset_x</code>
+            td.
+                number
+            td.
+                The position of the OSD in respect to the corner it's aligned to.
+        tr
+            th.row
+                <code>font</code>
+            td.
+                string
+            td.
+                The font to be used. This is a Fontconfig font query string.
+
+        tr
+            th.row
+                <code>text_alignment</code>
+            td.
+                string (enumeration)
+            td
+                p.
+                    Text alignment in respect to the OSD's bounding box.
+                p.
+                    The possible values include:
+                ul
+                    li <code>left</code>
+                    li <code>right</code>
+                    li <code>center</code>
+        tr
+            th.row
+                <code>outline</code>
+            td.
+                table
+            td
+                p.
+                    The configuration table for the OSD text outline.
+                table.table
+                    thead.thead-inverse
+                        tr
+                            th Key
+                            th Value type
+                            th Value
+                    tbody
+                        tr
+                            th.row
+                                <code>type</code>
+                            td.
+                                string
+                            td
+                                p.
+                                    The type of the outline. Possible values include:
+                                ul
+                                    li <code>none</code> &ndash; no outline
+                                    li <code>outer</code> &ndash; outer rim of the symbols
+                                    li <code>inner</code> &ndash; inner rim of the symbols
+                                    li <code>inside</code> &ndash; the interior of the symbols
+                        tr
+                            th.row
+                                <code>thickness</code>
+                            td.
+                                number (non-negative)
+                            td
+                                p.
+                                    The thickness of the outline.
+                        tr
+                            th.row
+                                <code>color</code>
+                            td.
+                                table (<a href="#colors">color</a>)
+                            td
+                                p.
+                                    The color of the outline.
+        tr
+            th.row
+                <code>lcd_filter_enabled</code>
+            td.
+                boolean
+            td
+                p.
+                    LCD filtering may improve the appearance of the text. Set this setting to true to enable LCD filtering and to false to disable it.
+        tr
+            th.row
+                <code>toggle_key_combo</code>
+            td.
+                table (<a href="#key-combos">key combination</a>)
+            td
+                p.
+                    The <a href="#key-combos">key combination</a> that toggles the OSD visibility. Set to <code>nil</code> to disable.
+        tr
+            th.row
+                <code>osd_data_providers</code>
+            td.
+                table (<a href="#colors">color</a>)
+            td
+                p.
+                    The list of data providers to collect data from. This value must be a table of tables with the following keys:
+
+                table.table
+                    thead.thead-inverse
+                        tr
+                            th Key
+                            th Value type
+                            th Value
+                    tbody
+                    tr
+                        th.row
+                            <code>path</code>
+                        td.
+                            string
+                        td
+                            p.
+                                The path to the data provider's main file.
+                    tr
+                        th.row
+                            <code>enabled</code>
+                        td.
+                            boolean
+                        td
+                            p.
+                                Set to false to disable the data provider and set to true to enable the data provider.
+                    tr
+                        th.row
+                            <code>config</code>
+                        td.
+                            table
+                        td
+                            p.
+                                The configuration table for the data provider.
+h4#plugins-OSD-data-providers Data providers
+
+h5#plugins-OSD-data-providers-FrameDataProvider FrameDataProvider
+p.
+    The FrameDataProvider data provider provides statistics such as FPS and frame duration.
+p.
+    The path to the FrameDataProvider main file is <code>plugins/OSD/dataproviders/FrameDataProvider</code>
+p.
+    FrameDataProvider configuration table options:
+
+table.table
+    thead.thead-inverse
+        tr
+            th Key
+            th Value type
+            th Value
+    tbody
+        tr
+            th.row
+                <code>refresh_time</code>
+            td.
+                number (positive)
+            td
+                p.
+                    The FrameDataProvider provides the data from the last complete chunk (timespan) of n milliseconds, where n is the value of refresh_time.
+        tr
+            th.row
+                <code>formatter_function</code>
+            td.
+                function
+            td
+                p.
+                    The function used for formatting the text on the OSD. This can be used to completely customize what data is shown and how it is formatted.
+
+p.
+    The default formatter function is located in the configuration directory and can be loaded using the following code snippet: <code>ConfigurationManager.config_file("OSD/dataproviders/FrameDataProvider/formatterunction.lua")</code>
+
+p.
+    The default formatter function has the following options:
+
+table.table
+    thead.thead-inverse
+        tr
+            th Key
+            th Value type
+            th Value
+    tbody
+        tr
+            th.row
+                <code>low_fps</code>
+            td.
+                number
+            td
+                p.
+                    If the FPS is lower than this setting, the default formatter_function will highlight the FPS as a bad value.
+        tr
+            th.row
+                <code>acceptable_value_color</code>
+            td.
+                table (<a href="#colors">color</a>)
+            td
+                p.
+                    The <a href="#colors">color</a> of acceptable values (e.g. high enough FPS).
+        tr
+            th.row
+                <code>unacceptable_value_color</code>
+            td.
+                table (<a href="#colors">color</a>)
+            td
+                p.
+                    The <a href="#colors">color</a> of unacceptable values (e.g. low FPS).
+
+        tr
+            th.row
+                <code>header_style</code>
+            td.
+                table
+            td
+                p.
+                    The style of the header of this provider's OSD section.
+
+                p.
+                    It has the following options (plus <a href="#common-markup">common markup options</a>):
+                table.table
+                    thead.thead-inverse
+                        tr
+                            th Key
+                            th Value type
+                            th Value
+                    tbody
+                    tr
+                        th.row
+                            <code>enabled</code>
+                        td.
+                            boolean
+                        td
+                            p.
+                                Set to false to disable the header.
+        tr
+            th.row
+                <code>data_order</code>
+            td.
+                table (list)
+            td
+                p.
+                    An ordered list of the statistics to be displayed. You can reorder or remove these to customise in what order and what statistics are displayed.
+                p.
+                    The possible elements include:
+
+                table.table
+                    thead.thead-inverse
+                        tr
+                            th Name
+                            th Description
+                    tbody
+                        tr
+                            th.row
+                                <code>FPS</code>
+                            td
+                                p.
+                                    Frames Per Second (over the last timespan).
+                        tr
+                            th.row
+                                <code>AFD</code>
+                            td
+                                p.
+                                    Average Frame Duration (over the timespan).
+                        tr
+                            th.row
+                                <code>OSDATSPF</code>
+                            td
+                                p.
+                                    OSD Average Time Spent Per Frame - time spent by GLXOSD per frame on average over the last timespan.
+
+h5#plugins-OSD-data-providers-LibsensorsDataProvider LibsensorsDataProvider
+p.
+    The LibsensorsDataProvider data provider provides information from lm-sensors.
+p.
+    The path to the LibsensorsDataProvider main file is <code>plugins/OSD/dataproviders/LibsensorsDataProvider</code>
+p.
+    LibsensorsDataProvider configuration table options:
+
+table.table
+    thead.thead-inverse
+        tr
+            th Key
+            th Value type
+            th Value
+    tbody
+        tr
+            th.row
+                <code>formatter_function</code>
+            td.
+                function
+            td
+                p.
+                    The function used for formatting the text on the OSD. This can be used to completely customize what data is shown and how it is formatted.
+
+p.
+    The default formatter function is located in the configuration directory and can be loaded using the following code snippet: <code>ConfigurationManager.config_file("OSD/dataproviders/LibsensorsDataProvider/formatterfunction.lua")</code>
+
+p.
+    The default formatter function has the following options:
+
+table.table
+    thead.thead-inverse
+        tr
+            th Key
+            th Value type
+            th Value
+    tbody
+        tr
+            th.row
+                <code>chip_filter_function</code>
+            td.
+                function
+            td
+                p.
+                    The function used to filter out chips that you don't want to be displayed in the OSD.
+                p.
+                    This function has two parameters:
+                ul
+                    li <code>self</code> &ndash; the instance of the data provider
+                    li <code>chip</code> &ndash; the chip to be considered
+
+        tr
+            th.row
+                <code>feature_filter_function</code>
+            td.
+                function
+            td
+                p.
+                    The function used to filter out features that you don't want to be displayed in the OSD.
+                p.
+                    This function has three parameters:
+                ul
+                    li <code>self</code> &ndash; the instance of the data provider
+                    li <code>chip</code> &ndash; the chip to be considered
+        tr
+            th.row
+                <code>max_temperature_warning_threshold</code>
+            td.
+                number
+            td
+                p.
+                    If the temperature is above the maximum temperature for the device minus max_temperature_warning_threshold, the temperature will be highlighted.
+        tr
+            th.row
+                <code>default_temperature_color</code>
+            td.
+                table (<a href="#colors">color</a>)
+            td
+                p.
+                    The color to be used in case the maximum acceptable
+                    temperature is unknown.
+
+        tr
+            th.row
+                <code>good_temperature_color</code>
+            td.
+                table (<a href="#colors">color</a>)
+            td
+                p.
+                    The color to be used if the color is under the maximum
+                    temperature for the device minus the warning threshold.
+
+        tr
+            th.row
+                <code>warning_temperature_color</code>
+            td.
+                table (<a href="#colors">color</a>)
+            td
+                p.
+                    The color to be used if the color is over the maximum temperature for the device minus the warning threshold, but under the maximum temperature for the device.
+
+        tr
+            th.row
+                <code>overheating_temperature_color</code>
+            td.
+                table (<a href="#colors">color</a>)
+            td
+                p.
+                    The color to be used if the color is over the maximum
+                    temperature for the device.
+        tr
+            th.row
+                <code>header_style</code>
+            td.
+                table
+            td
+                p.
+                    The style of the header of this provider's OSD section.
+
+                p.
+                    It has the following options (plus <a href="#common-markup">common markup options</a>):
+                table.table
+                    thead.thead-inverse
+                        tr
+                            th Key
+                            th Value type
+                            th Value
+                    tbody
+                    tr
+                        th.row
+                            <code>enabled</code>
+                        td.
+                            boolean
+                        td
+                            p.
+                                Set to false to disable the header.
+
+
+h5#plugins-OSD-data-providers-NVMLDataProvider NVMLDataProvider
+p.
+    The NVMLDataProvider data provider provides information about NVIDIA GPUs.
+p.
+    The path to the NVMLDataProvider main file is <code>plugins/OSD/dataproviders/NVMLDataProvider</code>
+p.
+    NVMLDataProvider configuration table options:
+
+table.table
+    thead.thead-inverse
+        tr
+            th Key
+            th Value type
+            th Value
+    tbody
+    tr
+        th.row
+            <code>formatter_function</code>
+        td.
+            function
+        td
+            p.
+                The function used for formatting the text on the OSD. This can be used to completely customize what data is shown and how it is formatted.
+p.
+    The default formatter function is located in the configuration directory and can be loaded using the following code snippet: <code>ConfigurationManager.config_file("OSD/dataproviders/FrameDataProvider/formatterunction.lua")</code>
+
+p.
+    The default formatter function has the following options:
+
+table.table
+    thead.thead-inverse
+        tr
+            th Key
+            th Value type
+            th Value
+    tbody
+        tr
+            th.row
+                <code>default_temperature_color</code>
+            td.
+                table (<a href="#colors">color</a>)
+            td
+                p.
+                    The color to be used in case the slowdown and shutdown temperatures are unknown.
+        tr
+            th.row
+                <code>normal_temperature_color</code>
+            td.
+                table (<a href="#colors">color</a>)
+            td
+                p.
+                    The color to be used to represent normal temperatures.
+        tr
+            th.row
+                <code>slowdown_temperature_color</code>
+            td.
+                table (<a href="#colors">color</a>)
+            td
+                p.
+                    The color to be used to represent temperatures that cause a slowdown of the graphics card.
+        tr
+            th.row
+                <code>header_style</code>
+            td.
+                table
+            td
+                p.
+                    The style of the header of this provider's OSD section.
+
+                p.
+                    It has the following options (plus <a href="#common-markup">common markup options</a>):
+                table.table
+                    thead.thead-inverse
+                        tr
+                            th Key
+                            th Value type
+                            th Value
+                    tbody
+                    tr
+                        th.row
+                            <code>enabled</code>
+                        td.
+                            boolean
+                        td
+                            p.
+                                Set to false to disable the header.
+        tr
+            th.row
+                <code>data_order</code>
+            td.
+                table (list)
+            td
+                p.
+                    An ordered list of the statistics to be displayed. You can reorder or remove these to customise in what order and what statistics are displayed.
+                p.
+                    The possible elements include:
+
+                table.table
+                    thead.thead-inverse
+                        tr
+                            th Name
+                            th Description
+                    tbody
+                        tr
+                            th.row
+                                <code>temperature</code>
+                            td
+                                p.
+                                    GPU temperature sensor readings.
+                        tr
+                            th.row
+                                <code>gpu_utilisation</code>
+                            td
+                                p.
+                                    GPU utilisation percentage.
+                        tr
+                            th.row
+                                <code>memory_utilisation</code>
+                            td
+                                p.
+                                    Memory utilisation percentage.
+                        tr
+                            th.row
+                                <code>graphics_clock</code>
+                            td
+                                p.
+                                    The current GPU clock.
+                        tr
+                            th.row
+                                <code>memory_clock</code>
+                            td
+                                p.
+                                    The current memory clock.
+                        tr
+                            th.row
+                                <code>sm_clock</code>
+                            td
+                                p.
+                                    The current SM (Streaming Multiprocessor) clock.
+
+h3#plugins-TimeRecorder TimeRecorder
+p.
+    The path for the TimeRecorder plugin is <code>plugins/TimeRecorder/TimeRecorder</code>.
+
+p.
+    The TimeRecorder plugin is the plugin responsible for logging frame timings, i.e. creating frame timing logs.
+p.
+    Configuration options:
+table.table
+    thead.thead-inverse
+        tr
+            th Key
+            th Value type
+            th Value
+    tbody
+        tr
+            th.row
+                <code>benchmark_output_directory</code>
+            td.
+                string
+            td.
+                The directory to write the time logs to.
+        tr
+            th.row
+                <code>start_benchmark_key</code>
+            td.
+                table (<a href="#key-combos">key combination</a>)
+            td
+                p.
+                    The <a href="#key-combos">key combination</a> that starts the frame log recording. Set to <code>nil</code> to disable.
+        tr
+            th.row
+                <code>end_benchmark_key</code>
+            td.
+                table (<a href="#key-combos">key combination</a>)
+            td
+                p.
+                    The <a href="#key-combos">key combination</a> that ends the frame log recording. Set to <code>nil</code> to disable. You can use the same key as start_benchmark_key.
+        tr
+            th.row
+                <code>enable_minimise_overhead_mode_during_benchmark</code>
+            td.
+                boolean
+            td
+                p.
+                     If this is set to true, GLXOSD will not execute potentially expensive tasks such as rendering the OSD while logging frame timings.

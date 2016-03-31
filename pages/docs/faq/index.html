@@ -1,0 +1,50 @@
+---
+title:  "FAQ"
+jade: true
+toc: true
+---
+h2#multiarch How do I launch a 32 bit application on a 64 bit OS with GLXOSD?
+p.
+    If you are running Ubuntu or Debian, you should install the 32 bit libraries through the package manager. You can do that by following the installation procedure described on the install page.
+p.
+    If you are not running Ubuntu or Debian, you will have to compile 32 bit binaries in a chroot and then copy them into the appropriate location (which can be distro specific) and edit the <code>glxsosd</code> launcher to contain the correct paths.
+
+h2#live-inject How can I inject GLXOSD into an already running process?
+p.
+    There is no official way to do it yet, but you may have some luck with existing live shared object injection tools.
+
+h2#crash When I launch an application with GLXOSD it crashes! Why?
+p.
+    There is a chance of there being a symbol conflict between GLXOSD's libraries and the host application. If you find an application that crashes when GLXOSD is used, please file an issue on the <a href="https://github.com/nickguletskii/GLXOSD/issues">issue tracker</a>.
+
+h2#amd Why doesn't GLXOSD display the temperatures of AMD GPUs?
+
+p.
+    I don't have an AMD GPU, so I can't write a plugin to interface with their drivers. Commits are welcome!
+
+h2#XextFindDisplay Help! When I start an application, I get "undefined symbol: XextFindDisplay"!
+
+p.
+    I can't replicate this problem, and it might be caused by a misconfigured distro, so if you have any information, please post it <a href="https://github.com/nickguletskii/GLXOSD/issues/5">here</a>. Meanwhile, there is a workaround, which is described in the next paragraph.
+
+
+p.
+    Please add the libXext shared library to your <code>LD_PRELOAD</code>. For example, on Ubuntu you have to prefix the command with <code>LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libXext.so.6:${LD_PRELOAD}"</code> like this: <code>LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libXext.so.6:${LD_PRELOAD}" glxosd glxgears</code> If you are launching a 32 bit application, replace <code>x86_64-linux-gnu</code> with <code>i386-linux-gnu</code>.
+
+h2#how-does-it-work How does it work?
+
+p.
+    GLXOSD works by intercepting glXSwapBuffers and glXDestroyContext calls. It uses the dynamic linker to override the GLX implementation of these methods and call them after it has finished rendering the overlay
+
+h2#anti-cheat Is it safe to use GLXOSD with anti-cheat software?
+
+p.
+    While its very unlikely that you will get banned from games for using GLXOSD, you should understand that there is a risk of that happening. Please read the documentation of the anti-cheat software that you are running.
+
+p.
+    For example, VAC (Valve Anti-Cheat) seems to operate on a blacklist rather than a whitelist and doesn't seem to ban people who use applications that function similarly to GLXOSD (for example: Mumble Overlay and RivaTuner OSD).
+
+h2#other What if I have a question that isn't on this list?
+
+p.
+    Please file an issue on the <a href="https://github.com/nickguletskii/GLXOSD/issues">issue tracker</a> or send me an email. My email address is <a href="mailto:nick@nickguletskii.com">nick@nickguletskii.com</a>.

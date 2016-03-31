@@ -1,0 +1,74 @@
+---
+title:  "Usage"
+jade: true
+toc: true
+---
+
+h2#general-usage General usage
+
+p.
+    To use GLXOSD you'll need to launch the application you want it to display in using the <code>glxosd</code> command. All you have to do is prefix the command you use to launch the application with <code>glxosd </code>. For example, if you want to launch glxgears, you will have to run this:
+pre.
+    glxosd glxgears
+
+p.
+    And if you want to run Minecraft, you'll have to run this:
+pre.
+    glxosd java -jar Minecraft.jar
+
+p.
+    To remove the need of launching the application through the terminal, you should just edit the launcher for that application to include GLXOSD in the command.
+
+h2#steam-games Steam games
+
+div.card
+    ul.list-group.list-group-flush
+        li.list-group-item
+            h3#steam-games-step-1 Step 1
+            figure.figure
+                img(src="/assets/images/steam/step1.png")
+                figcaption.figure-caption Right click on the game in Steam.
+        li.list-group-item
+            h3#steam-games-step-2 Step 2
+            figure.figure
+                img(src="/assets/images/steam/step2.png")
+                figcaption.figure-caption Click "Properties" in the context menu.
+        li.list-group-item
+            h3#steam-games-step-3 Step 3
+            figure.figure
+                img(src="/assets/images/steam/step3.png")
+                figcaption.figure-caption Click "SET LAUNCH OPTIONS..." in the properties window.
+        li.list-group-item
+            h3#steam-games-step-4 Step 4
+            figure.figure
+                img(src="/assets/images/steam/step4.png")
+                figcaption.figure-caption Paste <code>glxosd --steam %command%</code> into the text box that appears.
+        li.list-group-item
+            h3#steam-games-step-5 Step 5
+            figure.figure
+                img(src="/assets/images/steam/step5.png")
+                figcaption.figure-caption Click OK.
+        li.list-group-item
+            h3#steam-games-step-6 Step 6
+            figure.figure
+                img(src="/assets/images/steam/step6.png")
+                figcaption.figure-caption And finally, click Close.
+
+h2#turn-on-off Turning the OSD off and on
+
+p.
+    The default shortcut for turning the GLXOSD on and off is <kbd>Shift</kbd> + <kbd>F10</kbd>. You can change this in the configuration.
+
+h2#benchmarking Benchmarking
+
+p.
+    The default shortcut for starting and stopping GLXOSD frame logging is <kbd>Shift</kbd> + <kbd>F9</kbd>. The default output location for GLXOSD frame timing logs is <code>/tmp/</code>. Both of these options can be configured in the configuration scripts.
+
+p.
+    When logging starts, a file for each context will be created in the output directory and, by default, the OSD will be hidden to remove the overhead of rendering it.
+
+p.
+    Each file starts with <code># GLXOSD frame log version (version)</code>
+
+p.
+    To make benchmarking more fair, please put the output directory on a fast filesystem.

@@ -1,0 +1,52 @@
+---
+title:  "Command-line options"
+jade: true
+toc: true
+---
+h2#additional-options General usage
+p
+    code glxosd [options] command
+
+h2#config Adding a configuration search location
+p.
+    To add a custom configuration location, use the <code>--config</code> flag, immediately followed by the path to the configuration directory.
+
+p.
+    Examples:
+
+p
+    code.
+        glxosd --config "/path/to/config/" glxgears
+
+h2#scripts-root Changing script root
+p.
+    To change the root script directory, use the <code>--scripts-root</code> flag, immediately followed by the path to the configuration directory. This essentially allows you to load different GLXOSD scripts.
+
+p.
+    Examples:
+
+p
+    code.
+        glxosd --scripts-root "/path/to/scripts/" glxgears
+
+h2#steam Add Steam overlay
+p.
+    To inject the steam overlay, use the <code>--steam</code> flag.
+
+p.
+    Examples:
+
+p
+    code.
+        glxosd --steam glxgears
+
+h2#steam-path Change the path to Steam
+p.
+    If Steam ins't located in its default location, please use the <code>--steam-path</code> flag.
+
+p.
+    Examples:
+
+p
+    code
+        glxosd --steam "~/.local/share/Steam" glxgears

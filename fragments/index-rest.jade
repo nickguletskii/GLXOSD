@@ -1,0 +1,71 @@
+h2 GLXOSD v3 has arrived!
+
+p.
+    GLXOSD is an extensible on-screen display (OSD)/overlay for OpenGL applications running on Linux with X11 which aims to provide similar functionality to MSI Afterburner/RivaTuner OSD. It can show FPS, frame timings, temperatures and more in OpenGL games and applications. It can also be used to benchmark games, much like voglperf.
+
+h2 Monitor performance and hardware status
+
+p.
+    The list of values that GLXOSD includes (but isn't limited to):
+
+ul
+    li Average Frames Per Second (FPS) over the last few seconds.
+    li Average Frame Duration (AFD) over the last few seconds.
+
+p.
+    With the help of lm-sensors (libsensors):
+
+ul
+    li CPU temperatures and other temperatures available through lm-sensors.
+
+p.
+    With NVIDIA's proprietary drivers, GLXOSD can also display the following:
+
+ul
+    li Graphics card temperatures
+    li GPU utilisation
+    li Memory utilisation
+    li Clocks
+
+p.
+    Moreover, GLXOSD can be easily extended to show other characteristics.
+
+h2 Benchmark
+
+p.
+    GLXOSD can log precisely when an application draws something onto the screen. This information is useful for benchmarking because it allows you to graph the framerate, delays between frames, etc...
+
+p.
+    These logs are called frame timing logs, or time recordings. Each new line represents the number of milliseconds that have passed since the previous frame was rendered.
+
+p.
+    Note: the format has changed in GLXOSD v3. In previous versions of GLXOSD, each line contained two comma-separated values: the ID of the X drawable and the number of nanoseconds since the logging started.
+
+h2 Analyse
+p.
+    Because GLXOSD frame timing logs are CSVs, you will have no trouble processing them with your tool of choice.
+
+p.
+    There is also a little web tool that can calculate FPS, frame frequency, delays between frames and plot them.
+
+h2 Customise and extend
+p.
+    GLXOSD v3 is highly customisable. You can customise what information is displayed, how it is displayed, where it is displayed and how it is formatted.
+
+p.
+    You can also write your own formatting functions to add statistics or change how they are highlighted.
+
+p.
+    It is also possible to extend GLXOSD by writing plugins in Lua. GLXOSD v3 is mostly written in Lua using LuaJIT, which makes it easy to test your plugins and data providers without having to compile anything or having to directly deal with low-level languages languages.
+
+h2 Safety
+
+p.
+    While its very unlikely that you will get banned from games for using GLXOSD, you should understand that there is a risk of that happening. Please read the documentation of the anti-cheat software that you are running.
+
+p.
+    For example, VAC (Valve Anti-Cheat) seems to operate on a blacklist rather than a whitelist and doesn’t seem to ban people who use applications that function similarly to GLXOSD (for example: Mumble Overlay and RivaTuner OSD).
+
+h2 Disclaimer
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
