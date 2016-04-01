@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-VERSION=3.0.1
+VERSION=3.0.3
 echo -e "[\e[32mrebuild.sh\e[00m] Installing required packages..."
 sudo apt-get install git debhelper pbuilder dh-make debootstrap devscripts
 if [ ! -d glxosd-$VERSION-orig ]

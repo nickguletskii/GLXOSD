@@ -1,3 +1,16 @@
+glxosd (3.0.3-1) wily; urgency=low
+
+  * Remove FcFini to stop GLXOSD from destroying global fontconfig.
+
+ -- Nick Guletskii <nick@nickguletskii.com>  Fri, 01 Apr 2016 16:43:38 +0300
+
+glxosd (3.0.2-1) wily; urgency=low
+
+  * Fix nil concatenation error when the NVIDIA driver is absent.
+  * Change default frame timing log directory.
+
+ -- Nick Guletskii <nick@nickguletskii.com>  Wed, 30 Mar 2016 21:53:49 +0300
+
 glxosd (3.0.1-1) wily; urgency=low
 
   * Update README.

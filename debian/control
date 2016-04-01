@@ -11,7 +11,7 @@ Vcs-Browser: https://github.com/nickguletskii/GLXOSD
 Package: glxosd
 Multi-arch: foreign
 Architecture: any
-Depends: ${misc:Depends}, bash (>= 4.0), glxosd-libs-amd64 [amd64], glxosd-libs-i386(>= 3.0.1) [i386], glxosd-libs-i386(>= 3.0.1) [amd64]
+Depends: ${misc:Depends}, bash (>= 4.0), glxosd-libs-amd64 [amd64], glxosd-libs-i386(>= 3.0.3) [i386], glxosd-libs-i386(>= 3.0.3) [amd64]
 Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
  GLXOSD is an extensible on-screen display (OSD)/overlay for OpenGL applications
  running on Linux with X11 which aims to provide similar functionality to MSI
@@ -23,7 +23,7 @@ Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applica
 Package: glxosd-libs-amd64
 Architecture: amd64
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, libc6 (>= 2.14), libfontconfig1 (>= 2.8.0), libfreetype6 (>= 2.2.1), libgcc1 (>= 1:4.1.1), libglu1-mesa | libglu1, glxosd-data(>= 3.0.1)
+Depends: ${misc:Depends}, libc6 (>= 2.21), libfontconfig1 (>= 2.11.1), libfreetype6 (>= 2.5.2), libgcc1 (>= 1:5.2.1), libglu1-mesa | libglu1, glxosd-data(>= 3.0.3), libglew1.10, libluajit-5.1-2(>=2.0.4), libglfw3(>=3.1.1)
 Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
  GLXOSD is an extensible on-screen display (OSD)/overlay for OpenGL applications
  running on Linux with X11 which aims to provide similar functionality to MSI
@@ -36,7 +36,7 @@ Package: glxosd-libs-i386
 Multi-arch: foreign
 Architecture: i386
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, libc6 (>= 2.14), libfontconfig1 (>= 2.8.0), libfreetype6 (>= 2.2.1), libgcc1 (>= 1:4.1.1), libglu1-mesa | libglu1, glxosd-data(>= 3.0.1)
+Depends: ${misc:Depends}, libc6 (>= 2.21), libfontconfig1 (>= 2.11.1), libfreetype6 (>= 2.5.2), libgcc1 (>= 1:5.2.1), libglu1-mesa | libglu1, glxosd-data(>= 3.0.3), libglew1.10, libluajit-5.1-2(>=2.0.4), libglfw3(>=3.1.1)
 Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
  GLXOSD is an extensible on-screen display (OSD)/overlay for OpenGL applications
  running on Linux with X11 which aims to provide similar functionality to MSI
