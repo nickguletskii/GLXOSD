@@ -45,7 +45,6 @@ return {
 		end
 		fc.FcPatternDestroy(pattern);
 		fc.FcConfigDestroy(fontConfig);
-		fc.FcFini();
 		return fontFile;
 	end
 }
