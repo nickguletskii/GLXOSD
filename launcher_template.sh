@@ -16,6 +16,7 @@ INJECT_STEAM_OVERLAY=false
 STEAM_PATH=~/.local/share/Steam
 GLXOSD_SCRIPTS_ROOT="{{GLXOSD_SHARED_PATH}}/"
 GLXOSD_ADDITIONAL_CONFIG_LOCATION=""
+FREETYPE_LIBRARY_NAME="libfreetype.so.6"
 while : ; do
 	case "$1" in
 		-h|--help)
@@ -33,6 +34,12 @@ while : ; do
 		--steam-path)
 			STEAM_PATH="$2"
 			shift 2 ;;
+		--freetype-path)
+			FREETYPE_LIBRARY_NAME="$2"
+			shift 2 ;;
+		--dont-preload-freetype)
+			FREETYPE_LIBRARY_NAME=""
+			shift 1 ;;
 		*)
 			break;;
 	esac
@@ -53,7 +60,7 @@ GLXOSD_LIBRARY_PATH_I386="{{GLXOSD_LIBRARY_PATH_I386}}"
 GLXOSD_LIBRARY_PATH_AMD64="{{GLXOSD_LIBRARY_PATH_AMD64}}"
 
 export LD_LIBRARY_PATH="${STEAM_OVERLAY_LIB_PATHS}:${GLXOSD_LIBRARY_PATH_I386}:${GLXOSD_LIBRARY_PATH_AMD64}:${LD_LIBRARY_PATH}"
-export LD_PRELOAD="${GLXOSD_PRELOAD}:${STEAM_OVERLAY_LIBS}:libglxosd-elfhacks.so:libglxosd-glinject.so:libluajit-5.1.so.2:${LD_PRELOAD}"
+export LD_PRELOAD="${GLXOSD_PRELOAD}:${STEAM_OVERLAY_LIBS}:${FREETYPE_LIBRARY_NAME}:libglxosd-elfhacks.so:libglxosd-glinject.so:libluajit-5.1.so.2:${LD_PRELOAD}"
 export GLXOSD_SCRIPTS_ROOT
 export GLXOSD_ADDITIONAL_CONFIG_LOCATION
 
