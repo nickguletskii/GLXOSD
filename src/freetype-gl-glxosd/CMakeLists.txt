@@ -14,6 +14,8 @@ get_directory_property(FREETYPE_GL_SRC_LOCAL
 SET(FREETYPE_GL_SRC "")
 LIST(APPEND FREETYPE_GL_SRC "gl-dynamic-loader.h")
 LIST(APPEND FREETYPE_GL_SRC "gl-dynamic-loader.c")
+LIST(APPEND FREETYPE_GL_SRC "strndup.h")
+LIST(APPEND FREETYPE_GL_SRC "strndup.c")
 FOREACH(f ${FREETYPE_GL_SRC_LOCAL})
     LIST(APPEND FREETYPE_GL_SRC "freetype-gl/${f}")
 ENDFOREACH(f)
