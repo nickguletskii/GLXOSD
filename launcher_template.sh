@@ -6,9 +6,7 @@ function showHelp() {
 	echo "	-c <path> or --config <path> : specify the path to an additional config location"
 	echo "	-p <path> or --scripts-root <path> : specify the path to the location of GLXOSD scripts"
 	echo "	-s or --steam : inject Steam overlay"
-	echo "	--steam-path <path> : set the path to Steam"
-	echo "	--freetype-path <path> : set the path to the freetype shared object"
-	echo "  --dont-preload-freetype : don't preload freetype"
+	echo "	--steam-path <path> : set path to Steam"
 	echo "Also, you can set GLXOSD_PRELOAD in the same way as LD_PRELOAD, except that GLXOSD_PRELOAD will be in LD_PRELOAD before GLXOSD libraries."
 }
 
