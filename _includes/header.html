@@ -7,11 +7,11 @@
 	</ul>
 	<section class="top-bar-section">
 		<ul class="right">
-			<li {% if ((page.url == "/index.html") or (page.url == "/")) %} class="active" {% endif %} ><a href="{{site.baseurl}}/index.html">Home</a></li>
-			<li {% if (page.url == "/install.html") %} class="active" {% endif %}><a href="{{site.baseurl}}/install.html">Install</a></li>
-			<li {% if (page.url == "/usage.html") %} class="active" {% endif %}><a href="{{site.baseurl}}/usage.html">How to use</a></li>
-			<li {% if (page.url == "/analyse.html") %} class="active" {% endif %}><a href="{{site.baseurl}}/analyse.html">Analyse</a></li>
-			<li {% if (page.url == "/faq.html") %} class="active" {% endif %}><a href="{{site.baseurl}}/faq.html">FAQ</a></li>
+			<li {% if ((page.url == "{{site.baseurl}}/index.html") or (page.url == "/")) %} class="active" {% endif %} ><a href="{{site.baseurl}}/index.html">Home</a></li>
+			<li {% if (page.url == "{{site.baseurl}}/install.html") %} class="active" {% endif %}><a href="{{site.baseurl}}/install.html">Install</a></li>
+			<li {% if (page.url == "{{site.baseurl}}/usage.html") %} class="active" {% endif %}><a href="{{site.baseurl}}/usage.html">How to use</a></li>
+			<li {% if (page.url == "{{site.baseurl}}/analyse.html") %} class="active" {% endif %}><a href="{{site.baseurl}}/analyse.html">Analyse</a></li>
+			<li {% if (page.url == "{{site.baseurl}}/faq.html") %} class="active" {% endif %}><a href="{{site.baseurl}}/faq.html">FAQ</a></li>
 			<li><a style="background: orange;font-weight: bolder;" href="https://glxosd.nickguletskii.com">New version</a></li>
 		</ul>
 	</section>
