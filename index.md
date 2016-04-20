@@ -1,6 +1,6 @@
 ---
 layout: full
-title:  "This is the website for an obsolete version of GLXOSD"
+title:  "GLXOSD, an OSD and benchmarking tool for Linux"
 description: "GLXOSD is an on-screen display (OSD)/overlay for OpenGL applications running on Linux with X11. It can show FPS, the temperature of your CPU, and if you have an NVIDIA graphics card (with proprietary drivers), it will also show the temperature of the GPU. Also, it can log frame timings, which is useful for benchmarking."
 ---
 <dfn style="font-style: normal;">GLXOSD</dfn> is an on-screen display (OSD)/overlay for OpenGL applications running on Linux with X11. It can show FPS, the temperature of your CPU, and if you have an NVIDIA graphics card (with proprietary drivers), it will also show the temperature of the GPU. Also, it can log frame timings, which is useful for benchmarking.
