@@ -21,14 +21,15 @@ ENDFOREACH(f)
 ADD_DEFINITIONS( -DFREETYPE_GL_USE_VAO )
 set(FREETYPE-GL_VERSION_MAJOR 1)
 set(FREETYPE-GL_VERSION_MINOR 0)
-set(FREETYPE-GL_VERSION_PATCH 1)
+set(FREETYPE-GL_VERSION_PATCH 2)
 set(FREETYPE-GL_VERSION_STRING ${FREETYPE-GL_VERSION_MAJOR}.${FREETYPE-GL_VERSION_MINOR}.${FREETYPE-GL_VERSION_PATCH})
 add_library(freetype-gl-shared SHARED ${FREETYPE_GL_SRC})
-target_link_libraries(freetype-gl-shared dl rt ${GLEW_LIBRARY} ${FONTCONFIG_LIBRARY} ${FREETYPE_LIBRARY})
+target_link_libraries(freetype-gl-shared dl rt ${FONTCONFIG_LIBRARY} glew freetype)
 set_target_properties(freetype-gl-shared PROPERTIES LIBRARY_OUTPUT_NAME glxosd-freetype-gl)
 set_target_properties(freetype-gl-shared PROPERTIES VERSION ${FREETYPE-GL_VERSION_STRING}
         SOVERSION ${FREETYPE-GL_VERSION_MAJOR})
 set_target_properties(freetype-gl-shared PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(freetype-gl-shared PROPERTIES LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/src/freetype-gl-glxosd/freetype-gl.version")
 INSTALL(TARGETS freetype-gl-shared
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/glxosd
 )

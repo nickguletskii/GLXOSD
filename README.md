@@ -12,5 +12,6 @@ The LICENSE file contains the default license for files in this repository. All 
 
 The files to which the license specified in the LICENSE file doesn't apply include but are not limited to:
 
-* src/elfhacks
-* src/freetype-gl-glxosd/freetype-gl
+* `src/elfhacks`
+* `src/freetype-gl-glxosd/freetype-gl`
+* Any archives under the `third-party/` directory

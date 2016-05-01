@@ -58,6 +58,7 @@ function OSD:end_frame()
 	end)
 end
 function OSD:render(width, height)
+	self:init_renderer();
 	if self.rebuild_text then
 		local text = {}
 		self:each_data_provider(function(data_provider)
@@ -81,7 +82,18 @@ function OSD:handle_key_combo(key, modifiers)
 	end
 end
 function OSD:destroy()
-	self.text_renderer:destroy()
+	if self.text_renderer then
+		self.text_renderer:destroy()
+	end
+end
+function OSD:init_renderer()
+	if self.text_renderer then
+		return
+	end
+	self.text_renderer = TextRenderer.new(
+		self.config
+	);
+	self.text_renderer:set_text({})
 end
 function OSD.new(config, shared_state)
 	ConfigurationManager.check_schema(config,
@@ -93,9 +105,6 @@ function OSD.new(config, shared_state)
 	self.config = config
 	self.shared_state = shared_state
 
-	self.text_renderer = TextRenderer.new(
-		config
-	);
 	self.data_providers = {}
 
 	for i, data_provider in pairs(config.osd_data_providers) do
@@ -111,7 +120,6 @@ function OSD.new(config, shared_state)
 	self.has_timespan = false;
 	self.last_text_reset = 0
 	self.rebuild_text = true
-	self.text_renderer:set_text({})
 	return self
 end
 
