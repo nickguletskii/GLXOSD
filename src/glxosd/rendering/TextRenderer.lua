@@ -32,7 +32,7 @@ local FontUtil = require("util/fontutil")
 local vertex_shader = readAll(resource_resolver("freetype-gl-glxosd/freetype-gl/shaders/text.vert"))
 local fragment_shader = readAll(resource_resolver("freetype-gl-glxosd/freetype-gl/shaders/text.frag"))
 
-local shader_support = require("rendering/shadersupport")
+local shader_support = require("rendering/shader_support")
 local MarkupElement = require("rendering/MarkupElement")
 
 local OUTLINE_TYPES = {

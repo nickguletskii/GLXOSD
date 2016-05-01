@@ -1,7 +1,9 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.0)
 project (glxosd)
 include(GNUInstallDirs)
-
+include(third-party/BuildLuaJIT.cmake)
+include(third-party/BuildGLEW.cmake)
+include(third-party/BuildFreetype.cmake)
 ##### Parameters #####
 if (EXISTS "/etc/debian_version")
     SET(INSTALLATION_SUFFIX_32 "/lib/i386-linux-gnu/")

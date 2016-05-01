@@ -11,7 +11,7 @@
 #include "glinject.h"
 #include "glx_events.h"
 #include "x_events.h"
-#include "luajit_dynamic.h"
+#include "luajit.h"
 #include "elfhacks.hpp"
 #include <dlfcn.h>
 #include <GL/gl.h>
@@ -21,23 +21,6 @@
 #include <stdbool.h>
 #include <pthread.h>
 
-#define lua_close glinject_real_lua_close
-#define lua_createtable glinject_real_lua_createtable
-#define lua_isstring glinject_real_lua_isstring
-#define lua_pcall glinject_real_lua_pcall
-#define lua_pushboolean glinject_real_lua_pushboolean
-#define lua_pushlightuserdata glinject_real_lua_pushlightuserdata
-#define lua_pushnumber glinject_real_lua_pushnumber
-#define lua_pushstring glinject_real_lua_pushstring
-#define lua_setfield glinject_real_lua_setfield
-#define lua_settop glinject_real_lua_settop
-#define lua_toboolean glinject_real_lua_toboolean
-#define lua_tolstring glinject_real_lua_tolstring
-#define luaL_loadfile glinject_real_luaL_loadfile
-#define luaL_newstate glinject_real_luaL_newstate
-#define luaL_openlibs glinject_real_luaL_openlibs
-#define lua_getfield glinject_real_lua_getfield
-#define lua_type glinject_real_lua_type
 
 // Mutex used for synchronising Lua API calls.
 pthread_mutex_t glinject_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -415,12 +398,6 @@ void glinject_construct() {
 	pthread_mutex_lock(&glinject_mutex);
 	// Link core methods.
 	glinject_init();
-
-	// Link luajit.
-	const char* luajit_library_path = getenv("GLXOSD_LUAJIT_LIBRARY_PATH");
-	if (luajit_library_path == NULL)
-		luajit_library_path = "libluajit-5.1.so.2";
-	glinject_load_luajit_symbols(luajit_library_path);
 
 	// Create Lua state
 	L = luaL_newstate();

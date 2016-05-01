@@ -21,7 +21,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 require("ffi/init")
 
 -- Load OpenGL error handling functions into global scope
-require("rendering/glerror")
+require("rendering/gl_error_handling")
 
 --[[
 	The resource resolver is used to look for additional resources such as
