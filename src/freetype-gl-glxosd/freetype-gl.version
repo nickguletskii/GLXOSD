@@ -1,5 +1,6 @@
 {
 	global:
+		glinject_dynamic_gl_initialise;
 		mat4_set_identity;
 		mat4_set_orthographic;
 		mat4_set_translation;
