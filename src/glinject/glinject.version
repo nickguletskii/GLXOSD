@@ -1,0 +1,14 @@
+{
+	global:
+		dlsym;
+		dlvsym;
+		glXSwapBuffers;
+		glXDestroyContext;
+		glXGetProcAddress;
+		glXGetProcAddressARB;
+		XIfEvent;
+		XMaskEvent;
+		XNextEvent;
+		XWindowEvent;
+	local: *;
+};
