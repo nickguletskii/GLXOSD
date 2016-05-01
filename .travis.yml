@@ -8,14 +8,9 @@ addons:
     - build-essential
     - cmake
     - libgl1-mesa-dev
-    - mesa-common-dev
-    - libgl1-mesa-dev
     - libglu1-mesa-dev
+    - mesa-common-dev
     - libfontconfig1-dev
-    - libfreetype6-dev
-    - libglew-dev
-    - libluajit-5.1-dev
-    - libglfw3-dev
 
 compiler:
  - gcc
