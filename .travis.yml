@@ -4,9 +4,12 @@ sudo: false
 
 addons:
   apt:
+    sources:
+    - george-edison55-precise-backports
     packages:
     - build-essential
     - cmake
+    - cmake-data
     - libgl1-mesa-dev
     - libglu1-mesa-dev
     - mesa-common-dev
