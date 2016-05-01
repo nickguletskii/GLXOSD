@@ -15,3 +15,4 @@ The files to which the license specified in the LICENSE file doesn't apply inclu
 * `src/elfhacks`
 * `src/freetype-gl-glxosd/freetype-gl`
 * Any archives under the `third-party/` directory
+* `src/glew-1.13.0`
