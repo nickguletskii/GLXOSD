@@ -1,0 +1,17 @@
+{
+	global:
+		mat4_set_identity;
+		mat4_set_orthographic;
+		mat4_set_translation;
+		text_buffer_align;
+		text_buffer_clear;
+		text_buffer_delete;
+		text_buffer_get_bounds;
+		text_buffer_new_with_program;
+		text_buffer_printf;
+		text_buffer_render;
+		texture_atlas_upload;
+		texture_font_delete;
+		texture_font_new_from_file;
+	local: *;
+};
