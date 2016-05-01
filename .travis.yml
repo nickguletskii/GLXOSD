@@ -1,11 +1,10 @@
 language: cpp
 
+dist: trusty
 sudo: false
 
 addons:
   apt:
-    sources:
-    - george-edison55-precise-backports
     packages:
     - build-essential
     - cmake
