@@ -1,3 +1,9 @@
+glxosd (3.1.0-1) xenial; urgency=low
+
+  * Statically link LuaJIT, GLEW and Freetype to resolve symbol clashes
+
+ -- Nick Guletskii <nick@nickguletskii.com>  Sun, 01 May 2016 22:30:59 +0300
+
 glxosd (3.0.3-1) wily; urgency=low
 
   * Remove FcFini to stop GLXOSD from destroying global fontconfig.
