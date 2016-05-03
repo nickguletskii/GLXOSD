@@ -23,7 +23,6 @@
 #include <stdbool.h>
 #include <pthread.h>
 
-
 // Mutex used for synchronising Lua API calls.
 pthread_mutex_t glinject_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -90,11 +89,7 @@ void glinject_handle_x11_configure_notify_event(XEvent* event) {
 	}
 }
 
-/*
- * Predicate for XCheckIfEvent.
- */
-Bool glinject_check_if_event(XEvent* event) {
-	pthread_mutex_lock(&glinject_mutex);
+Bool glinject_check_if_event_internal(XEvent *event){
 	if (event->type == ConfigureNotify) {
 		lua_getglobal(L, "should_consume_configure_notify_event"); /* function to be called */
 		if (!lua_isfunction(L, -1)) {
@@ -102,8 +97,7 @@ Bool glinject_check_if_event(XEvent* event) {
 					"should_consume_configure_notify_event is not a function!\n");
 			return False;
 		}
-		glinject_lua_pushkeyeventmodifiers(L, event);
-		if (lua_pcall(L, 1, 1, 0) != 0) {
+		if (lua_pcall(L, 0, 1, 0) != 0) {
 			fprintf(stderr, "error running function: %s\n",
 					lua_tostring(L, -1));
 		}
@@ -126,7 +120,7 @@ Bool glinject_check_if_event(XEvent* event) {
 		KeySym ks = XLookupKeysym((XKeyEvent*) event, 0);
 
 		lua_pushstring(L, XKeysymToString(ks));
-		glinject_lua_pushkeyeventmodifiers(L, event);
+		glinject_lua_pushkeyeventmodifiers(L, (XKeyEvent*) event);
 		if (lua_pcall(L, 2, 1, 0) != 0) {
 			fprintf(stderr, "error running function: %s\n",
 					lua_tostring(L, -1));
@@ -139,8 +133,17 @@ Bool glinject_check_if_event(XEvent* event) {
 		lua_pop(L, 1);
 		return res;
 	}
-	pthread_mutex_unlock(&glinject_mutex);
 	return False;
+}
+
+/*
+ * Predicate for XCheckIfEvent.
+ */
+Bool glinject_check_if_event(Display* display, XEvent* event, XPointer pointer) {
+	pthread_mutex_lock(&glinject_mutex);
+	Bool res = glinject_check_if_event_internal(event);
+	pthread_mutex_unlock(&glinject_mutex);
+	return res;
 }
 
 /*
@@ -160,7 +163,6 @@ void glinject_handle_x11_event(XEvent* event) {
 		glinject_handle_x11_configure_notify_event(event);
 		pthread_mutex_unlock(&glinject_mutex);
 	}
-
 }
 
 /*
@@ -182,33 +184,27 @@ void glinject_handle_buffer_swap(Display* dpy, GLXDrawable drawable) {
 		fprintf(stderr, "handle_buffer_swap is not a function!\n");
 		return;
 	}
-	int context_id;
-	GLXContext context = glinject_real_glXGetCurrentContext();
-	glinject_real_glXQueryContext(dpy, context, GLX_FBCONFIG_ID, &context_id);
 	lua_pushlightuserdata(L, dpy);
-	lua_pushnumber(L, context_id);
 	lua_pushnumber(L, drawable);
-	if (lua_pcall(L, 3, 0, 0) != 0) {
+	if (lua_pcall(L, 2, 0, 0) != 0) {
 		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
 	}
 	pthread_mutex_unlock(&glinject_mutex);
 }
 
 /*
- * Handles the destruction of a GLXContext. Called when glXDestroyContext is
- * called.
+ * Handles the destruction of a GLXDrawable. Called when glXDestroy is
+ * called on a drawable.
  */
-void glinject_handle_context_destruction(Display* dpy, GLXContext context) {
+void glinject_handle_drawable_destruction(Display* dpy, GLXDrawable drawable) {
 	pthread_mutex_lock(&glinject_mutex);
-	lua_getglobal(L, "handle_context_destruction"); /* function to be called */
+	lua_getglobal(L, "handle_drawable_destruction"); /* function to be called */
 	if (!lua_isfunction(L, -1)) {
-		fprintf(stderr, "handle_context_destruction is not a function!\n");
+		fprintf(stderr, "handle_drawable_destruction is not a function!\n");
 		return;
 	}
-	int context_id;
-	glinject_real_glXQueryContext(dpy, context, GLX_FBCONFIG_ID, &context_id);
 	lua_pushlightuserdata(L, dpy);
-	lua_pushnumber(L, context_id);
+	lua_pushnumber(L, drawable);
 	if (lua_pcall(L, 2, 0, 0) != 0) {
 		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
 	}
@@ -229,8 +225,17 @@ void* glinject_get_function_override(const char* name) {
 	if (strcmp("glXSwapBuffers", name) == 0) {
 		return &glXSwapBuffers;
 	}
-	if (strcmp("glXDestroyContext", name) == 0) {
-		return &glXDestroyContext;
+	if (strcmp("glXDestroyGLXPixmap", name) == 0) {
+		return &glXDestroyGLXPixmap;
+	}
+	if (strcmp("glXDestroyPixmap", name) == 0) {
+		return &glXDestroyPixmap;
+	}
+	if (strcmp("glXDestroyPbuffer", name) == 0) {
+		return &glXDestroyPbuffer;
+	}
+	if (strcmp("glXDestroyWindow", name) == 0) {
+		return &glXDestroyWindow;
 	}
 	if (strcmp("glXGetProcAddressARB", name) == 0) {
 		return &glXGetProcAddressARB;

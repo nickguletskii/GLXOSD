@@ -16,11 +16,6 @@ GLINJECT_DEFINE_REAL_SYMBOL(glXGetProcAddressARB, __GLXextFuncPtr, (const GLubyt
 
 GLINJECT_DEFINE_REAL_SYMBOL(glXGetProcAddress, __GLXextFuncPtr, (const GLubyte*));
 
-GLINJECT_DEFINE_REAL_SYMBOL(glXQueryContext, int,
-		( Display *dpy, GLXContext ctx, int attribute, int *value ));
-
-GLINJECT_DEFINE_REAL_SYMBOL(glXGetCurrentContext, GLXContext, ())
-
 void glinject_load_glx_event_real_symbols(const char* path);
 
 #endif
