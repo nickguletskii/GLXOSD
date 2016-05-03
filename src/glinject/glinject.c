@@ -11,8 +11,10 @@
 #include "glinject.h"
 #include "glx_events.h"
 #include "x_events.h"
-#include "luajit.h"
 #include "elfhacks.hpp"
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 #include <dlfcn.h>
 #include <GL/gl.h>
 #include <string.h>
