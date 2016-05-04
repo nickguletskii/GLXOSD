@@ -3,7 +3,10 @@
 		dlsym;
 		dlvsym;
 		glXSwapBuffers;
-		glXDestroyContext;
+		glXDestroyGLXPixmap;
+		glXDestroyPixmap;
+		glXDestroyPbuffer;
+		glXDestroyWindow;
 		glXGetProcAddress;
 		glXGetProcAddressARB;
 		XIfEvent;

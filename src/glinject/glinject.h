@@ -44,7 +44,8 @@ GLINJECT_DEFINE_REAL_SYMBOL(dlopen, void*, (const char *, int));
 
 GLINJECT_DEFINE_REAL_SYMBOL(dlsym, void*, (const void *, const char *));
 
-GLINJECT_DEFINE_REAL_SYMBOL(dlvsym, void*, (const void *, const char *, const char *));
+GLINJECT_DEFINE_REAL_SYMBOL(dlvsym, void*,
+		(const void *, const char *, const char *));
 
 /*
  * Function definitions
@@ -52,11 +53,11 @@ GLINJECT_DEFINE_REAL_SYMBOL(dlvsym, void*, (const void *, const char *, const ch
 void glinject_init();
 void glinject_assert_symbol_loaded(void* symbol, const char* name);
 
-Bool glinject_check_if_event(XEvent* event);
+Bool glinject_check_if_event(Display* display, XEvent* event, XPointer pointer);
 
 void glinject_handle_x11_event(XEvent* event);
 void glinject_handle_buffer_swap(Display* dpy, GLXDrawable drawable);
-void glinject_handle_context_destruction(Display* dpy, GLXContext context);
+void glinject_handle_drawable_destruction(Display* dpy, GLXDrawable drawable);
 void glinject_handle_x11_key_event(XKeyEvent* event);
 void glinject_handle_x11_configure_notify_event(XEvent* event);
 
