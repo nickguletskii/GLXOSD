@@ -13,16 +13,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-GLINJECT_DEFINE_REAL_SYMBOL(glXQueryContext, int,
-		( Display *dpy, GLXContext ctx, int attribute, int *value ));
-
-GLINJECT_DEFINE_REAL_SYMBOL(glXGetCurrentContext, GLXContext, ())
-
-GLINJECT_DEFINE_AND_OVERLOAD( glXDestroyContext,void,(Display *dpy, GLXContext ctx) ) {
-	glinject_init();
-	glinject_handle_context_destruction(dpy, ctx);
-	glinject_real_glXDestroyContext(dpy, ctx);
+#define DEFINE_GLX_DESTRUCTION_HANDLER(name, type) \
+GLINJECT_DEFINE_REAL_SYMBOL(glXDestroy##name, void, (Display *dpy, type drawable));\
+void glXDestroy##name (Display *dpy, type drawable) { \
+	glinject_init(); \
+	glinject_handle_drawable_destruction(dpy, drawable); \
+	glinject_real_glXDestroy##name(dpy, drawable); \
 }
+
+DEFINE_GLX_DESTRUCTION_HANDLER(GLXPixmap, GLXPixmap)
+DEFINE_GLX_DESTRUCTION_HANDLER(Pixmap, GLXPixmap)
+DEFINE_GLX_DESTRUCTION_HANDLER(Pbuffer, GLXPbuffer)
+DEFINE_GLX_DESTRUCTION_HANDLER(Window, GLXWindow)
+
 GLINJECT_DEFINE_AND_OVERLOAD( glXSwapBuffers, void,(Display* dpy, GLXDrawable ctx) ) {
 	glinject_init();
 	glinject_handle_buffer_swap(dpy, ctx);
@@ -31,14 +34,16 @@ GLINJECT_DEFINE_AND_OVERLOAD( glXSwapBuffers, void,(Display* dpy, GLXDrawable ct
 
 __GLXextFuncPtr glXGetProcAddressARB(const GLubyte *name) {
 	glinject_init();
-	void* overriddenFunction = glinject_get_function_override((const char *) name);
+	void* overriddenFunction = glinject_get_function_override(
+			(const char *) name);
 	if (overriddenFunction != NULL)
 		return (__GLXextFuncPtr) overriddenFunction;
 	return glinject_real_glXGetProcAddressARB(name);
 }
 __GLXextFuncPtr glXGetProcAddress(const GLubyte *name) {
 	glinject_init();
-	void* overriddenFunction = glinject_get_function_override((const char *) name);
+	void* overriddenFunction = glinject_get_function_override(
+			(const char *) name);
 	if (overriddenFunction != NULL)
 		return (__GLXextFuncPtr) overriddenFunction;
 	return glinject_real_glXGetProcAddress(name);
@@ -46,15 +51,16 @@ __GLXextFuncPtr glXGetProcAddress(const GLubyte *name) {
 
 void glinject_load_glx_event_real_symbols(const char* path) {
 	void *handle = dlopen(path, RTLD_LOCAL | RTLD_LAZY);
-	if(!handle){
-        fprintf(stderr, "Couldn't load GLX symbols: %s\n", dlerror());
-        exit(EXIT_FAILURE);
+	if (!handle) {
+		fprintf(stderr, "Couldn't load GLX symbols: %s\n", dlerror());
+		exit(EXIT_FAILURE);
 	}
 
-	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXDestroyContext);
 	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXGetProcAddressARB);
 	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXGetProcAddress);
 	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXSwapBuffers);
-	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXQueryContext);
-	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXGetCurrentContext);
+	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXDestroyGLXPixmap);
+	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXDestroyPixmap);
+	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXDestroyPbuffer);
+	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXDestroyWindow);
 }

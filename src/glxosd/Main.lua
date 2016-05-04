@@ -44,19 +44,18 @@ local Context = require("Context")
 local contexts = setmetatable({},
 	{
 		__index=function(self, p)
-			if(rawget(self, p.context_id) == nil) then
+			if(rawget(self, p.drawable) == nil) then
 				local context = Context.new()
 
 				local glx_info = {
 					width_ref = ffi_types.GLuint_ref(),
 					height_ref = ffi_types.GLuint_ref(),
 					drawable = p.drawable,
-					display = p.display,
-					context_id = p.context_id
+					display = p.display
 				}
 				function glx_info:update()
-					gl.glXQueryDrawable(self.display, self.drawable,GLX_WIDTH, self.width_ref);
-					gl.glXQueryDrawable(self.display, self.drawable,GLX_HEIGHT, self.height_ref);
+					gl.glXQueryDrawable(self.display, self.drawable, GLX_WIDTH, self.width_ref);
+					gl.glXQueryDrawable(self.display, self.drawable, GLX_HEIGHT, self.height_ref);
 				end
 				function glx_info:width()
 					if self.width_ref[0] == 0 then
@@ -82,21 +81,21 @@ local contexts = setmetatable({},
 				end
 				context.glx_info = glx_info;
 
-				rawset(self, p.context_id, context)
+				rawset(self, p.drawable, context)
 			end
-			return rawget(self, p.context_id);
+			return rawget(self, p.drawable);
 		end,
 		__newindex=function(self, p, v)
-			rawset(self, p.context_id, v)
+			rawset(self, p.drawable, v)
 		end
 	});
 
-function handle_buffer_swap(display, context_id, drawable)
+function handle_buffer_swap(display, drawable)
 	if glxosd_configuration_error then
 		return;
 	end
 
-	local context = contexts[{display=display,context_id=context_id, drawable=drawable}]
+	local context = contexts[{display=display, drawable=drawable}]
 	context:begin_frame()
 
 	if context:should_render() then
@@ -112,23 +111,23 @@ function handle_buffer_swap(display, context_id, drawable)
 
 		gl.glViewport(ffi.cast(ffi_types.GLint,viewport[0]),ffi.cast(ffi_types.GLint,viewport[1]),ffi.cast(ffi_types.GLuint,viewport[2]),ffi.cast(ffi_types.GLuint,viewport[3]));
 	end
-	
+
 	context:end_frame()
 end
 
-function handle_context_destruction(display, context_id)
+function handle_drawable_destruction(display, drawable)
 	if glxosd_configuration_error then
 		return;
 	end
-	contexts[{display=display,context_id=context_id}]:destroy()
+	contexts[{display=display,drawable=drawable}]:destroy()
 
-	contexts[{display=display,context_id=context_id}] = nil
+	contexts[{display=display,drawable=drawable}] = nil
 	collectgarbage()
 end
 
 function should_consume_configure_notify_event()
 	if glxosd_configuration_error then
-		return;
+		return false;
 	end
 	for _, context in pairs(contexts) do
 		context.glx_info:invalidate()
@@ -137,7 +136,7 @@ function should_consume_configure_notify_event()
 end
 function should_consume_key_press_event(key, modifiers)
 	if glxosd_configuration_error then
-		return;
+		return false;
 	end
 	for _, context in pairs(contexts) do
 		if context:has_keyboard_combo(key, modifiers) then
