@@ -69,13 +69,9 @@ SET(FREETYPE_GL_SRC
 	gl-dynamic-loader.h
 )
 
-ADD_DEFINITIONS( -DFREETYPE_GL_USE_VAO )
-set(FREETYPE-GL_VERSION_MAJOR 1)
-set(FREETYPE-GL_VERSION_MINOR 1)
-set(FREETYPE-GL_VERSION_PATCH 0)
-set(FREETYPE-GL_VERSION_STRING ${FREETYPE-GL_VERSION_MAJOR}.${FREETYPE-GL_VERSION_MINOR}.${FREETYPE-GL_VERSION_PATCH})
 add_library(freetype-gl-shared SHARED ${FREETYPE_GL_SRC})
 
+target_compile_definitions(freetype-gl-shared PRIVATE FREETYPE_GL_USE_VAO=1)
 foreach(FREETYPE_GL_SYMBOL ${FREETYPE_GL_SYMBOLS})
 	target_compile_definitions(freetype-gl-shared PRIVATE
 		${FREETYPE_GL_SYMBOL}=glxosd_ftgl_${FREETYPE_GL_SYMBOL}
@@ -84,8 +80,8 @@ endforeach(FREETYPE_GL_SYMBOL)
 
 target_link_libraries(freetype-gl-shared dl rt ${FONTCONFIG_LIBRARY} glew freetype)
 set_target_properties(freetype-gl-shared PROPERTIES LIBRARY_OUTPUT_NAME glxosd-freetype-gl)
-set_target_properties(freetype-gl-shared PROPERTIES VERSION ${FREETYPE-GL_VERSION_STRING}
-        SOVERSION ${FREETYPE-GL_VERSION_MAJOR})
+set_target_properties(freetype-gl-shared PROPERTIES VERSION ${GLXOSD_VERSION_STRING}
+                                                  SOVERSION ${GLXOSD_VERSION_MAJOR})
 set_target_properties(freetype-gl-shared PROPERTIES LINKER_LANGUAGE C)
 set_target_properties(freetype-gl-shared PROPERTIES LINK_FLAGS "-Wl,--version-script=${CMAKE_CURRENT_BINARY_DIR}/src/freetype-gl-glxosd/freetype-gl.version")
 INSTALL(TARGETS freetype-gl-shared
