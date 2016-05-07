@@ -49,6 +49,13 @@ __GLXextFuncPtr glXGetProcAddress(const GLubyte *name) {
 	return glinject_real_glXGetProcAddress(name);
 }
 
+GLINJECT_DEFINE_REAL_SYMBOL(glXDestroyContext, void, (Display *dpy, GLXContext context));
+void glXDestroyContext(Display *dpy, GLXContext context) {
+	glinject_init();
+	glinject_handle_context_destruction(dpy, context);
+	glinject_real_glXDestroyContext(dpy, context);
+}
+
 void glinject_load_glx_event_real_symbols(const char* path) {
 	void *handle = dlopen(path, RTLD_LOCAL | RTLD_LAZY);
 	if (!handle) {
@@ -59,6 +66,7 @@ void glinject_load_glx_event_real_symbols(const char* path) {
 	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXGetProcAddressARB);
 	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXGetProcAddress);
 	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXSwapBuffers);
+	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXDestroyContext);
 	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXDestroyGLXPixmap);
 	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXDestroyPixmap);
 	GLINJECT_LOAD_SYMBOL_USING_DLSYM(handle, glXDestroyPbuffer);

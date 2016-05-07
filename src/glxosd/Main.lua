@@ -28,7 +28,7 @@ require("rendering/gl_error_handling")
 	shaders. This will probably be moved to a distro-specific config file.
 ]] 
 resource_resolver = function(resource)
-	return glxosdPackageRoot .. "/" .. resource;
+	return glxosdPackageRoot .. "/" .. resource
 end
 
 --[[
@@ -41,75 +41,99 @@ local ffi = require("ffi")
 
 local Context = require("Context")
 
-local contexts = setmetatable({},
-	{
-		__index=function(self, p)
-			if(rawget(self, p.drawable) == nil) then
-				local context = Context.new()
+local function identifyGLXContext(glXContext)
+	return tostring(ffi.cast(ffi_types.intptr_t, glXContext))
+end
 
-				local glx_info = {
-					width_ref = ffi_types.GLuint_ref(),
-					height_ref = ffi_types.GLuint_ref(),
-					drawable = p.drawable,
-					display = p.display
-				}
-				function glx_info:update()
-					gl.glXQueryDrawable(self.display, self.drawable, GLX_WIDTH, self.width_ref);
-					gl.glXQueryDrawable(self.display, self.drawable, GLX_HEIGHT, self.height_ref);
-				end
-				function glx_info:width()
-					if self.width_ref[0] == 0 then
-						glx_info:update()
-					end
-					if self.width_ref[0] == 0 then
-						return 1
-					end
-					return self.width_ref[0];
-				end
-				function glx_info:height()
-					if self.height_ref[0] == 0 then
-						glx_info:update()
-					end
-					if self.height_ref[0] == 0 then
-						return 1
-					end
-					return self.height_ref[0];
-				end
-				function glx_info:invalidate()
-					self.width_ref[0] = 0
-					self.height_ref[0] = 0
-				end
-				context.glx_info = glx_info;
+local _contexts = {}
+local function get_context(display, drawable, glContext)
+	if _contexts[glContext] == nil then
+		_contexts[glContext] = {}
+	end
+	if(_contexts[glContext][drawable] == nil) then
+		local context = Context.new()
 
-				rawset(self, p.drawable, context)
-			end
-			return rawget(self, p.drawable);
-		end,
-		__newindex=function(self, p, v)
-			rawset(self, p.drawable, v)
+		local glx_info = {
+			width_ref = ffi_types.GLuint_ref(),
+			height_ref = ffi_types.GLuint_ref(),
+			drawable = drawable,
+			display = display
+		}
+		function glx_info:update()
+			gl.glXQueryDrawable(
+				self.display,
+				self.drawable,
+				GLX_WIDTH,
+				self.width_ref)
+			gl.glXQueryDrawable(
+				self.display,
+				self.drawable,
+				GLX_HEIGHT,
+				self.height_ref)
 		end
-	});
+		function glx_info:width()
+			if self.width_ref[0] == 0 then
+				glx_info:update()
+			end
+			if self.width_ref[0] == 0 then
+				return 1
+			end
+			return self.width_ref[0]
+		end
+		function glx_info:height()
+			if self.height_ref[0] == 0 then
+				glx_info:update()
+			end
+			if self.height_ref[0] == 0 then
+				return 1
+			end
+			return self.height_ref[0]
+		end
+		function glx_info:invalidate()
+			self.width_ref[0] = 0
+			self.height_ref[0] = 0
+		end
+		context.glx_info = glx_info
+
+		_contexts[glContext][drawable] = context
+	end
+	return _contexts[glContext][drawable]
+end
+
+local function for_each_context(func)
+	for _, drawables in pairs(_contexts) do
+		for _, context in pairs(drawables) do
+			func(context)
+		end
+	end
+end
 
 function handle_buffer_swap(display, drawable)
 	if glxosd_configuration_error then
-		return;
+		return
 	end
+	local glXContextHandle = identifyGLXContext(gl.glXGetCurrentContext())
 
-	local context = contexts[{display=display, drawable=drawable}]
+	local context = get_context(display, drawable, glXContextHandle)
 	context:begin_frame()
 
 	if context:should_render() then
-		local width = context.glx_info:width();
-		local height = context.glx_info:height();
+		local width = context.glx_info:width()
+		local height = context.glx_info:height()
 
-		local viewport = ffi_types.GLint_arr(4);
-		gl.glGetIntegerv(GL_VIEWPORT, viewport);
+		local viewport = ffi_types.GLint_arr(4)
+		gl.glGetIntegerv(GL_VIEWPORT, viewport)
 
 		normalise.do_when_gl_state_is_normal(function()
-			context:render(width, height);
+			context:render(width, height)
 		end, context)
 
-		gl.glViewport(ffi.cast(ffi_types.GLint,viewport[0]),ffi.cast(ffi_types.GLint,viewport[1]),ffi.cast(ffi_types.GLuint,viewport[2]),ffi.cast(ffi_types.GLuint,viewport[3]));
+		gl.glViewport(
+			ffi.cast(ffi_types.GLint,viewport[0]),
+			ffi.cast(ffi_types.GLint,viewport[1]),
+			ffi.cast(ffi_types.GLuint,viewport[2]),
+			ffi.cast(ffi_types.GLuint,viewport[3])
+		)
 	end
 
 	context:end_frame()
@@ -117,48 +141,70 @@ end
 
 function handle_drawable_destruction(display, drawable)
 	if glxosd_configuration_error then
-		return;
+		return
 	end
-	contexts[{display=display,drawable=drawable}]:destroy()
 
-	contexts[{display=display,drawable=drawable}] = nil
+	for glxContext, contexts in pairs(_contexts) do
+		if contexts[drawable] then
+			contexts[drawable]:destroy()
+			contexts[drawable] = nil
+		end
+	end
+	collectgarbage()
+end
+
+
+function handle_context_destruction(display, glXContext)
+	if glxosd_configuration_error then
+		return
+	end
+
+	local glXContextHandle = identifyGLXContext(glXContext)
+
+	if not _contexts[glXContextHandle] then
+		return
+	end
+	for _, context in pairs(_contexts[glXContextHandle]) do
+		context:destroy()
+	end
+	_contexts[glXContextHandle] = nil
 	collectgarbage()
 end
 
 function should_consume_configure_notify_event()
 	if glxosd_configuration_error then
-		return false;
+		return false
 	end
-	for _, context in pairs(contexts) do
+	for_each_context(function(context)
 		context.glx_info:invalidate()
-	end
+	end)
 	return false
 end
 function should_consume_key_press_event(key, modifiers)
 	if glxosd_configuration_error then
-		return false;
+		return false
 	end
-	for _, context in pairs(contexts) do
+	for_each_context(function(context)
 		if context:has_keyboard_combo(key, modifiers) then
 			return true
 		end
-	end
+	end)
 	return false
 end
 
 function key_press_event(key, modifiers)
 	if glxosd_configuration_error then
-		return;
+		return
 	end
-	for _, context in pairs(contexts) do
+	for_each_context(function(context)
 		context:handle_key_combo(key, modifiers)
-	end
+	end)
 end
 function configure_notify_event(event)
 	if glxosd_configuration_error then
-		return;
+		return
 	end
-	for _, context in pairs(contexts) do
+	for_each_context(function(context)
 		context.glx_info:invalidate()
-	end
+	end)
 end

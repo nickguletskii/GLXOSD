@@ -13,21 +13,23 @@ else()
     SET(INSTALLATION_SUFFIX_64 "/lib/x86_64-linux-gnu/")
 endif()
 
-
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
 
 add_definitions(-DLUA_SOURCECODE_PATH="${CMAKE_INSTALL_FULL_DATAROOTDIR}/glxosd/")
+
+##### Set version #####
+set(GLXOSD_VERSION_MAJOR 3)
+set(GLXOSD_VERSION_MINOR 1)
+set(GLXOSD_VERSION_PATCH 2)
+set(GLXOSD_VERSION_STRING ${GLXOSD_VERSION_MAJOR}.${GLXOSD_VERSION_MINOR}.${GLXOSD_VERSION_PATCH})
+
 ##### Compiler #####
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=c11")
 SET(CMAKE_C_LINK_EXECUTABLE  "${CMAKE_C_LINK_EXECUTABLE}")
-##### Set version #####
-set(GLXOSD_VERSION_MAJOR 2)
-set(GLXOSD_VERSION_MINOR 5)
-set(GLXOSD_VERSION_PATCH 0)
-set(GLXOSD_VERSION_STRING ${GLXOSD_VERSION_MAJOR}.${GLXOSD_VERSION_MINOR}.${GLXOSD_VERSION_PATCH})
+
 ##### Find the libraries #####
 #Find OpenGL
 find_package(OpenGL REQUIRED)
@@ -72,14 +74,18 @@ add_subdirectory(src)
 install(DIRECTORY src/glxosd/conf/
         DESTINATION /etc/glxosd/)
 ##### Create launcher #####
-message(INFO "BUILDING LAUNCHER!")
-add_custom_target(glxosdlauncher COMMAND ${PROJECT_SOURCE_DIR}/write_preload.sh
---target-file "${PROJECT_BINARY_DIR}/glxosd"
---installation-prefix "${CMAKE_INSTALL_PREFIX}"
---installation-suffix-32 "${INSTALLATION_SUFFIX_32}"
---installation-suffix-64 "${INSTALLATION_SUFFIX_64}"
---cmake-install-full-datarootdir ${CMAKE_INSTALL_FULL_DATAROOTDIR}
-BYPRODUCTS "${PROJECT_BINARY_DIR}/glxosd"
-COMMENT "Creating the startup script...")
-add_dependencies(glinject glxosdlauncher)
-install(FILES "${PROJECT_BINARY_DIR}/glxosd" DESTINATION ${CMAKE_INSTALL_BINDIR})
+configure_file(
+	${PROJECT_SOURCE_DIR}/launcher_template.sh.in
+	 ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/glxosd
+	@ONLY
+)
+file(
+	COPY ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/glxosd
+	DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+	FILE_PERMISSIONS
+		OWNER_READ OWNER_WRITE OWNER_EXECUTE
+		GROUP_READ GROUP_EXECUTE
+		WORLD_READ WORLD_EXECUTE
+)
+
+install(FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/glxosd" DESTINATION ${CMAKE_INSTALL_BINDIR})

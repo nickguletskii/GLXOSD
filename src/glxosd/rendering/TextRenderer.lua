@@ -56,8 +56,8 @@ TextRenderer.__index = TextRenderer;
 
 TextRenderer.CONFIG_SCHEMA = {
 	refresh_time = ConfigurationManager.validator(function(value)
-			return type(value)=="number" and value>=0
-		end, "refresh_time should be a non-negative number"),
+		return type(value)=="number" and value>=0
+	end, "refresh_time should be a non-negative number"),
 
 	align_to_h = ConfigurationManager.validator(function(value)
 		return value=="left" or value=="right_absolute" or value=="right"
@@ -68,9 +68,9 @@ TextRenderer.CONFIG_SCHEMA = {
 	end, "align_to_v should be set to one of the following values: top, bottom, bottom_absolute"),
 
 	offset_x = "number",
-	
+
 	offset_y = "number",
-	
+
 	font="string",
 
 	font_size="number",
@@ -83,36 +83,36 @@ TextRenderer.CONFIG_SCHEMA = {
 		thickness=ConfigurationManager.validator(function(value)
 			return type(value)=="number" and value>=0
 		end, "outline thickness should be a non-negative number"),
-	
+
 		color="color"
 	},
-	
+
 	gamma="number",
-	
+
 	lcd_filter_enabled="boolean",
-	
+
 	underline={
 		enabled="boolean",
-		
+
 		color="color"
 	},
-	
+
 	overline={
 		enabled="boolean",
-		
+
 		color="color"
 	},
-	
+
 	strikethrough={
 		enabled="boolean",
-	
+
 		color="color"
 	},
-	
+
 	color="color",
-	
+
 	background_color="color",
-	
+
 	toggle_key_combo="key_combo"
 }
 
@@ -187,26 +187,36 @@ function TextRenderer:print_text(pen, text)
 			self.config.outline.color,
 			self.config.outline.thickness,
 			font)
-		freetype_gl.text_buffer_printf( self.buffer1, pen1,
-			cur, ffi_types.char_array_from_string(markup_element.text), nil)
-		freetype_gl.text_buffer_printf( self.buffer2, pen2,
-			cur_outline, ffi_types.char_array_from_string(markup_element.text), nil)
+		freetype_gl.glxosd_ftgl_text_buffer_printf(
+			self.buffer1,
+			pen1,
+			cur,
+			ffi_types.char_array_from_string(markup_element.text),
+			nil
+		)
+		freetype_gl.glxosd_ftgl_text_buffer_printf(
+			self.buffer2,
+			pen2,
+			cur_outline,
+			ffi_types.char_array_from_string(markup_element.text),
+			nil
+		)
 	end
-	freetype_gl.text_buffer_align( self.buffer1, pen1, self.text_alignment)
-	freetype_gl.text_buffer_align( self.buffer2, pen2, self.text_alignment )
-	local bounds = freetype_gl.text_buffer_get_bounds(self.buffer1, pen1)
+	freetype_gl.glxosd_ftgl_text_buffer_align(self.buffer1, pen1, self.text_alignment)
+	freetype_gl.glxosd_ftgl_text_buffer_align(self.buffer2, pen2, self.text_alignment)
+	local bounds = freetype_gl.glxosd_ftgl_text_buffer_get_bounds(self.buffer1, pen1)
 	return bounds
 end
 
 function TextRenderer:set_text (text)
-	freetype_gl.text_buffer_clear(self.buffer1)
-	freetype_gl.text_buffer_clear(self.buffer2)
+	freetype_gl.glxosd_ftgl_text_buffer_clear(self.buffer1)
+	freetype_gl.glxosd_ftgl_text_buffer_clear(self.buffer2)
 
 	local pen = ffi_types.vec2({{0, 0}})
 	self.bounds = self:print_text(pen, text)
 
-	freetype_gl.texture_atlas_upload(self.buffer1[0].manager[0].atlas )
-	freetype_gl.texture_atlas_upload(self.buffer2[0].manager[0].atlas )
+	freetype_gl.glxosd_ftgl_texture_atlas_upload(self.buffer1[0].manager[0].atlas )
+	freetype_gl.glxosd_ftgl_texture_atlas_upload(self.buffer2[0].manager[0].atlas )
 end
 
 function TextRenderer:render (width, height)
@@ -226,13 +236,13 @@ function TextRenderer:render (width, height)
 	else
 		y = -self.config.offset_y;
 	end
-	freetype_gl.mat4_set_translation(self.model, x, y, 0)
+	freetype_gl.glxosd_ftgl_mat4_set_translation(self.model, x, y, 0)
 	gl.glViewport(0, 0, ffi.cast(ffi_types.GLsizei, width), ffi.cast(ffi_types.GLsizei, height))
 
 	gl.glEnable(GL_BLEND)
 	gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-	freetype_gl.mat4_set_orthographic(self.projection, 0, width, 0, height, -1, 1)
+	freetype_gl.glxosd_ftgl_mat4_set_orthographic(self.projection, 0, width, 0, height, -1, 1)
 
 	gl.glUseProgram(self.shader)
 	gl.glUniform1i(gl.glGetUniformLocation(self.shader, "texture"),
@@ -244,17 +254,17 @@ function TextRenderer:render (width, height)
 	gl.glUniformMatrix4fv(gl.glGetUniformLocation(self.shader, "projection"),
 		1, 0, self.projection[0].data)
 
-	freetype_gl.text_buffer_render(self.buffer1 )
-	freetype_gl.text_buffer_render(self.buffer2 )
+	freetype_gl.glxosd_ftgl_text_buffer_render(self.buffer1)
+	freetype_gl.glxosd_ftgl_text_buffer_render(self.buffer2)
 end
 
 function TextRenderer:setup_matrices()
 	self.model = ffi_types.mat4_ref()
 	self.view = ffi_types.mat4_ref()
 	self.projection = ffi_types.mat4_ref()
-	freetype_gl.mat4_set_identity(self.projection)
-	freetype_gl.mat4_set_identity(self.model)
-	freetype_gl.mat4_set_identity(self.view)
+	freetype_gl.glxosd_ftgl_mat4_set_identity(self.projection)
+	freetype_gl.glxosd_ftgl_mat4_set_identity(self.model)
+	freetype_gl.glxosd_ftgl_mat4_set_identity(self.view)
 end
 
 
@@ -269,9 +279,27 @@ function TextRenderer:init(config)
 				if(rawget(self, key) == nil) then
 					local font_file = ffi_types.char_array_from_string(FontUtil.get_font(font_request.font_family))
 
+					local function texture_font_finaliser(texture_font)
+						freetype_gl.glxosd_ftgl_texture_font_delete(texture_font)
+					end
+
 					local new = {
-						main = freetype_gl.texture_font_new_from_file(s.buffer1[0].manager[0].atlas, font_request.font_size, font_file),
-						outline =freetype_gl.texture_font_new_from_file(s.buffer2[0].manager[0].atlas, font_request.font_size, font_file),
+						main = ffi.gc(
+							freetype_gl.glxosd_ftgl_texture_font_new_from_file(
+								s.buffer1[0].manager[0].atlas,
+								font_request.font_size,
+								font_file
+							),
+							texture_font_finaliser
+						),
+						outline = ffi.gc(
+							freetype_gl.glxosd_ftgl_texture_font_new_from_file(
+								s.buffer2[0].manager[0].atlas,
+								font_request.font_size,
+								font_file
+							),
+							texture_font_finaliser
+						)
 					}
 
 					new.outline[0].outline_type = OUTLINE_TYPES[s.config.outline.type]
@@ -289,8 +317,27 @@ function TextRenderer:init(config)
 
 	local lcd_filter_mode =  config.lcd_filter_enabled and 3 or 1
 
-	self.buffer2 = freetype_gl.text_buffer_new_with_program(lcd_filter_mode, self.shader)
-	self.buffer1 = freetype_gl.text_buffer_new_with_program(lcd_filter_mode, self.shader)
+	local function text_buffer_finalizer(text_buffer)
+		text_buffer[0].buffer[0].indices_id = 0;
+		text_buffer[0].buffer[0].vertices_id = 0;
+		text_buffer[0].buffer[0].VAO_id = 0;
+		text_buffer[0].manager[0].atlas[0].id = 0;
+
+		freetype_gl.glxosd_ftgl_vector_delete(text_buffer[0].lines);
+		freetype_gl.glxosd_ftgl_font_manager_delete(text_buffer[0].manager);
+		freetype_gl.glxosd_ftgl_vertex_buffer_delete(text_buffer[0].buffer);
+		ffi.C.free(text_buffer)
+	end
+
+	self.buffer1 = ffi.gc(
+		freetype_gl.glxosd_ftgl_text_buffer_new_with_program(lcd_filter_mode, self.shader),
+		text_buffer_finalizer
+	)
+	self.buffer2 = ffi.gc(
+		freetype_gl.glxosd_ftgl_text_buffer_new_with_program(lcd_filter_mode, self.shader),
+		text_buffer_finalizer
+	)
+
 
 	self.default_fonts = self.font_cache[{
 		font_family=config.font,
@@ -320,12 +367,6 @@ function TextRenderer:init(config)
 end
 
 function TextRenderer:destroy()
-	for k, v in pairs(self.font_cache) do
-		freetype_gl.texture_font_delete(v.main)
-		freetype_gl.texture_font_delete(v.outline)
-	end
-	freetype_gl.text_buffer_delete(self.buffer1)
-	freetype_gl.text_buffer_delete(self.buffer2)
 end
 
 function TextRenderer.new(config)
