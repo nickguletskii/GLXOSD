@@ -1,0 +1,6 @@
+{
+	global:
+		glinject_dynamic_gl_initialise;
+		@FREETYPE_GL_SYMBOL_WHITELIST@;
+	local: *;
+};

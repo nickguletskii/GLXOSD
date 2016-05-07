@@ -48,6 +48,7 @@ for k, v in ipairs(types) do
 	ffi_types[v .. "_arr"] = ffi.typeof(v .. "[?]")
 end
 
+ffi_types["intptr_t"] = ffi.typeof("intptr_t")
 ffi_types["char_arr"] = ffi.typeof("char[?]")
 ffi_types["const_char_ptr"] = ffi.typeof("const char *")
 ffi_types["const_char_ptr_ref"] = ffi.typeof("const char *[1]")
