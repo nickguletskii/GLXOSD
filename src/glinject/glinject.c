@@ -11,7 +11,7 @@
 #include "glinject.h"
 #include "glx_events.h"
 #include "x_events.h"
-#include "elfhacks.hpp"
+#include "elfhacks.h"
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
@@ -179,7 +179,7 @@ void glinject_handle_buffer_swap(Display* dpy, GLXDrawable drawable) {
 	XCheckIfEvent(dpy, &event, glinject_check_if_event, NULL);
 
 	pthread_mutex_lock(&glinject_mutex);
-	lua_getglobal(L, "handle_buffer_swap"); /* function to be called */
+	lua_getglobal(L, "handle_buffer_swap");
 	if (!lua_isfunction(L, -1)) {
 		fprintf(stderr, "handle_buffer_swap is not a function!\n");
 		return;
@@ -198,13 +198,32 @@ void glinject_handle_buffer_swap(Display* dpy, GLXDrawable drawable) {
  */
 void glinject_handle_drawable_destruction(Display* dpy, GLXDrawable drawable) {
 	pthread_mutex_lock(&glinject_mutex);
-	lua_getglobal(L, "handle_drawable_destruction"); /* function to be called */
+	lua_getglobal(L, "handle_drawable_destruction");
 	if (!lua_isfunction(L, -1)) {
 		fprintf(stderr, "handle_drawable_destruction is not a function!\n");
 		return;
 	}
 	lua_pushlightuserdata(L, dpy);
 	lua_pushnumber(L, drawable);
+	if (lua_pcall(L, 2, 0, 0) != 0) {
+		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
+	}
+	pthread_mutex_unlock(&glinject_mutex);
+}
+
+/*
+ * Handles the destruction of a GLXContext. Called when glXDestroy is
+ * called on a context.
+ */
+void glinject_handle_context_destruction(Display* dpy, GLXContext context) {
+	pthread_mutex_lock(&glinject_mutex);
+	lua_getglobal(L, "handle_context_destruction");
+	if (!lua_isfunction(L, -1)) {
+		fprintf(stderr, "handle_context_destruction is not a function!\n");
+		return;
+	}
+	lua_pushlightuserdata(L, dpy);
+	lua_pushlightuserdata(L, context);
 	if (lua_pcall(L, 2, 0, 0) != 0) {
 		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
 	}
@@ -224,6 +243,9 @@ void glinject_handle_drawable_destruction(Display* dpy, GLXDrawable drawable) {
 void* glinject_get_function_override(const char* name) {
 	if (strcmp("glXSwapBuffers", name) == 0) {
 		return &glXSwapBuffers;
+	}
+	if (strcmp("glXDestroyContext", name) == 0) {
+		return &glXDestroyContext;
 	}
 	if (strcmp("glXDestroyGLXPixmap", name) == 0) {
 		return &glXDestroyGLXPixmap;

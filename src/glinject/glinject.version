@@ -3,6 +3,7 @@
 		dlsym;
 		dlvsym;
 		glXSwapBuffers;
+		glXDestroyContext;
 		glXDestroyGLXPixmap;
 		glXDestroyPixmap;
 		glXDestroyPbuffer;

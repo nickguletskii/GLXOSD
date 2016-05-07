@@ -913,47 +913,34 @@ typedef struct glyph_vertex_t {
 
 } glyph_vertex_t;
 
-mat4 *
-mat4_new(void);
+mat4 * glxosd_ftgl_mat4_new(void);
 
-void
-mat4_set_identity(mat4 *self);
+void glxosd_ftgl_mat4_set_identity(mat4 *self);
 
-void
-mat4_set_zero(mat4 *self);
+void glxosd_ftgl_mat4_set_zero(mat4 *self);
 
-void
-mat4_multiply(mat4 *self, mat4 *other);
+void glxosd_ftgl_mat4_multiply(mat4 *self, mat4 *other);
 
-void
-mat4_set_orthographic(mat4 *self, float left, float right, float bottom,
+void glxosd_ftgl_mat4_set_orthographic(mat4 *self, float left, float right, float bottom,
 		float top, float znear, float zfar);
 
-void
-mat4_set_perspective(mat4 *self, float fovy, float aspect, float zNear,
+void glxosd_ftgl_mat4_set_perspective(mat4 *self, float fovy, float aspect, float zNear,
 		float zFar);
 
-void
-mat4_set_frustum(mat4 *self, float left, float right, float bottom, float top,
+void glxosd_ftgl_mat4_set_frustum(mat4 *self, float left, float right, float bottom, float top,
 		float znear, float zfar);
 
-void
-mat4_set_rotation(mat4 *self, float angle, float x, float y, float z);
+void glxosd_ftgl_mat4_set_rotation(mat4 *self, float angle, float x, float y, float z);
 
-void
-mat4_set_translation(mat4 *self, float x, float y, float z);
+void glxosd_ftgl_mat4_set_translation(mat4 *self, float x, float y, float z);
 
-void
-mat4_set_scaling(mat4 *self, float x, float y, float z);
+void glxosd_ftgl_mat4_set_scaling(mat4 *self, float x, float y, float z);
 
-void
-mat4_rotate(mat4 *self, float angle, float x, float y, float z);
+void glxosd_ftgl_mat4_rotate(mat4 *self, float angle, float x, float y, float z);
 
-void
-mat4_translate(mat4 *self, float x, float y, float z);
+void glxosd_ftgl_mat4_translate(mat4 *self, float x, float y, float z);
 
-void
-mat4_scale(mat4 *self, float x, float y, float z);
+void glxosd_ftgl_mat4_scale(mat4 *self, float x, float y, float z);
 
 /**
  * Creates a new empty vector.
@@ -962,8 +949,7 @@ mat4_scale(mat4 *self, float x, float y, float z);
  * @return               a new empty vector
  *
  */
-vector_t *
-vector_new(size_t item_size);
+vector_t * glxosd_ftgl_vector_new(size_t item_size);
 
 /**
  *  Deletes a vector.
@@ -971,8 +957,7 @@ vector_new(size_t item_size);
  *  @param self a vector structure
  *
  */
-void
-vector_delete(vector_t *self);
+void glxosd_ftgl_vector_delete(vector_t *self);
 
 /**
  *  Returns a pointer to the item located at specified index.
@@ -981,8 +966,7 @@ vector_delete(vector_t *self);
  *  @param  index the index of the item to be returned
  *  @return       pointer on the specified item
  */
-const void *
-vector_get(const vector_t *self, size_t index);
+const void * glxosd_ftgl_vector_get(const vector_t *self, size_t index);
 
 /**
  *  Returns a pointer to the first item.
@@ -990,8 +974,7 @@ vector_get(const vector_t *self, size_t index);
  *  @param  self  a vector structure
  *  @return       pointer on the first item
  */
-const void *
-vector_front(const vector_t *self);
+const void * glxosd_ftgl_vector_front(const vector_t *self);
 
 /**
  *  Returns a pointer to the last item
@@ -999,8 +982,7 @@ vector_front(const vector_t *self);
  *  @param  self  a vector structure
  *  @return pointer on the last item
  */
-const void *
-vector_back(const vector_t *self);
+const void * glxosd_ftgl_vector_back(const vector_t *self);
 
 /**
  *  Check if an item is contained within the vector.
@@ -1020,8 +1002,7 @@ vector_contains(const vector_t *self, const void *item,
  *  @param  self  a vector structure
  *  @return       1 if the vector is empty, 0 otherwise
  */
-int
-vector_empty(const vector_t *self);
+int glxosd_ftgl_vector_empty(const vector_t *self);
 
 /**
  *  Returns the number of items
@@ -1029,8 +1010,7 @@ vector_empty(const vector_t *self);
  *  @param  self  a vector structure
  *  @return       number of items
  */
-size_t
-vector_size(const vector_t *self);
+size_t glxosd_ftgl_vector_size(const vector_t *self);
 
 /**
  *  Reserve storage such that it can hold at last size items.
@@ -1038,8 +1018,7 @@ vector_size(const vector_t *self);
  *  @param  self  a vector structure
  *  @param  size  the new storage capacity
  */
-void
-vector_reserve(vector_t *self, const size_t size);
+void glxosd_ftgl_vector_reserve(vector_t *self, const size_t size);
 
 /**
  *  Returns current storage capacity
@@ -1047,24 +1026,21 @@ vector_reserve(vector_t *self, const size_t size);
  *  @param  self  a vector structure
  *  @return       storage capacity
  */
-size_t
-vector_capacity(const vector_t *self);
+size_t glxosd_ftgl_vector_capacity(const vector_t *self);
 
 /**
  *  Decrease capacity to fit actual size.
  *
  *  @param  self  a vector structure
  */
-void
-vector_shrink(vector_t *self);
+void glxosd_ftgl_vector_shrink(vector_t *self);
 
 /**
  *  Removes all items.
  *
  *  @param  self  a vector structure
  */
-void
-vector_clear(vector_t *self);
+void glxosd_ftgl_vector_clear(vector_t *self);
 
 /**
  *  Replace an item.
@@ -1073,8 +1049,7 @@ vector_clear(vector_t *self);
  *  @param  index the index of the item to be replaced
  *  @param  item  the new item
  */
-void
-vector_set(vector_t *self, const size_t index, const void *item);
+void glxosd_ftgl_vector_set(vector_t *self, const size_t index, const void *item);
 
 /**
  *  Erase an item.
@@ -1082,8 +1057,7 @@ vector_set(vector_t *self, const size_t index, const void *item);
  *  @param  self  a vector structure
  *  @param  index the index of the item to be erased
  */
-void
-vector_erase(vector_t *self, const size_t index);
+void glxosd_ftgl_vector_erase(vector_t *self, const size_t index);
 
 /**
  *  Erase a range of items.
@@ -1092,8 +1066,7 @@ vector_erase(vector_t *self, const size_t index);
  *  @param  first the index of the first item to be erased
  *  @param  last  the index of the last item to be erased
  */
-void
-vector_erase_range(vector_t *self, const size_t first, const size_t last);
+void glxosd_ftgl_vector_erase_range(vector_t *self, const size_t first, const size_t last);
 
 /**
  *  Appends given item to the end of the vector.
@@ -1101,16 +1074,14 @@ vector_erase_range(vector_t *self, const size_t first, const size_t last);
  *  @param  self a vector structure
  *  @param  item the item to be inserted
  */
-void
-vector_push_back(vector_t *self, const void *item);
+void glxosd_ftgl_vector_push_back(vector_t *self, const void *item);
 
 /**
  *  Removes the last item of the vector.
  *
  *  @param  self a vector structure
  */
-void
-vector_pop_back(vector_t *self);
+void glxosd_ftgl_vector_pop_back(vector_t *self);
 
 /**
  *  Resizes the vector to contain size items
@@ -1122,8 +1093,7 @@ vector_pop_back(vector_t *self);
  *  @param  self a vector structure
  *  @param  size the new size
  */
-void
-vector_resize(vector_t *self, const size_t size);
+void glxosd_ftgl_vector_resize(vector_t *self, const size_t size);
 
 /**
  *  Insert a single item at specified index.
@@ -1132,8 +1102,7 @@ vector_resize(vector_t *self, const size_t size);
  *  @param  index location before which to insert item
  *  @param  item  the item to be inserted
  */
-void
-vector_insert(vector_t *self, const size_t index, const void *item);
+void glxosd_ftgl_vector_insert(vector_t *self, const size_t index, const void *item);
 
 /**
  *  Insert raw data at specified index.
@@ -1143,8 +1112,7 @@ vector_insert(vector_t *self, const size_t index, const void *item);
  *  @param  data  a pointer to the items to be inserted
  *  @param  count the number of items to be inserted
  */
-void
-vector_insert_data(vector_t *self, const size_t index, const void * data,
+void glxosd_ftgl_vector_insert_data(vector_t *self, const size_t index, const void * data,
 		const size_t count);
 
 /**
@@ -1154,8 +1122,7 @@ vector_insert_data(vector_t *self, const size_t index, const void * data,
  *  @param  data  a pointer to the items to be inserted
  *  @param  count the number of items to be inserted
  */
-void
-vector_push_back_data(vector_t *self, const void * data, const size_t count);
+void glxosd_ftgl_vector_push_back_data(vector_t *self, const void * data, const size_t count);
 
 /**
  *  Sort vector items according to cmp function.
@@ -1163,8 +1130,7 @@ vector_push_back_data(vector_t *self, const void * data, const size_t count);
  *  @param  self  a vector structure
  *  @param  cmp   a pointer a comparison function
  */
-void
-vector_sort(vector_t *self, int (*cmp)(const void *, const void *));
+void glxosd_ftgl_vector_sort(vector_t *self, int (*cmp)(const void *, const void *));
 
 /**
  * Creates a new empty texture atlas.
@@ -1175,8 +1141,7 @@ vector_sort(vector_t *self, int (*cmp)(const void *, const void *));
  * @return          a new empty texture atlas.
  *
  */
-texture_atlas_t *
-texture_atlas_new(const size_t width, const size_t height, const size_t depth);
+texture_atlas_t * glxosd_ftgl_texture_atlas_new(const size_t width, const size_t height, const size_t depth);
 
 /**
  *  Deletes a texture atlas.
@@ -1184,8 +1149,7 @@ texture_atlas_new(const size_t width, const size_t height, const size_t depth);
  *  @param self a texture atlas structure
  *
  */
-void
-texture_atlas_delete(texture_atlas_t * self);
+void glxosd_ftgl_texture_atlas_delete(texture_atlas_t * self);
 
 /**
  *  Upload atlas to video memory.
@@ -1193,8 +1157,7 @@ texture_atlas_delete(texture_atlas_t * self);
  *  @param self a texture atlas structure
  *
  */
-void
-texture_atlas_upload(texture_atlas_t * self);
+void glxosd_ftgl_texture_atlas_upload(texture_atlas_t * self);
 
 /**
  *  Allocate a new region in the atlas.
@@ -1205,8 +1168,7 @@ texture_atlas_upload(texture_atlas_t * self);
  *  @return       Coordinates of the allocated region
  *
  */
-ivec4
-texture_atlas_get_region(texture_atlas_t * self, const size_t width,
+ivec4 glxosd_ftgl_texture_atlas_get_region(texture_atlas_t * self, const size_t width,
 		const size_t height);
 
 /**
@@ -1221,8 +1183,7 @@ texture_atlas_get_region(texture_atlas_t * self, const size_t width,
  *  @param stride stride of the data
  *
  */
-void
-texture_atlas_set_region(texture_atlas_t * self, const size_t x, const size_t y,
+void glxosd_ftgl_texture_atlas_set_region(texture_atlas_t * self, const size_t x, const size_t y,
 		const size_t width, const size_t height, const unsigned char *data,
 		const size_t stride);
 
@@ -1231,8 +1192,7 @@ texture_atlas_set_region(texture_atlas_t * self, const size_t x, const size_t y,
  *
  *  @param self   a texture atlas structure
  */
-void
-texture_atlas_clear(texture_atlas_t * self);
+void glxosd_ftgl_texture_atlas_clear(texture_atlas_t * self);
 
 /**
  * Creates a new empty font manager.
@@ -1244,16 +1204,14 @@ texture_atlas_clear(texture_atlas_t * self);
  * @return          a new font manager.
  *
  */
-font_manager_t *
-font_manager_new(size_t width, size_t height, size_t depth);
+font_manager_t * glxosd_ftgl_font_manager_new(size_t width, size_t height, size_t depth);
 
 /**
  *  Deletes a font manager.
  *
  *  @param self a font manager.
  */
-void
-font_manager_delete(font_manager_t *self);
+void glxosd_ftgl_font_manager_delete(font_manager_t *self);
 
 /**
  *  Deletes a font from the font manager.
@@ -1264,8 +1222,7 @@ font_manager_delete(font_manager_t *self);
  *  @param font font to be deleted
  *
  */
-void
-font_manager_delete_font(font_manager_t * self, texture_font_t * font);
+void glxosd_ftgl_font_manager_delete_font(font_manager_t * self, texture_font_t * font);
 
 /**
  *  Request for a font based on a filename.
@@ -1276,8 +1233,7 @@ font_manager_delete_font(font_manager_t * self, texture_font_t * font);
  *
  *  @return Requested font
  */
-texture_font_t *
-font_manager_get_from_filename(font_manager_t * self, const char * filename,
+texture_font_t * glxosd_ftgl_font_manager_get_from_filename(font_manager_t * self, const char * filename,
 		const float size);
 
 /**
@@ -1291,8 +1247,7 @@ font_manager_get_from_filename(font_manager_t * self, const char * filename,
  *
  *  @return Requested font
  */
-texture_font_t *
-font_manager_get_from_description(font_manager_t * self, const char * family,
+texture_font_t * glxosd_ftgl_font_manager_get_from_description(font_manager_t * self, const char * family,
 		const float size, const int bold, const int italic);
 
 /**
@@ -1303,8 +1258,7 @@ font_manager_get_from_description(font_manager_t * self, const char * family,
  *
  *  @return Requested font
  */
-texture_font_t *
-font_manager_get_from_markup(font_manager_t *self, const markup_t *markup);
+texture_font_t * glxosd_ftgl_font_manager_get_from_markup(font_manager_t *self, const markup_t *markup);
 
 /**
  *  Search for a font filename that match description.
@@ -1317,8 +1271,7 @@ font_manager_get_from_markup(font_manager_t *self, const markup_t *markup);
  *
  *  @return Requested font filename
  */
-char *
-font_manager_match_description(font_manager_t * self, const char * family,
+char * glxosd_ftgl_font_manager_match_description(font_manager_t * self, const char * family,
 		const float size, const int bold, const int italic);
 /*
  * TEXTURE FONT
@@ -1338,8 +1291,7 @@ font_manager_match_description(font_manager_t * self, const char * family,
  * @return A new empty font (no glyph inside yet)
  *
  */
-texture_font_t *
-texture_font_new_from_file(texture_atlas_t * atlas, const float pt_size,
+texture_font_t * glxosd_ftgl_texture_font_new_from_file(texture_atlas_t * atlas, const float pt_size,
 		const char * filename);
 
 /**
@@ -1357,8 +1309,7 @@ texture_font_new_from_file(texture_atlas_t * atlas, const float pt_size,
  * @return A new empty font (no glyph inside yet)
  *
  */
-texture_font_t *
-texture_font_new_from_memory(texture_atlas_t *atlas, float pt_size,
+texture_font_t * glxosd_ftgl_texture_font_new_from_memory(texture_atlas_t *atlas, float pt_size,
 		const void *memory_base, size_t memory_size);
 
 /**
@@ -1367,8 +1318,7 @@ texture_font_new_from_memory(texture_atlas_t *atlas, float pt_size,
  *
  * @param self a valid texture font
  */
-void
-texture_font_delete(texture_font_t * self);
+void glxosd_ftgl_texture_font_delete(texture_font_t * self);
 
 /**
  * Request a new glyph from the font. If it has not been created yet, it will
@@ -1381,8 +1331,7 @@ texture_font_delete(texture_font_t * self);
  *         enough
  *
  */
-texture_glyph_t *
-texture_font_get_glyph(texture_font_t * self, const char * codepoint);
+texture_glyph_t * glxosd_ftgl_texture_font_get_glyph(texture_font_t * self, const char * codepoint);
 
 /**
  * Request the loading of several glyphs at once.
@@ -1394,8 +1343,7 @@ texture_font_get_glyph(texture_font_t * self, const char * codepoint);
  * @return Number of missed glyph if the texture is not big enough to hold
  *         every glyphs.
  */
-size_t
-texture_font_load_glyphs(texture_font_t * self, const char * codepoints);
+size_t glxosd_ftgl_texture_font_load_glyphs(texture_font_t * self, const char * codepoints);
 
 /**
  * Get the kerning between two horizontal glyphs.
@@ -1405,16 +1353,14 @@ texture_font_load_glyphs(texture_font_t * self, const char * codepoints);
  *
  * @return x kerning value
  */
-float
-texture_glyph_get_kerning(const texture_glyph_t * self, const char * codepoint);
+float glxosd_ftgl_texture_glyph_get_kerning(const texture_glyph_t * self, const char * codepoint);
 
 /**
  * Creates a new empty glyph
  *
  * @return a new empty glyph (not valid)
  */
-texture_glyph_t *
-texture_glyph_new(void);
+texture_glyph_t * glxosd_ftgl_texture_glyph_new(void);
 
 /**
  * Line structure
@@ -1462,8 +1408,7 @@ typedef enum Align {
  * @return  a new empty text buffer.
  *
  */
-text_buffer_t *
-text_buffer_new(size_t depth, const char * vert_filename,
+text_buffer_t * glxosd_ftgl_text_buffer_new(size_t depth, const char * vert_filename,
 		const char * frag_filename);
 
 /**
@@ -1475,8 +1420,7 @@ text_buffer_new(size_t depth, const char * vert_filename,
  * @return  a new empty text buffer.
  *
  */
-text_buffer_t *
-text_buffer_new_with_program(size_t depth, GLuint program);
+text_buffer_t * glxosd_ftgl_text_buffer_new_with_program(size_t depth, GLuint program);
 
 /**
  * Deletes texture buffer and its associated shader and vertex buffer.
@@ -1484,8 +1428,7 @@ text_buffer_new_with_program(size_t depth, GLuint program);
  * @param  self  texture buffer to delete
  *
  */
-void
-text_buffer_delete(text_buffer_t * self);
+void glxosd_ftgl_text_buffer_delete(text_buffer_t * self);
 
 /**
  * Render a text buffer.
@@ -1493,8 +1436,7 @@ text_buffer_delete(text_buffer_t * self);
  * @param self a text buffer
  *
  */
-void
-text_buffer_render(text_buffer_t * self);
+void glxosd_ftgl_text_buffer_render(text_buffer_t * self);
 
 /**
  * Print some text to the text buffer
@@ -1504,8 +1446,7 @@ text_buffer_render(text_buffer_t * self);
  * @param ...  a series of markup_t *, char * ended by NULL
  *
  */
-void
-text_buffer_printf(text_buffer_t * self, vec2 * pen, ...);
+void glxosd_ftgl_text_buffer_printf(text_buffer_t * self, vec2 * pen, ...);
 
 /**
  * Add some text to the text buffer
@@ -1516,8 +1457,7 @@ text_buffer_printf(text_buffer_t * self, vec2 * pen, ...);
  * @param text   Text to be added
  * @param length Length of text to be added
  */
-void
-text_buffer_add_text(text_buffer_t * self, vec2 * pen, markup_t * markup,
+void glxosd_ftgl_text_buffer_add_text(text_buffer_t * self, vec2 * pen, markup_t * markup,
 		const char * text, size_t length);
 
 /**
@@ -1529,8 +1469,7 @@ text_buffer_add_text(text_buffer_t * self, vec2 * pen, markup_t * markup,
  * @param current  charactr to be added
  * @param previous previous character (if any)
  */
-void
-text_buffer_add_char(text_buffer_t * self, vec2 * pen, markup_t * markup,
+void glxosd_ftgl_text_buffer_add_char(text_buffer_t * self, vec2 * pen, markup_t * markup,
 		const char * current, const char * previous);
 
 /**
@@ -1542,8 +1481,7 @@ text_buffer_add_char(text_buffer_t * self, vec2 * pen, markup_t * markup,
  * @param pen       pen used in last call (must be unmodified)
  * @param alignment desired alignment of text
  */
-void
-text_buffer_align(text_buffer_t * self, vec2 * pen, enum Align alignment);
+void glxosd_ftgl_text_buffer_align(text_buffer_t * self, vec2 * pen, enum Align alignment);
 
 /**
  * Get the rectangle surrounding the text
@@ -1551,16 +1489,14 @@ text_buffer_align(text_buffer_t * self, vec2 * pen, enum Align alignment);
  * @param self      a text buffer
  * @param pen       pen used in last call (must be unmodified)
  */
-vec4
-text_buffer_get_bounds(text_buffer_t * self, vec2 * pen);
+vec4 glxosd_ftgl_text_buffer_get_bounds(text_buffer_t * self, vec2 * pen);
 
 /**
  * Clear text buffer
  *
  * @param self a text buffer
  */
-void
-text_buffer_clear(text_buffer_t * self);
+void glxosd_ftgl_text_buffer_clear(text_buffer_t * self);
 
 /**
  * Create an attribute from the given parameters.
@@ -1577,8 +1513,7 @@ text_buffer_clear(text_buffer_t * self);
  *
  * @private
  */
-vertex_attribute_t *
-vertex_attribute_new(GLchar * name, GLint size, GLenum type,
+vertex_attribute_t * glxosd_ftgl_vertex_attribute_new(GLchar * name, GLint size, GLenum type,
 		GLboolean normalized, GLsizei stride, GLvoid *pointer);
 
 /**
@@ -1587,8 +1522,7 @@ vertex_attribute_new(GLchar * name, GLint size, GLenum type,
  * @param  self a vertex attribute
  *
  */
-void
-vertex_attribute_delete(vertex_attribute_t * self);
+void glxosd_ftgl_vertex_attribute_delete(vertex_attribute_t * self);
 
 /**
  * Create an attribute from the given description.
@@ -1598,8 +1532,7 @@ vertex_attribute_delete(vertex_attribute_t * self);
  *
  * @private
  */
-vertex_attribute_t *
-vertex_attribute_parse(char *format);
+vertex_attribute_t * glxosd_ftgl_vertex_attribute_parse(char *format);
 
 /**
  * Enable a vertex attribute.
@@ -1608,8 +1541,7 @@ vertex_attribute_parse(char *format);
  *
  * @private
  */
-void
-vertex_attribute_enable(vertex_attribute_t *attr);
+void glxosd_ftgl_vertex_attribute_enable(vertex_attribute_t *attr);
 
 /**
  * Creates an empty vertex buffer.
@@ -1617,16 +1549,14 @@ vertex_attribute_enable(vertex_attribute_t *attr);
  * @param  format a string describing vertex format.
  * @return        an empty vertex buffer.
  */
-vertex_buffer_t *
-vertex_buffer_new(const char *format);
+vertex_buffer_t * glxosd_ftgl_vertex_buffer_new(const char *format);
 
 /**
  * Deletes vertex buffer and releases GPU memory.
  *
  * @param  self  a vertex buffer
  */
-void
-vertex_buffer_delete(vertex_buffer_t * self);
+void glxosd_ftgl_vertex_buffer_delete(vertex_buffer_t * self);
 
 /**
  *  Returns the number of items in the vertex buffer
@@ -1634,8 +1564,7 @@ vertex_buffer_delete(vertex_buffer_t * self);
  *  @param  self  a vertex buffer
  *  @return       number of items
  */
-size_t
-vertex_buffer_size(const vertex_buffer_t *self);
+size_t glxosd_ftgl_vertex_buffer_size(const vertex_buffer_t *self);
 
 /**
  *  Returns vertex format
@@ -1643,16 +1572,14 @@ vertex_buffer_size(const vertex_buffer_t *self);
  *  @param  self  a vertex buffer
  *  @return       vertex format
  */
-const char *
-vertex_buffer_format(const vertex_buffer_t *self);
+const char * glxosd_ftgl_vertex_buffer_format(const vertex_buffer_t *self);
 
 /**
  * Print information about a vertex buffer
  *
  * @param  self  a vertex buffer
  */
-void
-vertex_buffer_print(vertex_buffer_t * self);
+void glxosd_ftgl_vertex_buffer_print(vertex_buffer_t * self);
 
 /**
  * Prepare vertex buffer for render.
@@ -1660,16 +1587,14 @@ vertex_buffer_print(vertex_buffer_t * self);
  * @param  self  a vertex buffer
  * @param  mode  render mode
  */
-void
-vertex_buffer_render_setup(vertex_buffer_t *self, GLenum mode);
+void glxosd_ftgl_vertex_buffer_render_setup(vertex_buffer_t *self, GLenum mode);
 
 /**
  * Finish rendering by setting back modified states
  *
  * @param  self  a vertex buffer
  */
-void
-vertex_buffer_render_finish(vertex_buffer_t *self);
+void glxosd_ftgl_vertex_buffer_render_finish(vertex_buffer_t *self);
 
 /**
  * Render vertex buffer.
@@ -1677,8 +1602,7 @@ vertex_buffer_render_finish(vertex_buffer_t *self);
  * @param  self  a vertex buffer
  * @param  mode  render mode
  */
-void
-vertex_buffer_render(vertex_buffer_t *self, GLenum mode);
+void glxosd_ftgl_vertex_buffer_render(vertex_buffer_t *self, GLenum mode);
 
 /**
  * Render a specified item from the vertex buffer.
@@ -1686,24 +1610,21 @@ vertex_buffer_render(vertex_buffer_t *self, GLenum mode);
  * @param  self   a vertex buffer
  * @param  index index of the item to be rendered
  */
-void
-vertex_buffer_render_item(vertex_buffer_t *self, size_t index);
+void glxosd_ftgl_vertex_buffer_render_item(vertex_buffer_t *self, size_t index);
 
 /**
  * Upload buffer to GPU memory.
  *
  * @param  self  a vertex buffer
  */
-void
-vertex_buffer_upload(vertex_buffer_t *self);
+void glxosd_ftgl_vertex_buffer_upload(vertex_buffer_t *self);
 
 /**
  * Clear all items.
  *
  * @param  self  a vertex buffer
  */
-void
-vertex_buffer_clear(vertex_buffer_t *self);
+void glxosd_ftgl_vertex_buffer_clear(vertex_buffer_t *self);
 
 /**
  * Appends indices at the end of the buffer.
@@ -1714,8 +1635,7 @@ vertex_buffer_clear(vertex_buffer_t *self);
  *
  * @private
  */
-void
-vertex_buffer_push_back_indices(vertex_buffer_t *self, const GLuint * indices,
+void glxosd_ftgl_vertex_buffer_push_back_indices(vertex_buffer_t *self, const GLuint * indices,
 		const size_t icount);
 
 /**
@@ -1729,8 +1649,7 @@ vertex_buffer_push_back_indices(vertex_buffer_t *self, const GLuint * indices,
  *
  * @private
  */
-void
-vertex_buffer_push_back_vertices(vertex_buffer_t *self, const void * vertices,
+void glxosd_ftgl_vertex_buffer_push_back_vertices(vertex_buffer_t *self, const void * vertices,
 		const size_t vcount);
 
 /**
@@ -1743,8 +1662,7 @@ vertex_buffer_push_back_vertices(vertex_buffer_t *self, const void * vertices,
  *
  * @private
  */
-void
-vertex_buffer_insert_indices(vertex_buffer_t *self, const size_t index,
+void glxosd_ftgl_vertex_buffer_insert_indices(vertex_buffer_t *self, const size_t index,
 		const GLuint *indices, const size_t icount);
 
 /**
@@ -1757,8 +1675,7 @@ vertex_buffer_insert_indices(vertex_buffer_t *self, const size_t index,
  *
  * @private
  */
-void
-vertex_buffer_insert_vertices(vertex_buffer_t *self, const size_t index,
+void glxosd_ftgl_vertex_buffer_insert_vertices(vertex_buffer_t *self, const size_t index,
 		const void *vertices, const size_t vcount);
 
 /**
@@ -1770,8 +1687,7 @@ vertex_buffer_insert_vertices(vertex_buffer_t *self, const size_t index,
  *
  * @private
  */
-void
-vertex_buffer_erase_indices(vertex_buffer_t *self, const size_t first,
+void glxosd_ftgl_vertex_buffer_erase_indices(vertex_buffer_t *self, const size_t first,
 		const size_t last);
 
 /**
@@ -1783,8 +1699,7 @@ vertex_buffer_erase_indices(vertex_buffer_t *self, const size_t first,
  *
  * @private
  */
-void
-vertex_buffer_erase_vertices(vertex_buffer_t *self, const size_t first,
+void glxosd_ftgl_vertex_buffer_erase_vertices(vertex_buffer_t *self, const size_t first,
 		const size_t last);
 
 /**
@@ -1796,8 +1711,7 @@ vertex_buffer_erase_vertices(vertex_buffer_t *self, const size_t first,
  * @param  icount   number of indices
  * @param  indices  raw indices data
  */
-size_t
-vertex_buffer_push_back(vertex_buffer_t * self, const void * vertices,
+size_t glxosd_ftgl_vertex_buffer_push_back(vertex_buffer_t * self, const void * vertices,
 		const size_t vcount, const GLuint * indices, const size_t icount);
 
 /**
@@ -1810,8 +1724,7 @@ vertex_buffer_push_back(vertex_buffer_t * self, const void * vertices,
  * @param  indices   raw indices data
  * @param  icount    number of indices
  */
-size_t
-vertex_buffer_insert(vertex_buffer_t * self, const size_t index,
+size_t glxosd_ftgl_vertex_buffer_insert(vertex_buffer_t * self, const size_t index,
 		const void * vertices, const size_t vcount, const GLuint * indices,
 		const size_t icount);
 
@@ -1821,13 +1734,14 @@ vertex_buffer_insert(vertex_buffer_t * self, const size_t index,
  * @param  self     a vertex buffer
  * @param  index    index of the item to be deleted
  */
-void
-vertex_buffer_erase(vertex_buffer_t * self, const size_t index);
+void glxosd_ftgl_vertex_buffer_erase(vertex_buffer_t * self, const size_t index);
 
 typedef struct {
 	float x, y, z;
 	float s, t;
 	float r, g, b, a;
 } vertex_t;
+
+
 ]]
 return {}
