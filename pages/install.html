@@ -6,12 +6,20 @@ toc: true
 h2#ppa-amd64 Using a PPA: Ubuntu 14.04 or newer (amd64)
 
 p.
-    To install GLXOSD, simply copy and paste the following lines into the terminal:
+    To install GLXOSD <b>with multiarch</b> support, simply copy and paste the following lines into the terminal:
 
 pre.
     sudo apt-add-repository -y ppa:nickguletskii200/glxosd \
     && sudo apt-get update \
     && sudo apt-get install -y glxosd glxosd-libs-amd64 glxosd-libs-i386:i386
+
+p.
+    To install GLXOSD <b>without multiarch</b> support, simply copy and paste the following lines into the terminal instead:
+
+pre.
+    sudo apt-add-repository -y ppa:nickguletskii200/glxosd \
+    && sudo apt-get update \
+    && sudo apt-get install -y glxosd glxosd-libs-amd64
 
 h2#ppa-i386 Using a PPA: Ubuntu 14.04 or newer (i386)
 
@@ -23,6 +31,64 @@ pre.
     && sudo apt-get update \
     && sudo apt-get install -y glxosd glxosd-libs-i386
 
+h2#debian-amd64 Using the Debian repo: Debian jessie, stretch or sid (amd64)
+
+p.
+    To install GLXOSD <b>with multiarch</b> support, simply copy and paste the following lines into a priviliged shell:
+
+pre.
+    apt-get update \
+    && apt-get install -y software-properties-common apt-transport-https \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6F547B7B \
+    && apt-add-repository "deb https://glxosd.nickguletskii.com/repos/debian/ $(lsb_release -c -s) main" \
+    && apt-get update \
+    && apt-get install -y glxosd glxosd-libs-amd64 glxosd-libs-i386:i386
+
+p.
+    To install GLXOSD <b>without multiarch</b> support, simply copy and paste the following lines into a priviliged shell instead:
+
+pre.
+    apt-get update \
+    && apt-get install -y software-properties-common apt-transport-https \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6F547B7B \
+    && apt-add-repository "deb https://glxosd.nickguletskii.com/repos/debian/ $(lsb_release -c -s) main" \
+    && apt-get update \
+    && apt-get install -y glxosd glxosd-libs-amd64
+
+h2#debian-i386 Using the Debian repo: Debian jessie, stretch or sid (i386)
+
+p.
+    To install GLXOSD, simply copy and paste the following lines into a priviliged shell:
+
+pre.
+    apt-get update \
+    && apt-get install -y software-properties-common apt-transport-https \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6F547B7B \
+    && apt-add-repository "deb https://glxosd.nickguletskii.com/repos/debian/ $(lsb_release -c -s) main" \
+    && apt-get update \
+    && apt-get install -y glxosd glxosd-libs-i386
+
+h2#debian-other Using the Debian repo: other Debian-based distributions
+
+p.
+    To install GLXOSD on a Debian distribution that doesn't report itself as jessie, stretch or sid, you should follow the following general steps:
+
+ol
+    li
+        p.
+            Install <code>apt-transport-https</code>, otherwise you won't be able to run <code>apt-get update</code>.
+    li
+        p.
+            Import the public key by executing <code>apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6F547B7B</code>.
+    li
+        p.
+            Add <code>deb https://glxosd.nickguletskii.com/repos/debian/ $RELEASE main</code> to <code>/etc/apt/sources.list</code>, substituting $RELEASE for the closest Debian/Ubuntu release to your distribution (currently available: jessie, stretch, sid, trusty, vivid, wily, xenial, yakkety).
+    li
+        p.
+            Update the APT package lists by executing <code>apt-get update</code>.
+    li
+        p.
+            Install the GLXOSD packages by running <code>apt-get install glxosd</code>. If you have a multiarch system, you should also install <code>glxosd-libs-i386</code> by running <code>apt-get install glxosd-libs-i386</code>.
 
 h2#other-distros Other distributions
 

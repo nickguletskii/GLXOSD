@@ -195,14 +195,6 @@ table.table
                     The path to libGL (the OpenGL shared library)
         tr
             th.row
-                <code>libGLEW</code>
-            td
-                <code>libGLEW.so.1.10</code>
-            td
-                p.
-                    The path to libGLEW (the OpenGL Extension Wrangler)
-        tr
-            th.row
                 <code>libX11</code>
             td
                 <code>libX11.so.6</code>
@@ -506,14 +498,68 @@ table.table
                             th Value type
                             th Value
                     tbody
-                    tr
-                        th.row
-                            <code>enabled</code>
-                        td.
-                            boolean
-                        td
-                            p.
-                                Set to false to disable the header.
+                        tr
+                            th.row
+                                <code>enabled</code>
+                            td.
+                                boolean
+                            td
+                                p.
+                                    Set to false to disable the header.
+        tr
+            th.row
+                <code>format</code>
+            td.
+                table
+            td
+                p.
+                    The strings and formats for the this data provider. For instance, this allows you to replace the text on the OSD with abbreviations.
+
+                p.
+                    It has the following options:
+
+                table.table
+                    thead.thead-inverse
+                        tr
+                            th Key
+                            th Default Value
+                    tbody
+                        tr
+                            th.row
+                                <code>header</code>
+                            td
+                                p.
+                                    "Frame timings"
+                        tr
+                            th.row
+                                <code>fps</code>
+                            td
+                                p.
+                                    "FPS: "
+                        tr
+                            th.row
+                                <code>fps_number</code>
+                            td
+                                p.
+                                    "%.2f"
+                        tr
+                            th.row
+                                <code>average_frame_duration</code>
+                            td
+                                p.
+                                    "AFD: %.2f ms"
+                        tr
+                            th.row
+                                <code>osd_averate_time_spent_per_frame</code>
+                            td
+                                p.
+                                    "OSDATSPF: %.2f ms"
+                        tr
+                            th.row
+                                <code>no_data</code>
+                            td
+                                p.
+                                    "Collecting..."
         tr
             th.row
                 <code>data_order</code>
@@ -662,6 +708,30 @@ table.table
                     temperature for the device.
         tr
             th.row
+                <code>format</code>
+            td.
+                table
+            td
+                p.
+                    The strings and formats for the this data provider. For instance, this allows you to replace the text on the OSD with abbreviations.
+
+                p.
+                    It has the following options:
+
+                table.table
+                    thead.thead-inverse
+                        tr
+                            th Key
+                            th Default Value
+                    tbody
+                        tr
+                            th.row
+                                <code>header</code>
+                            td
+                                p.
+                                    "Sensors"
+        tr
+            th.row
                 <code>header_style</code>
             td.
                 table
@@ -748,6 +818,72 @@ table.table
             td
                 p.
                     The color to be used to represent temperatures that cause a slowdown of the graphics card.
+        tr
+            th.row
+                <code>format</code>
+            td.
+                table
+            td
+                p.
+                    The strings and formats for the this data provider. For instance, this allows you to replace the text on the OSD with abbreviations.
+
+                p.
+                    It has the following options:
+
+                table.table
+                    thead.thead-inverse
+                        tr
+                            th Key
+                            th Default Value
+                    tbody
+                        tr
+                            th.row
+                                <code>header</code>
+                            td
+                                p.
+                                    "NVIDIA GPUs",
+                        tr
+                            th.row
+                                <code>temperature</code>
+                            td
+                                p.
+                                    "Temperature: ",
+                        tr
+                            th.row
+                                <code>throttled</code>
+                            td
+                                p.
+                                    "(thrtl)",
+                        tr
+                            th.row
+                                <code>graphics_clock</code>
+                            td
+                                p.
+                                    "Graphics clock: %d",
+                        tr
+                            th.row
+                                <code>sm_clock</code>
+                            td
+                                p.
+                                    "SM clock: %d",
+                        tr
+                            th.row
+                                <code>memory_clock</code>
+                            td
+                                p.
+                                    "Memory clock: %d",
+                        tr
+                            th.row
+                                <code>gpu_utilisation</code>
+                            td
+                                p.
+                                    "GPU utilisation: %d%%",
+                        tr
+                            th.row
+                                <code>memory_utilisation</code>
+                            td
+                                p.
+                                    "Memory utilisation: %d%%"
         tr
             th.row
                 <code>header_style</code>

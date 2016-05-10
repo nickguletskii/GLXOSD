@@ -9,14 +9,6 @@ body {
 	counter-reset: h2;
 }
 
-*[id]:before {
-	display: block;
-	content: " ";
-	margin-top: -58px;
-	height: 58px;
-	visibility: hidden;
-}
-
 main {
 	@include make-container();
 	@include make-container-max-widths();
