@@ -1,7 +1,7 @@
 Source: glxosd
 Priority: optional
 Maintainer: Nick Guletskii <nick@nickguletskii.com>
-Build-Depends: debhelper (>= 9), cmake, libgl1-mesa-dev, libglu1-mesa-dev, mesa-common-dev,libfontconfig1-dev
+Build-Depends: debhelper (>= 9), cmake, libgl1-mesa-dev, libglu1-mesa-dev, mesa-common-dev, libfontconfig1-dev
 Standards-Version: 3.9.6
 Section: utils
 Homepage: https://glxosd.nickguletskii.com/
@@ -11,7 +11,9 @@ Vcs-Browser: https://github.com/nickguletskii/GLXOSD
 Package: glxosd
 Multi-arch: foreign
 Architecture: any
-Depends: ${misc:Depends}, bash (>= 4.0), glxosd-libs-amd64 [amd64], glxosd-libs-i386(>= 3.1.0) [i386], glxosd-libs-i386(>= 3.1.0) [amd64]
+Depends: ${misc:Depends}, bash (>= 4.0), glxosd-libs-amd64 [amd64], glxosd-libs-i386(>= 3.2.0) [i386]
+Suggests: glxosd-libs-i386(>= 3.2.0) [amd64]
+Breaks: glxosd-libs-i386(< 3.2.0) [amd64]
 Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
  GLXOSD is an extensible on-screen display (OSD)/overlay for OpenGL applications
  running on Linux with X11 which aims to provide similar functionality to MSI
@@ -23,8 +25,8 @@ Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applica
 Package: glxosd-libs-amd64
 Architecture: amd64
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, libc6 (>= 2.19), libfontconfig1 (>= 2.11.0), libgcc1 (>= 1:4.9), libglu1-mesa | libglu1, glxosd-data(>= 3.1.0)
-Recommends: libsensors4 [amd64]
+Depends: ${misc:Depends}, libc6 (>= 2.19), libfontconfig1 (>= 2.11.0), libgcc1 (>= 1:4.9), glxosd-data(>= 3.2.0)
+Recommends: libsensors4 [amd64], libglu1-mesa
 Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
  GLXOSD is an extensible on-screen display (OSD)/overlay for OpenGL applications
  running on Linux with X11 which aims to provide similar functionality to MSI
@@ -37,8 +39,8 @@ Package: glxosd-libs-i386
 Multi-arch: foreign
 Architecture: i386
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, libc6 (>= 2.19), libfontconfig1 (>= 2.11.0), libgcc1 (>= 1:4.9), libglu1-mesa | libglu1, glxosd-data(>= 3.1.0)
-Recommends: libsensors4 [i386]
+Depends: ${misc:Depends}, libc6 (>= 2.19), libfontconfig1 (>= 2.11.0), libgcc1 (>= 1:4.9), glxosd-data(>= 3.2.0)
+Recommends: libsensors4 [i386], libglu1-mesa
 Description: Overlay that displays FPS and CPU/GPU temperature in OpenGL applications.
  GLXOSD is an extensible on-screen display (OSD)/overlay for OpenGL applications
  running on Linux with X11 which aims to provide similar functionality to MSI
