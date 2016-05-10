@@ -271,9 +271,9 @@ void *dlvsym(void *handle, const char *name, const char *ver) {
  * the proxy function.
  */
 void* glinject_get_function_override(const char* name) {
-#define GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(name) \
-	if (strcmp(#name, name) == 0) {\
-		return &name;\
+#define GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(sym) \
+	if (strcmp(#sym, name) == 0) {\
+		return &sym;\
 	}
 	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XPending);
 	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XNextEvent);
