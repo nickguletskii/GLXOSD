@@ -37,7 +37,7 @@ require("ffi/freetype-gl")
 require("ffi/clock")
 require("ffi/ffitypes")
 --Dynamically load third party libraries
-_G["gl"] = ffi.load(CURRENT_PATH_CONFIG.libGL, false)
+_G["gl"] = ffi.load(CURRENT_PATH_CONFIG.libGL, true)
 _G["freetype_gl"] = ffi.load(CURRENT_PATH_CONFIG.libfreetype_gl,false);
 _G["fc"] = ffi.load(CURRENT_PATH_CONFIG.libfontconfig,false);
 
