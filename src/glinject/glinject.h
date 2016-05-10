@@ -10,6 +10,7 @@
 #ifndef GLINJECT_H_
 #define GLINJECT_H_
 
+#include <stdbool.h>
 #include <GL/glx.h>
 #include <X11/Xlib.h>
 
@@ -54,13 +55,10 @@ void glinject_init();
 void glinject_assert_symbol_loaded(void* symbol, const char* name);
 
 Bool glinject_check_if_event(Display* display, XEvent* event, XPointer pointer);
-
-void glinject_handle_x11_event(XEvent* event);
+bool glinject_handle_x11_event(XEvent* event);
 void glinject_handle_buffer_swap(Display* dpy, GLXDrawable drawable);
 void glinject_handle_drawable_destruction(Display* dpy, GLXDrawable drawable);
 void glinject_handle_context_destruction(Display* dpy, GLXContext context);
-void glinject_handle_x11_key_event(XKeyEvent* event);
-void glinject_handle_x11_configure_notify_event(XEvent* event);
 
 gl_function_provider_type glinject_get_real_glXGetProcAddress();
 void* glinject_get_function_override(const char* name);
@@ -69,6 +67,5 @@ void* glinject_get_function_override(const char* name);
  * Library initialisation/construction hooks
  */
 __attribute__((constructor)) void glinject_construct();
-__attribute__((destructor)) void glinject_destruct();
 
 #endif /* GLINJECT_H_ */

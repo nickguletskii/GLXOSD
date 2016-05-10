@@ -59,27 +59,36 @@ void glinject_lua_pushkeyeventmodifiers(lua_State* L, XKeyEvent *event) {
 /*
  * Handles X11 keyboard events.
  */
-void glinject_handle_x11_key_event(XKeyEvent* event) {
+bool glinject_handle_x11_key_event(XKeyEvent* event) {
 	KeySym ks = XLookupKeysym(event, 0);
 
-	lua_getglobal(L, "key_press_event"); /* function to be called */
+	lua_getglobal(L, "key_press_event");
 	if (!lua_isfunction(L, -1)) {
-		fprintf(stderr, "key_press is not a function!\n");
-		return;
+		fprintf(stderr, "key_press_event is not a function!\n");
+		return false;
 	}
 	lua_pushstring(L, XKeysymToString(ks)); // Push the name of the key as the first parameter
 	glinject_lua_pushkeyeventmodifiers(L, event); // Push a table of modifiers as the second parameter
 
-	if (lua_pcall(L, 2, 0, 0) != 0) {
+	if (lua_pcall(L, 2, 1, 0) != 0) {
 		fprintf(stderr, "error running function: %s\n", lua_tostring(L, -1));
 	}
+
+	if (!lua_isboolean(L, -1)) {
+		fprintf(stderr, "key_press_event must return a boolean\n");
+		lua_pop(L, 1);
+		return false;
+	}
+	bool res = lua_toboolean(L, -1);
+	lua_pop(L, 1);
+	return res;
 }
 /*
  * Handles X11 ConfigureNotify events. For instance, this is triggered
  * when a window is resized.
  */
 void glinject_handle_x11_configure_notify_event(XEvent* event) {
-	lua_getglobal(L, "configure_notify_event"); /* function to be called */
+	lua_getglobal(L, "configure_notify_event");
 	if (!lua_isfunction(L, -1)) {
 		fprintf(stderr, "configure_notify_event is not a function!\n");
 		return;
@@ -89,13 +98,13 @@ void glinject_handle_x11_configure_notify_event(XEvent* event) {
 	}
 }
 
-Bool glinject_check_if_event_internal(XEvent *event){
+bool glinject_check_if_event_internal(XEvent *event) {
 	if (event->type == ConfigureNotify) {
-		lua_getglobal(L, "should_consume_configure_notify_event"); /* function to be called */
+		lua_getglobal(L, "should_consume_configure_notify_event");
 		if (!lua_isfunction(L, -1)) {
 			fprintf(stderr,
 					"should_consume_configure_notify_event is not a function!\n");
-			return False;
+			return false;
 		}
 		if (lua_pcall(L, 0, 1, 0) != 0) {
 			fprintf(stderr, "error running function: %s\n",
@@ -104,17 +113,19 @@ Bool glinject_check_if_event_internal(XEvent *event){
 		if (!lua_isboolean(L, -1)) {
 			fprintf(stderr,
 					"should_consume_configure_notify_event must return a boolean\n");
+			lua_pop(L, 1);
+			return false;
 		}
-		Bool res = lua_toboolean(L, -1);
+		bool res = lua_toboolean(L, -1);
 		lua_pop(L, 1);
-		return res;
+		return false;
 	}
 	if (event->type == KeyPress) {
-		lua_getglobal(L, "should_consume_key_press_event"); /* function to be called */
+		lua_getglobal(L, "should_consume_key_press_event");
 		if (!lua_isfunction(L, -1)) {
 			fprintf(stderr,
 					"should_consume_key_press_event is not a function!\n");
-			return False;
+			return false;
 		}
 
 		KeySym ks = XLookupKeysym((XKeyEvent*) event, 0);
@@ -129,11 +140,11 @@ Bool glinject_check_if_event_internal(XEvent *event){
 			fprintf(stderr,
 					"should_consume_key_press_event must return a boolean\n");
 		}
-		Bool res = lua_toboolean(L, -1);
+		bool res = lua_toboolean(L, -1);
 		lua_pop(L, 1);
 		return res;
 	}
-	return False;
+	return false;
 }
 
 /*
@@ -149,20 +160,22 @@ Bool glinject_check_if_event(Display* display, XEvent* event, XPointer pointer) 
 /*
  * Handles an X11 event.
  */
-void glinject_handle_x11_event(XEvent* event) {
+bool glinject_handle_x11_event(XEvent* event) {
 	if (event == NULL)
-		return;
+		return false;
 
 	if (event->type == KeyPress) {
 		pthread_mutex_lock(&glinject_mutex);
-		glinject_handle_x11_key_event((XKeyEvent*) event);
+		bool result = glinject_handle_x11_key_event((XKeyEvent*) event);
 		pthread_mutex_unlock(&glinject_mutex);
+		return result;
 	}
 	if (event->type == ConfigureNotify) {
 		pthread_mutex_lock(&glinject_mutex);
 		glinject_handle_x11_configure_notify_event(event);
 		pthread_mutex_unlock(&glinject_mutex);
 	}
+	return false;
 }
 
 /*
@@ -176,7 +189,7 @@ void glinject_handle_x11_event(XEvent* event) {
  */
 void glinject_handle_buffer_swap(Display* dpy, GLXDrawable drawable) {
 	XEvent event;
-	XCheckIfEvent(dpy, &event, glinject_check_if_event, NULL);
+	while (XCheckIfEvent(dpy, &event, glinject_check_if_event, NULL));
 
 	pthread_mutex_lock(&glinject_mutex);
 	lua_getglobal(L, "handle_buffer_swap");
@@ -235,59 +248,7 @@ void glinject_handle_context_destruction(Display* dpy, GLXContext context) {
  * Method override helpers
  * ============================================================================
  */
-
-/*
- * Returns NULL if this function isn't overriden, or the function pointer to
- * the proxy function.
- */
-void* glinject_get_function_override(const char* name) {
-	if (strcmp("glXSwapBuffers", name) == 0) {
-		return &glXSwapBuffers;
-	}
-	if (strcmp("glXDestroyContext", name) == 0) {
-		return &glXDestroyContext;
-	}
-	if (strcmp("glXDestroyGLXPixmap", name) == 0) {
-		return &glXDestroyGLXPixmap;
-	}
-	if (strcmp("glXDestroyPixmap", name) == 0) {
-		return &glXDestroyPixmap;
-	}
-	if (strcmp("glXDestroyPbuffer", name) == 0) {
-		return &glXDestroyPbuffer;
-	}
-	if (strcmp("glXDestroyWindow", name) == 0) {
-		return &glXDestroyWindow;
-	}
-	if (strcmp("glXGetProcAddressARB", name) == 0) {
-		return &glXGetProcAddressARB;
-	}
-	if (strcmp("glXGetProcAddress", name) == 0) {
-		return &glXGetProcAddress;
-	}
-	if (strcmp("XIfEvent", name) == 0) {
-		return &XIfEvent;
-	}
-	if (strcmp("XCheckIfEvent", name) == 0) {
-		return &XCheckIfEvent;
-	}
-	if (strcmp("XMaskEvent", name) == 0) {
-		return &XMaskEvent;
-	}
-	if (strcmp("XNextEvent", name) == 0) {
-		return &XNextEvent;
-	}
-	if (strcmp("XWindowEvent", name) == 0) {
-		return &XWindowEvent;
-	}
-	if (strcmp("dlsym", name) == 0) {
-		return &dlsym;
-	}
-	if (strcmp("dlvsym", name) == 0) {
-		return &dlvsym;
-	}
-	return NULL ;
-}
+void* glinject_get_function_override(const char* name);
 
 void * dlsym(void *handle, const char *name) {
 	glinject_init();
@@ -304,6 +265,40 @@ void *dlvsym(void *handle, const char *name, const char *ver) {
 		return overload;
 	return glinject_real_dlvsym(handle, name, ver);
 }
+
+/*
+ * Returns NULL if this function isn't overriden, or the function pointer to
+ * the proxy function.
+ */
+void* glinject_get_function_override(const char* name) {
+#define GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(name) \
+	if (strcmp(#name, name) == 0) {\
+		return &name;\
+	}
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XPending);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XNextEvent);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XPeekEvent);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XWindowEvent);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XCheckWindowEvent);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XMaskEvent);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XCheckMaskEvent);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XCheckTypedEvent);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XCheckTypedWindowEvent);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XIfEvent);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XCheckIfEvent);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(XPeekIfEvent);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(glXGetProcAddressARB);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(glXGetProcAddress);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(glXSwapBuffers);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(glXDestroyContext);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(glXDestroyGLXPixmap);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(glXDestroyPixmap);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(glXDestroyPbuffer);
+	GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL(glXDestroyWindow);
+#undef GLINJECT_FUNCTION_OVERRIDE_CONDITIONAL
+	return NULL;
+}
+
 
 /*
  * Returns the real glXGetProcAddress.
@@ -465,10 +460,4 @@ void glinject_construct() {
 	free(main_path);
 	pthread_mutex_unlock(&glinject_mutex);
 
-}
-
-/*
- * Destruction
- */
-void glinject_destruct() {
 }

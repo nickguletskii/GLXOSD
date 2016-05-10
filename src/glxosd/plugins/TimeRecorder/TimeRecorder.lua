@@ -48,7 +48,7 @@ end
 function TimeRecorder:render(width, height)
 end
 
-function TimeRecorder:has_keyboard_combo(key, modifiers)
+function TimeRecorder:consumes_keyboard_combo(key, modifiers)
 	return check_key_combo(self.config.start_benchmark_key, key, modifiers)
 		or check_key_combo(self.config.end_benchmark_key, key, modifiers)
 end
@@ -84,8 +84,10 @@ function TimeRecorder:handle_key_combo(key, modifiers)
 		self:end_benchmark()
 	end
 end
+
 function TimeRecorder:destroy()
 end
+
 function TimeRecorder.new(config, shared_state)
 	local self ={}
 	setmetatable(self, TimeRecorder)

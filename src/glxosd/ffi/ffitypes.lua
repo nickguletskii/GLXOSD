@@ -56,6 +56,7 @@ ffi_types["const_int_ref"] = ffi.typeof("const int[1]")
 ffi_types["unsigned_int_ref"] = ffi.typeof("unsigned int[1]")
 ffi_types["FcChar8_ptr_ref"] = ffi.typeof("FcChar8 *[1]")
 ffi_types["const_FcChar8_ptr"] = ffi.typeof("FcChar8 *")
+ffi_types["unsigned_long_long"] = ffi.typeof("unsigned long long")
 ffi_types["unsigned_long_long_ref"] = ffi.typeof("unsigned long long[1]")
 
 ffi_types["char_array_from_string"] =function (str)
