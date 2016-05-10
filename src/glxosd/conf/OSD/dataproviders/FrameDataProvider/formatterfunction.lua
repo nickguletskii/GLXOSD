@@ -13,9 +13,9 @@ local DATA_WRITERS = {
 		end
 
 		table.insert_all(osd_document,
-			el.new({text="FPS: "}),
+			el.new({text=formattingutil.get_format(self, "fps", "FPS: ")}),
 			el.new({
-				text=string.format("%.2f",fps),
+				text=string.format(formattingutil.get_format(self, "fps_number", "%.2f"),fps),
 				color=fps_color
 			}),
 			el.newline
@@ -27,7 +27,7 @@ local DATA_WRITERS = {
 		table.insert_all(osd_document,
 			el.indent(offset),
 			el.new({
-				text=string.format("AFD: %.2f ms", average_frame_duration)
+				text=string.format(formattingutil.get_format(self, "average_frame_duration", "AFD: %.2f ms"), average_frame_duration)
 			}),
 			el.newline
 		)
@@ -38,7 +38,7 @@ local DATA_WRITERS = {
 		table.insert_all(osd_document,
 			el.indent(offset),
 			el.new({
-				text=string.format("OSDATSPF: %.2f ms", glxosd_impact)
+				text=string.format(formattingutil.get_format(self, "osd_averate_time_spent_per_frame","OSDATSPF: %.2f ms"), glxosd_impact)
 			}),
 			el.newline
 		)
@@ -47,17 +47,17 @@ local DATA_WRITERS = {
 return function(self, el)
 	-- If the header isn't enabled, don't add any indentation in each line.
 	local offset = self.config.header_style.enabled and 1 or 0
-	
-	local header  =
-		formattingutil.create_osd_section_header("Frame timings", self, el)
-	
+
+	local header =
+		formattingutil.create_osd_section_header(formattingutil.get_format(self, "header", "Frame timings"), self, el)
+
 	if not self.has_data then
 		return {
 			header,
 			header and el.newline,
 			el.indent(offset),
 			el.new({
-				text="Collecting frame data..."
+				text=formattingutil.get_format(self, "no_data", "Collecting frame data...")
 			}),
 			el.newline
 		}

@@ -5,7 +5,7 @@ return function(self, chips, el)
 	local offset = self.config.header_style.enabled and 1 or 0
 
 	local header  =
-		formattingutil.create_osd_section_header("Sensors", self, el)
+		formattingutil.create_osd_section_header(formattingutil.get_format(self, "header", "Sensors"), self, el)
 	local osd_document = {
 		header,
 		header and el.newline,

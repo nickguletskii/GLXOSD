@@ -73,7 +73,7 @@ function OSD:render(width, height)
 	self.text_renderer:render(width, height)
 end
 
-function OSD:has_keyboard_combo(key, modifiers)
+function OSD:consumes_keyboard_combo(key, modifiers)
 	return check_key_combo(self.config.toggle_key_combo, key, modifiers)
 end
 function OSD:handle_key_combo(key, modifiers)

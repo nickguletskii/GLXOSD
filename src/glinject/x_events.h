@@ -14,20 +14,6 @@
 typedef Bool (*XIfEvent_predicate_type)(Display* display, XEvent* event,
 		XPointer pointer);
 
-GLINJECT_DEFINE_REAL_SYMBOL(XCheckIfEvent, Bool,
-		(Display* display, XEvent* event, XIfEvent_predicate_type predicate, XPointer arg));
-
-GLINJECT_DEFINE_REAL_SYMBOL(XIfEvent, int,
-		(Display* display, XEvent* event, XIfEvent_predicate_type predicate, XPointer pointer));
-
-GLINJECT_DEFINE_REAL_SYMBOL(XMaskEvent, int,
-		(Display* display, long mask, XEvent* event));
-
-GLINJECT_DEFINE_REAL_SYMBOL(XNextEvent, int, (Display* display, XEvent* event));
-
-GLINJECT_DEFINE_REAL_SYMBOL(XWindowEvent, int,
-		(Display* display, Window window, long mask, XEvent* event));
-
 void glinject_load_x_event_real_symbols(const char* path);
 
 #endif

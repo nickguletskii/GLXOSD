@@ -54,7 +54,7 @@ local DATA_WRITERS = {
 		-- Write the temperature to the OSD.
 		table.insert_all(osd_document,
 			el.indent(offset+1),
-			el.new({text = "Temperature: "}),
+			el.new({text = formattingutil.get_format(self, "temperature", "Temperature: ")}),
 			el.new({
 				text=string.format("%d°",dev.temperature),
 				color=color_map[heat_status]
@@ -68,7 +68,7 @@ local DATA_WRITERS = {
 		then
 			table.insert_all(osd_document,
 				el.new({
-					text = "(thrtl)",
+					text = formattingutil.get_format(self, "throttled", "(thrtl)"),
 					color=self.config.slowdown_temperature_color
 				})
 			)
@@ -86,7 +86,7 @@ local DATA_WRITERS = {
 			table.insert_all(osd_document,
 				el.indent(offset+1),
 				el.new({
-					text = string.format("Graphics clock: %d",dev.clocks.graphics)
+					text = string.format(formattingutil.get_format(self, "graphics_clock", "Graphics clock: %d"),dev.clocks.graphics)
 				}),
 				el.newline
 			)
@@ -100,7 +100,7 @@ local DATA_WRITERS = {
 			table.insert_all(osd_document,
 				el.indent(offset+1),
 				el.new({
-					text = string.format("SM clock: %d", dev.clocks.sm)
+					text = string.format(formattingutil.get_format(self, "sm_clock", "SM clock: %d"), dev.clocks.sm)
 				}),
 				el.newline
 			)
@@ -111,7 +111,7 @@ local DATA_WRITERS = {
 			table.insert_all(osd_document,
 				el.indent(offset+1),
 				el.new({
-					text = string.format("Memory clock: %d", dev.clocks.memory)
+					text = string.format(formattingutil.get_format(self, "memory_clock", "Memory clock: %d"), dev.clocks.memory)
 				}),
 				el.newline
 			)
@@ -122,7 +122,7 @@ local DATA_WRITERS = {
 			table.insert_all(osd_document,
 				el.indent(offset+1),
 				el.new({
-					text = string.format("GPU utilisation: %d%%", dev.utilisation.gpu)
+					text = string.format(formattingutil.get_format(self, "gpu_utilisation", "GPU utilisation: %d%%"), dev.utilisation.gpu)
 				}),
 				el.newline
 			)
@@ -133,7 +133,7 @@ local DATA_WRITERS = {
 			table.insert_all(osd_document,
 				el.indent(offset+1),
 				el.new({
-					text = string.format("Memory utilisation: %d%%", dev.utilisation.memory)
+					text = string.format(formattingutil.get_format(self, "memory_utilisation", "Memory utilisation: %d%%"), dev.utilisation.memory)
 				}),
 				el.newline
 			)
@@ -144,15 +144,15 @@ local DATA_WRITERS = {
 return function(self, devices, el)
 	-- If the header isn't enabled, don't add any indentation in each line.
 	local offset = self.config.header_style.enabled and 1 or 0
-	
+
 	local header  =
-		formattingutil.create_osd_section_header("GPUs", self, el)
-	
+		formattingutil.create_osd_section_header(formattingutil.get_format(self, "header", "GPUs"), self, el)
+
 	local osd_document = {
 		header,
 		header and el.newline,
 	}
-	
+
 	for _, dev in pairs(devices) do
 		-- Write device name
 		table.insert_all(osd_document,
@@ -160,7 +160,7 @@ return function(self, devices, el)
 			el.new({text = dev.name}),
 			el.newline
 		)
-		
+
 		-- Write device data
 		for _, data_name in ipairs(self.config.data_order) do
 			DATA_WRITERS[data_name](self, offset, dev, osd_document, el)

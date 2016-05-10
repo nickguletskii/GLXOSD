@@ -42,17 +42,17 @@ local ffi = require("ffi")
 local Context = require("Context")
 
 local function identifyGLXContext(glXContext)
-	return tostring(ffi.cast(ffi_types.intptr_t, glXContext))
+	return tostring(ffi.cast(ffi_types.unsigned_long_long,(ffi.cast(ffi_types.intptr_t, glXContext))))
 end
 
 local _contexts = {}
 local function get_context(display, drawable, glContext)
+	glContext = identifyGLXContext(glContext);
 	if _contexts[glContext] == nil then
 		_contexts[glContext] = {}
 	end
 	if(_contexts[glContext][drawable] == nil) then
 		local context = Context.new()
-
 		local glx_info = {
 			width_ref = ffi_types.GLuint_ref(),
 			height_ref = ffi_types.GLuint_ref(),
@@ -108,6 +108,17 @@ local function for_each_context(func)
 	end
 end
 
+local function has_key_combo(key, modifiers)
+	for _, drawables in pairs(_contexts) do
+		for _, context in pairs(drawables) do
+			if context:consumes_keyboard_combo(key, modifiers) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
 function handle_buffer_swap(display, drawable)
 	if glxosd_configuration_error then
 		return
@@ -153,7 +164,6 @@ function handle_drawable_destruction(display, drawable)
 	collectgarbage()
 end
 
-
 function handle_context_destruction(display, glXContext)
 	if glxosd_configuration_error then
 		return
@@ -180,16 +190,12 @@ function should_consume_configure_notify_event()
 	end)
 	return false
 end
+
 function should_consume_key_press_event(key, modifiers)
 	if glxosd_configuration_error then
 		return false
 	end
-	for_each_context(function(context)
-		if context:has_keyboard_combo(key, modifiers) then
-			return true
-		end
-	end)
-	return false
+	return has_key_combo(key, modifiers)
 end
 
 function key_press_event(key, modifiers)
@@ -199,7 +205,9 @@ function key_press_event(key, modifiers)
 	for_each_context(function(context)
 		context:handle_key_combo(key, modifiers)
 	end)
+	return has_key_combo(key, modifiers)
 end
+
 function configure_notify_event(event)
 	if glxosd_configuration_error then
 		return

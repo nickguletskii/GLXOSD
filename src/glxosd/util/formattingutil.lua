@@ -19,7 +19,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]
 return {
-	create_osd_section_header = function (name,self,el)
+	create_osd_section_header = function(name, self, el)
 		if not self.config.header_style.enabled then
 			return nil
 		end
@@ -32,6 +32,11 @@ return {
 				color = self.config.header_style.underline.color
 			}
 		})
+	end,
+	get_format = function(self, name, default)
+		if not self.config.format or not self.config.format[name] then
+			return default
+		end
+		return self.config.format[name]
 	end
-
 }

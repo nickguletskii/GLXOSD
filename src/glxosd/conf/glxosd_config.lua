@@ -1,6 +1,14 @@
 --[[
 	The main configuration file for GLXOSD. This is a basic Lua script that sets
 	the GLXOSD_CONFIG global to the configuration to be used.
+	
+	It is preferable that you create a copy of this file in
+	$XDG_CONFIG_HOME/glxosd/ (or ~/.config/glxosd/ if $XDG_CONFIG_HOME isn't
+	set) because the global version may be replaced during an update.
+	
+	For full documentation, please see
+	
+	https://glxosd.nickguletskii.com/docs/config/
 
 	To customise paths, please see paths.lua.
 ]]
@@ -57,6 +65,54 @@ local DEFAULT_HEADER_CONFIG = {
 }
 
 --------------------------------------------------------------------------------
+-- SECTION Strings and formats for the default OSD data providers             --
+--------------------------------------------------------------------------------
+local FrameDataProvider_formats_short = {
+	header = "Frame timings",
+	fps = "FPS: ",
+	fps_number = "%.2f",
+	average_frame_duration = "AFD: %.2f ms",
+	osd_averate_time_spent_per_frame =
+	"OSDATSPF: %.2f ms",
+	no_data = "Collecting..."
+}
+
+local FrameDataProvider_formats_long = {
+	header = "Frame timings",
+	fps = "Frames Per Second: ",
+	fps_number = "%.2f",
+	average_frame_duration = "Average Frame Duration: %.2f ms",
+	osd_averate_time_spent_per_frame =
+	"Average time spent by OSD per frame: %.2f ms",
+	no_data = "Collecting frame data..."
+}
+
+local LibsensorsDataProvider_formats = {
+	header = "Sensors"
+}
+
+local NVMLDataProvider_formats_long = {
+	header = "NVIDIA GPUs",
+	temperature = "Temperature: ",
+	throttled = "(thrtl)",
+	graphics_clock = "Graphics clock: %d",
+	sm_clock = "SM clock: %d",
+	memory_clock = "Memory clock: %d",
+	gpu_utilisation = "GPU utilisation: %d%%",
+	memory_utilisation = "Memory utilisation: %d%%"
+}
+
+local NVMLDataProvider_formats_short = {
+	header = "GPUs",
+	temperature = "Temp: ",
+	throttled = "(thrtl)",
+	graphics_clock = "GPU clk: %d",
+	sm_clock = "SM clk: %d",
+	memory_clock = "Mem clk: %d",
+	gpu_utilisation = "GPU usg: %d%%",
+	memory_utilisation = "Mem usg: %d%%"
+}
+--------------------------------------------------------------------------------
 -- SECTION OSD configuration                                                  --
 --------------------------------------------------------------------------------
 --[[
@@ -65,8 +121,8 @@ local DEFAULT_HEADER_CONFIG = {
 local OSD_CONFIG = {
 	--[[
 		The time in milliseconds between OSD redraws. This is done to lower the
-        overhead because reuploading the text to the GPU every frame is
-        expensive.
+		overhead because reuploading the text to the GPU every frame is
+		expensive.
 	]]
 	refresh_time = 1000,
 
@@ -173,7 +229,8 @@ local OSD_CONFIG = {
 	background_color = COLORS_CONFIG.NONE,
 
 	--[[
-		The key combination to toggle the OSD visibility. Set to nil to disable.
+		The key combination that toggles the OSD visibility. Set to nil to
+		disable.
 	]]
 	toggle_key_combo = {
 		--[[
@@ -182,8 +239,11 @@ local OSD_CONFIG = {
 		main_key = "F10",
 
 		--[[
-			The list of modifier keys.
-			Possible values include: shift, alt, control, caps.
+			A list of modifier keys that have to be pressed when the main key is
+			pressed.
+			 
+			Possible values include: shift, alt, control, caps. Use an empty
+			list to make a key combo that doesn't require any modifier keys.
 		]]
 		modifiers = {"shift"}
 	},
@@ -209,7 +269,7 @@ local OSD_CONFIG = {
 				--[[
 					The FrameDataProvider provides the data from the last
 					complete chunk (timespan) of n milliseconds, where n is the
-                    value of refresh_time.
+					value of refresh_time.
 				]]
 				refresh_time = 3000,
 
@@ -224,9 +284,9 @@ local OSD_CONFIG = {
 				unacceptable_value_color = COLORS_CONFIG.BAD_VALUE,
 
 				--[[
-					The ordered set of the statistics to be displayed.
-					You can reorder or remove these to customise in what order
-                    and what statistics are displayed.
+					An ordered list of the statistics to be displayed. You can
+					reorder or remove these to customise in what order and what
+					statistics are displayed.
 				]]
 				data_order = {
 					-- Frames Per Second (over the last timespan).
@@ -251,7 +311,12 @@ local OSD_CONFIG = {
 				--[[
 					The style of the header of the section.
 				]]
-				header_style = DEFAULT_HEADER_CONFIG
+				header_style = DEFAULT_HEADER_CONFIG,
+				
+				--[[
+					The strings and formats for the this data provider.
+				]]
+				format = FrameDataProvider_formats_short
 			}
 		},
 		{
@@ -259,8 +324,8 @@ local OSD_CONFIG = {
 			enabled = true,
 			config = {
 				--[[
-					The function used to filter out chips that you don't want
-					to be displayed in the OSD.
+					The function used to filter out chips that you don't want to
+					be displayed in the OSD.
 
 					This function has two parameters:
 					* self - the instance of the data provider
@@ -338,7 +403,12 @@ local OSD_CONFIG = {
 				--[[
     				The style of the header of the section.
     			]]
-				header_style = DEFAULT_HEADER_CONFIG
+				header_style = DEFAULT_HEADER_CONFIG,
+				
+				--[[
+					The strings and formats for the this data provider.
+				]]
+				format = LibsensorsDataProvider_formats
 			}
 		},
 		{
@@ -393,7 +463,12 @@ local OSD_CONFIG = {
 				--[[
     				The style of the header of the section.
     			]]
-				header_style = DEFAULT_HEADER_CONFIG
+				header_style = DEFAULT_HEADER_CONFIG,
+				
+				--[[
+					The strings and formats for the this data provider.
+				]]
+				format = NVMLDataProvider_formats_long
 			}
 		}
 	}

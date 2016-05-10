@@ -52,14 +52,15 @@ function Context:render(width, height)
 	end)
 end
 
-function Context:has_keyboard_combo(key, modifiers)
+function Context:consumes_keyboard_combo(key, modifiers)
 	for _, plugin in ipairs(self.plugins) do
-		if plugin:has_keyboard_combo(key, modifiers) then
+		if plugin:consumes_keyboard_combo(key, modifiers) then
 			return true
 		end
 	end
 	return false
 end
+
 function Context:handle_key_combo(key, modifiers)
 	self:each_plugin(function(plugin)
 		plugin:handle_key_combo(key, modifiers)
