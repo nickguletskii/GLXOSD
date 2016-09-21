@@ -52,50 +52,7 @@ local function get_context(display, drawable, glContext)
 		_contexts[glContext] = {}
 	end
 	if(_contexts[glContext][drawable] == nil) then
-		local context = Context.new()
-		local glx_info = {
-			width_ref = ffi_types.GLuint_ref(),
-			height_ref = ffi_types.GLuint_ref(),
-			drawable = drawable,
-			display = display
-		}
-		function glx_info:update()
-			gl.glXQueryDrawable(
-				self.display,
-				self.drawable,
-				GLX_WIDTH,
-				self.width_ref)
-			gl.glXQueryDrawable(
-				self.display,
-				self.drawable,
-				GLX_HEIGHT,
-				self.height_ref)
-		end
-		function glx_info:width()
-			if self.width_ref[0] == 0 then
-				glx_info:update()
-			end
-			if self.width_ref[0] == 0 then
-				return 1
-			end
-			return self.width_ref[0]
-		end
-		function glx_info:height()
-			if self.height_ref[0] == 0 then
-				glx_info:update()
-			end
-			if self.height_ref[0] == 0 then
-				return 1
-			end
-			return self.height_ref[0]
-		end
-		function glx_info:invalidate()
-			self.width_ref[0] = 0
-			self.height_ref[0] = 0
-		end
-		context.glx_info = glx_info
-
-		_contexts[glContext][drawable] = context
+		_contexts[glContext][drawable] = Context.new()
 	end
 	return _contexts[glContext][drawable]
 end
@@ -129,25 +86,28 @@ function handle_buffer_swap(display, drawable)
 	context:begin_frame()
 
 	if context:should_render() then
-		local width = context.glx_info:width()
-		local height = context.glx_info:height()
-
 		local viewport = ffi_types.GLint_arr(4)
 		gl.glGetIntegerv(GL_VIEWPORT, viewport)
 
+		local width = ffi.cast(ffi_types.GLuint,viewport[2]);
+		local height = ffi.cast(ffi_types.GLuint,viewport[3]);
+
+
 		normalise.do_when_gl_state_is_normal(function()
-			context:render(width, height)
+			context:render(width,height)
 		end, context)
 
 		gl.glViewport(
 			ffi.cast(ffi_types.GLint,viewport[0]),
 			ffi.cast(ffi_types.GLint,viewport[1]),
-			ffi.cast(ffi_types.GLuint,viewport[2]),
-			ffi.cast(ffi_types.GLuint,viewport[3])
+			width,
+			height
 		)
 	end
 
 	context:end_frame()
+
+	skip_gl_error()
 end
 
 function handle_drawable_destruction(display, drawable)
@@ -185,9 +145,6 @@ function should_consume_configure_notify_event()
 	if glxosd_configuration_error then
 		return false
 	end
-	for_each_context(function(context)
-		context.glx_info:invalidate()
-	end)
 	return false
 end
 
@@ -209,10 +166,4 @@ function key_press_event(key, modifiers)
 end
 
 function configure_notify_event(event)
-	if glxosd_configuration_error then
-		return
-	end
-	for_each_context(function(context)
-		context.glx_info:invalidate()
-	end)
 end
