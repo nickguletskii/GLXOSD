@@ -57,4 +57,4 @@ export LD_PRELOAD="${GLXOSD_PRELOAD}:${STEAM_OVERLAY_LIBS}:libglxosd-glinject.so
 export GLXOSD_SCRIPTS_ROOT
 export GLXOSD_ADDITIONAL_CONFIG_LOCATION
 
-"$@"
+exec "$@"
