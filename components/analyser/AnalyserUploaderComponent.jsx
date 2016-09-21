@@ -1,6 +1,6 @@
 import React from "react";
+import ReactGA from 'react-ga'
 import classNames from "classnames";
-import ga from "analytics/index";
 import FileReaderProgressComponent from "components/analyser/FileReaderProgressComponent";
 
 class AnalyserUploaderComponent extends React.Component {
@@ -39,7 +39,7 @@ class AnalyserUploaderComponent extends React.Component {
 			.reader
 			.readAsText(this.state.selectedFile);
 		this.fileName = this.state.selectedFile.name;
-		ga.event({category: "Analyser", action: "Open clicked"});
+		ReactGA.event({category: "Analyser", action: "Open clicked"});
 	}
 
 	get getFileTypeDetermined() {
@@ -90,10 +90,10 @@ class AnalyserUploaderComponent extends React.Component {
 				<p>Old GLXOSD versions are not supported.</p>
 				<form className="form" disabled={this.state.opening}>
 					<fieldset className="form-group">
-						<label className="file">
-							<input type="file" id="filePicker" ref="filePicker" onChange={this.onSelect}/>
+						<label className="custom-file w-100">
+							<input type="file" id="filePicker" class="custom-file-input" ref="filePicker" onChange={this.onSelect}/>
 
-							<span className="file-custom-glxosd">
+							<span className="custom-file-control-glxosd">
 								{this.state.selectedFile
 									? this.state.selectedFile.name
 									: "Please select a frame log..."}

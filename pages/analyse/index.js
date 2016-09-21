@@ -1,5 +1,5 @@
 const React = require("react");
-if (process.env.STATIC_ENV) {
+if (typeof window === 'undefined') {
 	module.exports = () => (
 		<div>Please enable JavaScript to use the analyser.</div>
 	);

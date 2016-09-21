@@ -1,7 +1,7 @@
 import React from "react";
+import ReactGA from 'react-ga'
 import DocumentTitle from "react-document-title";
 import {config} from "config";
-import ga from "analytics/index";
 import AnalyserUploaderComponent from "components/analyser/AnalyserUploaderComponent";
 import TimeLogComponent from "components/analyser/TimeLogComponent";
 
@@ -25,7 +25,7 @@ class AnalyserView extends React.Component {
 				: "!!!EMPTY FILE!!!",
 			fileName
 		});
-		ga.event({category: "Analyser", action: "Log loaded"});
+		ReactGA.event({category: "Analyser", action: "Log loaded"});
 	}
 
 	render() {

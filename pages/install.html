@@ -90,10 +90,18 @@ ol
         p.
             Install the GLXOSD packages by running <code>apt-get install glxosd</code>. If you have a multiarch system, you should also install <code>glxosd-libs-i386</code> by running <code>apt-get install glxosd-libs-i386</code>.
 
+h2#fedora-copr Using Fedora Copr
+
+p.
+    There is an unofficial <a href="https://copr.fedorainfracloud.org/coprs/kparal/glxosd/">Fedora Copr repository</a> for GLXOSD maintained by <a href="https://github.com/kparal">Kamil Páral</a>.
+
+p.
+    <i>Please note that since this is an unofficial repository, it may not have the latest version GLXOSD. Before submitting a bug report in the main GLXOSD issue tracker, please check whether the issue has already been fixed.</i>
+
 h2#other-distros Other distributions
 
 p.
-    At the moment, there are no official packages for other distributions. If you would like to maintain GLXOSD packages for your favourite distribution, please consult the documentation.
+    At the moment, there are no officially approved packages for other distributions. If you would like to maintain GLXOSD packages for your favourite distribution, please consult the documentation and the documentation for installing from source.
 
 h2#source Compile from source
 
@@ -106,13 +114,48 @@ p.
 p.
     It is recommended that you use chroots to build GLXOSD. It is also recommended that you build both amd64 and i386 binaries because a lot of games are 32 bit applications. Since the instructions are distro-specific, the instructions for doing so can't be provided.
 
+p.
+    Since CMake is only aware of the paths for the architecture it is building binaries for, you will have to adjust the following CMake variables:
+
+table.table
+    thead.thead-inverse
+        tr
+            th Variable
+            th Value
+    tbody
+        tr
+            th.row
+                <code>INSTALLATION_SUFFIX_32</code>
+            td
+                p.
+                    A path to the directory where the i386 version of <code>glxosd/libglxosd-glinject.so</code> will be installed, relative to  CMAKE_INSTALL_PREFIX.    
+                p.
+                    For instance, if you are building on an i386 system, <code>CMAKE_INSTALL_PREFIX</code> is set to <code>/usr/local/</code>, and <code>CMAKE_INSTALL_LIBDIR</code> is set to <code>lib</code>, then the i386 shared library will be installed into <code>/usr/local/lib/glxosd/libglxosd-glinject.so</code>, and the appropriate <code>INSTALLATION_SUFFIX_32</code> is <code>lib</code>.
+                p.
+                    To demonstrate why <code>INSTALLATION_SUFFIX_32</code> is not always equal to <code>CMAKE_INSTALL_LIBDIR</code>, let us consider a multiarch system which installs i386 libraries into <code>lib</code> and amd64 libraries into <code>lib64</code>. Lets assume the i386 binaries needed for multiarch are already installed under <code>lib/glxosd/</code>. Then <code>INSTALLATION_SUFFIX_32</code> should be equal to <code>lib</code>, but <code>INSTALLATION_SUFFIX_64</code> and <code>CMAKE_INSTALL_LIBDIR</code> should be equal to <code>lib64</code>. This way, once the launcher is installed, it will be able to locate both i386 and amd64 binaries, allowing GLXOSD to be injected into both i386 and amd64 applications.
+                p.
+                    Default values: <code>/lib/i386-linux-gnu/</code> for Debian-based distributions, <code>/lib/</code> for other distributions.
+        tr
+            th.row
+                <code>INSTALLATION_SUFFIX_64</code>
+            td
+                p.
+                    A path to the directory where the amd64 version of <code>glxosd/libglxosd-glinject.so</code> will be installed, relative to  CMAKE_INSTALL_PREFIX.
+                p.
+                    For more information, please see the description of <code>INSTALLATION_SUFFIX_32</code>.
+                p.
+                    Default values: <code>/lib/x86_64-linux-gnu/</code> for Debian-based distributions, <code>/lib64/</code> for other distributions.
+
+p.
+    Here is a reference script for downloading and installing GLXOSD.
+
 pre.
     mkdir GLXOSD
     cd GLXOSD
     git clone -b v3 --recursive https://github.com/nickguletskii/GLXOSD source
     mkdir build
     cd build
-    cmake -G "Unix Makefiles" ../source
+    cmake -G "Unix Makefiles" ../source -DINSTALLATION_SUFFIX_32=/lib/ -DINSTALLATION_SUFFIX_64=/lib64/
     make all
     make install
 

@@ -1,13 +1,16 @@
+import ReactGA from 'react-ga'
+
 const webpack = require("webpack");
 exports.modifyWebpackConfig = function(config, env) {
 	config.plugin("define-static-env", webpack.DefinePlugin, [{
 		"process.env": {
-			STATIC_ENV: JSON.stringify(env==="static")
+			STATIC_ENV: (env === "static")
 		}
 	}]);
 	return config;
 };
 
-exports.onRouteChange = function(state, page, pages) {
-	require("analytics/index").pageview(state.pathname + (state.hash ? state.hash : ""));
+ReactGA.initialize("UA-46764899-1");
+exports.onRouteUpdate = function(state, page, pages) {
+	ReactGA.pageview(state.pathname + (state.hash ? state.hash : ""));
 };

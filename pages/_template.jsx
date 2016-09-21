@@ -19,7 +19,7 @@ class MainTemplate extends React.Component {
 		return (
 			<div>
 				<nav
-					className="navbar navbar-fixed-top navbar-light bg-faded navbar-dark bg-primary">
+					className="navbar navbar-light bg-faded navbar-dark bg-primary">
 					<Link className="navbar-brand" to={prefixLink("/")}>
 						GLXOSD
 					</Link>
