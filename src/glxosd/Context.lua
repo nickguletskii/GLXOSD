@@ -47,6 +47,12 @@ function Context:end_frame()
 end
 
 function Context:render(width, height)
+	if width == 0 then
+		width = 1
+	end
+	if height == 0 then
+		height = 1
+	end
 	self:each_plugin(function(plugin)
 		plugin:render(width, height)
 	end)

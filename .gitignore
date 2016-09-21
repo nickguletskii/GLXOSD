@@ -67,3 +67,6 @@ local.properties
 /glxosd
 /glxosd-amd64
 /glxosd-i386
+
+/third-party/glew-1.13.0/glew.pc
+/third-party/glew-1.13.0/glewmx.pc
