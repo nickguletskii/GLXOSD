@@ -98,7 +98,7 @@ local function chips()
 		local chipNameBuffer = ffi_types.char_arr(256);
 		local num = sens.sensors_snprintf_chip_name(chipNameBuffer, 256, chip);
 		local name = ffi.string(chipNameBuffer, num)
-		chips[chip[0].addr] = {
+		chips[chip_number[0]] = {
 			name=name,
 			features = features(chip)
 		}
