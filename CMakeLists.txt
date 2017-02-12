@@ -131,7 +131,7 @@ add_custom_command(
 IF(NOT ${SIGNING_KEY} STREQUAL "")
 	add_custom_target(sign_debs
 		COMMAND
-			debsign -k ${SIGNING_KEY} glxosd_${VERSION_STRING}_source.changes
+			debsign --re-sign -k ${SIGNING_KEY} glxosd_${VERSION_STRING}_source.changes
 		WORKING_DIRECTORY
 			${CMAKE_BINARY_DIR})
 

@@ -1,3 +1,29 @@
+glxosd (3.2.2-1+sid1) sid; urgency=low
+
+  * New upstream release, PPA upload for sid.
+
+ -- Nick Guletskii <nick@nickguletskii.com>  Sun, 12 Feb 2017 11:48:11 +0300
+
+glxosd (3.2.2-1) UNRELEASED; urgency=low
+
+  * Fix libsensors data not showing when there are multiple chips.
+  * Fix porability error by including platform.h in font-manager.h.
+
+ -- Nick Guletskii <nick@nickguletskii.com>  Sun, 12 Feb 2017 11:48:11 +0300
+
+glxosd (3.2.1-1+sid1) sid; urgency=low
+
+  * New upstream release, PPA upload for sid.
+
+ -- Nick Guletskii <nick@nickguletskii.com>  Wed, 21 Sep 2016 15:01:23 +0300
+
+glxosd (3.2.1-1) UNRELEASED; urgency=low
+
+  * Replace glXQueryContext with glGet GL_VIEWPORT to fix crashes.
+  * Use exec in launcher.
+
+ -- Nick Guletskii <nick@nickguletskii.com>  Wed, 21 Sep 2016 15:01:23 +0300
+
 glxosd (3.2.0-1+sid1) sid; urgency=low
 
   * New upstream release, PPA upload for sid.
