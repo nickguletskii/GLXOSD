@@ -90,13 +90,54 @@ ol
         p.
             Install the GLXOSD packages by running <code>apt-get install glxosd</code>. If you have a multiarch system, you should also install <code>glxosd-libs-i386</code> by running <code>apt-get install glxosd-libs-i386</code>.
 
+h2#opensuse-tumbleweed-amd64 OpenSUSE Tumbleweed (amd64)
+p.
+    GLXOSD is now included in the default OpenSUSE Tumbleweed repositories (thanks to <a href="https://github.com/XenonPK">XenonPK</a>).
+
+p.
+    To install GLXOSD <b>with multiarch</b> support, simply copy and paste the following line into the terminal (omit glxosd-nvidia-plugin if it isn't required):
+
+pre.
+    zypper install glxosd glxosd-32bit glxosd-nvidia-plugin
+
+p.
+    To install GLXOSD <b>without multiarch</b> support, simply copy and paste the following line into the terminal instead (omit glxosd-nvidia-plugin if it isn't required):
+
+pre.
+    zypper install glxosd glxosd-nvidia-plugin
+
+p.
+    <i>Please note that since this is a downstream repository, it may not have the latest version GLXOSD. Before submitting a bug report in the main GLXOSD issue tracker, please check whether the issue has already been fixed.</i>
+
+h2#opensuse-tumbleweed-i386 OpenSUSE Tumbleweed (i386)
+
+p.
+    GLXOSD is now included in the default OpenSUSE Tumbleweed repositories (thanks to <a href="https://github.com/XenonPK">XenonPK</a>).
+
+p.
+    To install GLXOSD, simply copy and paste the following line into the terminal:
+
+pre.
+    zypper install glxosd glxosd-nvidia-plugin
+
+p.
+    <i>Please note that since this is a downstream repository, it may not have the latest version GLXOSD. Before submitting a bug report in the main GLXOSD issue tracker, please check whether the issue has already been fixed.</i>
+
+h2#opensuse-others OpenSUSE (others)
+
+p.
+    GLXOSD is maintained in the games:tools project, so for OpenSUSE versions other than Tumbleweed you have to add the games:tools repository to your system. Please see <a href="https://software.opensuse.org/download.html?project=games%3Atools&package=glxosd">this page</a> for instructions on how to do that. After that, you can install GLXOSD using the instructions provided for Tumbleweed.
+
+p.
+    <i>Please note that since this is a downstream repository, it may not have the latest version GLXOSD. Before submitting a bug report in the main GLXOSD issue tracker, please check whether the issue has already been fixed.</i>
+
 h2#fedora-copr Using Fedora Copr
 
 p.
     There is an unofficial <a href="https://copr.fedorainfracloud.org/coprs/kparal/glxosd/">Fedora Copr repository</a> for GLXOSD maintained by <a href="https://github.com/kparal">Kamil Páral</a>.
 
 p.
-    <i>Please note that since this is an unofficial repository, it may not have the latest version GLXOSD. Before submitting a bug report in the main GLXOSD issue tracker, please check whether the issue has already been fixed.</i>
+    <i>Please note that since this is a downstream repository, it may not have the latest version GLXOSD. Before submitting a bug report in the main GLXOSD issue tracker, please check whether the issue has already been fixed.</i>
 
 h2#other-distros Other distributions
 

@@ -5,7 +5,7 @@ export default () => (
 			<hr/>
 			<div className="col-sm-6">
 				<p>
-					© 2013-2016 Nick Guletskii. All trademarks are property of their respective
+					© 2013-2017 Nick Guletskii. All trademarks are property of their respective
 					owners.
 				</p>
 			</div>
