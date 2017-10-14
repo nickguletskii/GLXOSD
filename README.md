@@ -1,6 +1,6 @@
 GLXOSD
 =============
-WARNING!: Unfortunately, GLXOSD has been discontinued. For more information, please see [#109](https://github.com/nickguletskii/GLXOSD/issues/109)
+**WARNING!:** Unfortunately, GLXOSD has been discontinued. For more information, please see [#109](https://github.com/nickguletskii/GLXOSD/issues/109)
 
 [Official website](https://glxosd.nickguletskii.com/)
 -------------
